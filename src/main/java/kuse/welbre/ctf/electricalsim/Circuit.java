@@ -11,6 +11,7 @@ import java.util.Set;
 public class Circuit implements Simulable {
     private final List<Element> elements = new ArrayList<>();
     private double[][] lu = null;
+    private double[][] inverse = null;
     /**
      * Hold the known values.
      */
@@ -164,7 +165,8 @@ public class Circuit implements Simulable {
             }
         }
 
-        lu = Tools.calculate_lu(G, nm);
+        //lu = Tools.calculate_lu(G, nm);
+        inverse = Tools.invert(G);
         z = Z;
         //todo remove when is done, this line above is only to debug reasons.
         DEBUG_G = G; DEBUG_X = X; DEBUG_Z = Z;
@@ -187,7 +189,7 @@ public class Circuit implements Simulable {
      * The resistor needs potential difference to calculate the current and the power.
      */
     private void reInjectFromCalculatedValues(){
-        double[] values = Tools.luMultiplayer(lu, z, lu.length);
+        double[] values = Tools.multiply(inverse, inverse.length, z);
         for (int i = 0; i < X.length; i++) {
             X[i][0] = values[i];
         }

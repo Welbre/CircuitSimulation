@@ -10,7 +10,7 @@ public class Main {
         printAllComponents(circuit);
     }
 
-    private static Circuit capacitorTest(){
+    public static Circuit capacitorTest(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
         Resistor r = new Resistor(100);
@@ -23,7 +23,7 @@ public class Main {
         return circuit;
     }
 
-    private static Circuit loadCase1(){
+    public static Circuit loadCase1(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(32);
         VoltageSource v1 = new VoltageSource(20);
@@ -33,15 +33,15 @@ public class Main {
 
         circuit.addElement(v0,v1,r1,r2,r3);
 
-        v0.connect(r2.getPinA(), r1.getPinA());
-        v1.connect(r2.getPinB(), null);
+        v0.connect(r2.getPinB(), r1.getPinA());
+        v1.connect(r2.getPinA(), null);
         r1.connectB(null);
-        r3.connect(r2.getPinA(), null);
+        r3.connect(null, r2.getPinB());
 
         return circuit;
     }
 
-    private static Circuit loadCase2(){
+    public static Circuit loadCase2(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(32);
         CurrentSource i0 = new CurrentSource(3);
@@ -63,7 +63,7 @@ public class Main {
         return circuit;
     }
 
-    private static Circuit loadCase3(){
+    public static Circuit loadCase3(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(40);
         CurrentSource i0 = new CurrentSource(1);
@@ -85,7 +85,7 @@ public class Main {
         return circuit;
     }
 
-    private static Circuit loadCase4(){
+    public static Circuit loadCase4(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(30);
         CurrentSource i0 = new CurrentSource(2);
@@ -109,7 +109,7 @@ public class Main {
     /**
      * <img src="doc-files/c6.png" />
      */
-    private static Circuit loadCase5(){
+    public static Circuit loadCase5(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
         VoltageSource v1 = new VoltageSource(15);
@@ -134,7 +134,7 @@ public class Main {
         return circuit;
     }
 
-    private static Circuit loadCase6(){
+    public static Circuit loadCase6(){
         Circuit circuit = new Circuit();
         CurrentSource i0 = new CurrentSource(0.01);
         CurrentSource i1 = new CurrentSource(0.01);
@@ -148,7 +148,7 @@ public class Main {
     }
 
 
-    private static void printCircuitMatrix(Circuit matrix){
+    public static void printCircuitMatrix(Circuit matrix){
         System.out.println("G matrix:");
         printMatrix(matrix.DEBUG_G);
         System.out.println("X matrix:");
@@ -157,7 +157,7 @@ public class Main {
         printMatrix(matrix.DEBUG_Z);
     }
 
-    private static void printMatrix(double[][] matrix){
+    public static void printMatrix(double[][] matrix){
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
@@ -168,7 +168,7 @@ public class Main {
         System.out.println(builder);
     }
 
-    private static void printMatrix(double[] matrix){
+    public static void printMatrix(double[] matrix){
         StringBuilder builder = new StringBuilder();
         for (double v : matrix) {
             builder.append(String.format("%.3f", v)).append("\n");
@@ -176,10 +176,12 @@ public class Main {
         System.out.println(builder);
     }
 
-    private static void printAllComponents(Circuit circuit){
+    public static void printAllComponents(Circuit circuit){
         System.out.println("List of all elements: ");
         for (Element element : circuit.getElements()) {
             System.out.println(element);
         }
     }
+
+
 }

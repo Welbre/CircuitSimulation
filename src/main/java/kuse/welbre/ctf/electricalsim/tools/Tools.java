@@ -65,6 +65,11 @@ public class Tools {
         return c;
     }
 
+    /**
+     * @see <a href="https://www.sanfoundry.com/java-program-find-inverse-matrix/#google_vignette">Sanfoundry</a>
+     * @param a
+     * @return
+     */
     public static double[][] invert(double[][] a)
     {
         int n = a.length;
@@ -101,8 +106,8 @@ public class Tools {
         return x;
     }
 
-// Method to carry out the partial-pivoting Gaussian
-// elimination.  Here index[] stores pivoting order.
+    // Method to carry out the partial-pivoting Gaussian
+    // elimination.  Here index[] stores pivoting order.
 
     public static void gaussian(double a[][], int index[])
     {
@@ -158,5 +163,4 @@ public class Tools {
             }
         }
     }
-}
 }
