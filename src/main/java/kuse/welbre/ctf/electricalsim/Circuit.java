@@ -10,7 +10,6 @@ import java.util.Set;
 
 public class Circuit implements Simulable {
     private final List<Element> elements = new ArrayList<>();
-    private double[][] lu = null;
     private double[][] inverse = null;
     /**
      * Hold the known values.

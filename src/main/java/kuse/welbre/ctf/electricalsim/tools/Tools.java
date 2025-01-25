@@ -1,56 +1,7 @@
 package kuse.welbre.ctf.electricalsim.tools;
 
 public class Tools {
-
-    public static double[][] calculate_lu(double[][] matrix, int n){
-        // decomposition of matrix
-        double[][] lu = new double[n][n];
-        double sum = 0;
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = i; j < n; j++)
-            {
-                sum = 0.0;
-                for (int k = 0; k < i; k++)
-                    sum += lu[i][k] * lu[k][j];
-                lu[i][j] = matrix[i][j] - sum;
-            }
-            for (int j = i + 1; j < n; j++)
-            {
-                sum = 0.0;
-                for (int k = 0; k < i; k++)
-                    sum += lu[j][k] * lu[k][i];
-                lu[j][i] = (1.0 / lu[i][i]) * (matrix[j][i] - sum);
-            }
-        }
-        return lu;
-    }
-
-    public static double[] luMultiplayer(double[][] lu, double[] rightPart, int n){
-        double sum;
-
-        // find solution of Ly = b
-        double[] y = new double[n];
-        for (int i = 0; i < n; i++) {
-            sum = 0;
-            for (int k = 0; k < i; k++) {
-                sum += lu[i][k] * y[k];
-            }
-            y[i] = rightPart[i] - sum;
-        }
-        // find a solution of Ux = y
-        double[] x = new double[n];
-        for (int i = n - 1; i >= 0; i--)
-        {
-            sum = 0.0;
-            for (int k = i + 1; k < n; k++)
-                sum += lu[i][k] * x[k];
-            x[i] = (1.0 / lu[i][i]) * (y[i] - sum);
-        }
-        return x;
-    }
-
-    public static double[] multiply(double a[][], int n, double b[]){
+    public static double[] multiply(double[][] a, int n, double[] b){
         double[] c = new double[n];
         double sum;
 
@@ -67,15 +18,13 @@ public class Tools {
 
     /**
      * @see <a href="https://www.sanfoundry.com/java-program-find-inverse-matrix/#google_vignette">Sanfoundry</a>
-     * @param a
-     * @return
      */
     public static double[][] invert(double[][] a)
     {
         int n = a.length;
-        double x[][] = new double[n][n];
-        double b[][] = new double[n][n];
-        int index[] = new int[n];
+        double[][] x = new double[n][n];
+        double[][] b = new double[n][n];
+        int[] index = new int[n];
         for (int i=0; i<n; ++i)
             b[i][i] = 1;
 
@@ -109,10 +58,10 @@ public class Tools {
     // Method to carry out the partial-pivoting Gaussian
     // elimination.  Here index[] stores pivoting order.
 
-    public static void gaussian(double a[][], int index[])
+    private static void gaussian(double[][] a, int[] index)
     {
         int n = index.length;
-        double c[] = new double[n];
+        double[] c = new double[n];
 
         // Initialize the index
         for (int i=0; i<n; ++i)

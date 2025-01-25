@@ -159,9 +159,9 @@ public class Main {
 
     public static void printMatrix(double[][] matrix){
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                builder.append(String.format("%.3f", matrix[i][j])).append("\t\t\t");
+        for (double[] doubles : matrix) {
+            for (double aDouble : doubles) {
+                builder.append(String.format("%.3f", aDouble)).append("\t\t\t");
             }
             builder.append("\n");
         }
