@@ -3,36 +3,38 @@ package kuse.welbre.ctf.electricalsim;
 import kuse.welbre.ctf.electricalsim.Element.Pin;
 import kuse.welbre.ctf.electricalsim.tools.Tools;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class Circuit implements Simulable {
+public class Circuit {
+    /** 5ms time step */
+    public static final double TIME_STEP = 0.005;
+
     private final List<Element> elements = new ArrayList<>();
+    private final List<Simulable> simulableElements = new ArrayList<>();
+
     private double[][] inverse = null;
     /**
      * Hold the known values.
      */
-    private double[] z = null;
+    private double[] Z = null;
     /**
      * This array storage 'n' nodes voltage pointers and 'm' current throw a voltage source.<br>
      * The array it's a double[n+m][1], each index represents a double pointer, so this allows passing a reference for each element
      * and modify only once.
      */
     private double[][] X = null;
-
-    public double[][] DEBUG_G;
-    public double[][] DEBUG_X;
-    public double[] DEBUG_Z;
+    private double[][] G = null;
 
     private boolean isDirt = true;
 
     @SafeVarargs
-    public final <T extends Element> void addElement(T... element) {
-        for (T ele : element)
-            if (!elements.contains(ele))
-                elements.add(ele);
+    public final <T extends Element> void addElement(T... elements) {
+        for (T element : elements)
+            if (!this.elements.contains(element)) {
+                this.elements.add(element);
+                if (element instanceof Simulable sim)
+                    simulableElements.add(sim);
+            }
     }
 
     /**
@@ -47,15 +49,17 @@ public class Circuit implements Simulable {
         public final List<VoltageSource> voltage_source;
         public final List<CurrentSource> current_sources;
         public final List<Resistor> resistors;
+        public final List<Capacitor> capacitors;
         public final Set<Pin> pins;
 
-        public AnalysesResult(Set<Pin> pins, List<VoltageSource> voltage_source, List<CurrentSource> current_sources, List<Resistor> resistors) {
+        public AnalysesResult(Set<Pin> pins, List<VoltageSource> voltage_source, List<CurrentSource> current_sources, List<Resistor> resistors, List<Capacitor> capacitors) {
             //removes the ground from the list, because it isn't having relevance in the matrix.
             pins.remove(null);
             this.nodes = pins.size();
             this.voltage_source = voltage_source;
             this.current_sources = current_sources;
             this.resistors = resistors;
+            this.capacitors = capacitors;
             this.pins = pins;
         }
     }
@@ -68,19 +72,22 @@ public class Circuit implements Simulable {
         List<VoltageSource> voltageSources = new ArrayList<>();
         List<CurrentSource> currentSources = new ArrayList<>();
         List<Resistor> resistors = new ArrayList<>();
+        List<Capacitor> capacitors = new ArrayList<>();
 
         for (Element element : elements) {
             pins.add(element.getPinA());
             pins.add(element.getPinB());
-            if (element instanceof VoltageSource vs)
-                voltageSources.add(vs);
-            if (element instanceof CurrentSource cs)
-                currentSources.add(cs);
-            if (element instanceof Resistor r)
-                resistors.add(r);
+            switch (element) {
+                case VoltageSource vs -> voltageSources.add(vs);
+                case CurrentSource cs -> currentSources.add(cs);
+                case Resistor r -> resistors.add(r);
+                case Capacitor cs -> capacitors.add(cs);
+                default -> {
+                }
+            }
         }
 
-        return new AnalysesResult(pins, voltageSources, currentSources, resistors);
+        return new AnalysesResult(pins, voltageSources, currentSources, resistors, capacitors);
     }
 
     /**
@@ -102,6 +109,57 @@ public class Circuit implements Simulable {
         }
     }
 
+    /**
+     * An aid to build the G matrix, uses null to connect the element to ground.
+     */
+    public static final class MatrixBuilder {
+        private final double[][] G;
+        private final double[] Z;
+
+        public MatrixBuilder(double[][] g, double[] z) {
+            G = g;
+            Z = z;
+        }
+
+        public void stampResistor(Pin a, Pin b, double conductance) {
+            if (a != null) {
+                G[a.address][a.address] += conductance;
+                if (b != null) {
+                    G[a.address][b.address] -= conductance;
+                    G[b.address][a.address] -= conductance;
+                }
+            }
+            if (b != null) {
+                G[b.address][b.address] += conductance;
+            }
+        }
+
+        public void stampVoltageSource(Pin a, Pin b, int nodes_length, double voltage){
+            if (a != null) {
+                G[a.address][nodes_length] = 1;
+                G[nodes_length][a.address] = 1;
+            }
+            if (b != null) {
+                G[b.address][nodes_length] = -1;
+                G[nodes_length][b.address] = -1;
+            }
+            Z[nodes_length] = voltage;
+        }
+
+        public void stampCurrentSource(Pin a, Pin b, double current){
+            //todo the current need's to add from a and subtracted from b, this is only a test to implement capacitors.
+            if (a != null)
+                Z[a.address] += current;
+            if (b != null)
+                Z[b.address] -= current;
+        }
+
+        public void stampCapacitor(Pin a, Pin b, double capacitance_per_tick, double current){
+            stampResistor(a, b, capacitance_per_tick);
+            stampCurrentSource(a, b, current);
+        }
+    }
+
     public void buildMatrix() {
         final AnalysesResult result = analyseNodesAndElements();
         final int nm = result.nodes + result.voltage_source.size();
@@ -110,36 +168,29 @@ public class Circuit implements Simulable {
         X = new double[nm][1];
         preparePinsAndSources(result);
 
-        //Stamp resistors in G matrix.
+        MatrixBuilder builder = new MatrixBuilder(G, Z);
+
+        //Stamp resistors
         for (Resistor r : result.resistors) {
-            Pin a = r.getPinA(); Pin b = r.getPinB();
-            final double g = r.getConductance();
-            if (a != null) {
-                G[a.address][a.address] += g;
-                if (b != null) {
-                    G[a.address][b.address] -= g;
-                    G[b.address][a.address] -= g;
-                }
-            }
-            if (b != null) {
-                G[b.address][b.address] += g;
-            }
+            builder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
         }
-        //Stamp the voltage sources in G matrix.
+        //Stamp the voltage sources.
         {
+            //Used to dislocate the numbers of nodes in circuit,
+            // so can directly stamp the matrix without using another matrix to help.
             int index = result.nodes;
             for (VoltageSource vs : result.voltage_source) {
-                Pin a = vs.getPinA(); Pin b = vs.getPinB();
-                if (a != null) {
-                    G[a.address][index] = 1;
-                    G[index][a.address] = 1;
-                }
-                if (b != null) {
-                    G[b.address][index] = -1;
-                    G[index][b.address] = -1;
-                }
-                index++;
+                builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), index++, vs.getVoltageDifference());
             }
+        }
+
+        //Stamp the current sources.
+        for (CurrentSource cs : result.current_sources) {
+            builder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+        }
+
+        for (Capacitor c : result.capacitors) {
+            builder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / TIME_STEP, c.getCurrent());
         }
 
         //D matrix will be implemented soon.
@@ -149,26 +200,39 @@ public class Circuit implements Simulable {
             }
         }
 
-        //Populate the Z matrix
-        {
-            for (CurrentSource cs : result.current_sources) {
-                Pin a = cs.getPinA(); Pin b = cs.getPinB();
-                if (a != null)
-                    Z[a.address] += cs.getCurrent();
-                if (b != null)
-                    Z[b.address] -= cs.getCurrent();
-            }
-            int index = result.nodes;
-            for (VoltageSource vs : result.voltage_source) {
-                Z[index++] = vs.getVoltageDifference();
-            }
-        }
+        this.G = G;
+        this.inverse = Tools.invert(Tools.deepCopy(G));
+        this.Z = Z;
+        solveInitialConditions(result, Tools.deepCopy(G), Tools.deepCopy(Z));
+    }
 
-        //lu = Tools.calculate_lu(G, nm);
-        inverse = Tools.invert(G);
-        z = Z;
-        //todo remove when is done, this line above is only to debug reasons.
-        DEBUG_G = G; DEBUG_X = X; DEBUG_Z = Z;
+    /**
+     * Due to the differential equations nature of the capacitors and inductors, we need to compute an additional step.<br>
+     * This extra step will calculate the initial values at (t = -1) to ensure the precision at t = 0.<br>
+     *  Ex: In an RC circuit, the expected initial current and voltage across the capacitor is ic = δ/R, U = 0.
+     * But without this method called before the simulation step, the current value will be wrongly computed
+     * because the initial voltage differential at t = -1 doesn't exist. Then this method ensures that the initial voltage across the capacitor in t = -1 will be 0.
+     */
+    private void solveInitialConditions(AnalysesResult result, double[][] g, double[] z){
+        //To a capacitor that we use the companion method to simulate it in the matrix,
+        // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
+        MatrixBuilder builder = new MatrixBuilder(g.clone(), z.clone());
+        for (Capacitor c : result.capacitors) {
+            //Set max conductance to simulate an open circuit.
+            builder.stampResistor(c.getPinA(), c.getPinB(), Double.MAX_VALUE);
+            //Current can't flow yet, so set to 0.
+            //builder.stampCurrentSource(c.getPinA(), c.getPinB(), 0);
+        }
+        double[][] inverted = Tools.invert(builder.G);
+        //Inject values in pointers.
+        double[] initial = Tools.multiply(inverted, inverted.length, builder.Z);
+        reInjectFromCalculatedValues(initial);
+
+        //At this point (t-1), the initial voltage and current states on nodes and voltage sources is available, and correctly computed.
+        for (Simulable simulable : simulableElements) {
+            //A non-time tick, so the elements can inject the initial values.
+            simulable.doInitialTick(this);
+        }
     }
 
     public void dirt() {
@@ -176,9 +240,9 @@ public class Circuit implements Simulable {
     }
 
     private void clean() {
-        if (!isDirt) return;
         checkInconsistencies();
         buildMatrix();
+        isDirt = false;
     }
 
     /**
@@ -187,21 +251,49 @@ public class Circuit implements Simulable {
      * The Current source needs the potential difference to calculate the power.
      * The resistor needs potential difference to calculate the current and the power.
      */
-    private void reInjectFromCalculatedValues(){
-        double[] values = Tools.multiply(inverse, inverse.length, z);
+    private void reInjectFromCalculatedValues(double[] values){
         for (int i = 0; i < X.length; i++) {
             X[i][0] = values[i];
         }
     }
 
-    @Override
+    public void preCompile(){
+        clean();
+    }
+
     public void tick(double dt) {
-        if (isDirt)
-            clean();
-        reInjectFromCalculatedValues();
+        for (Simulable element : simulableElements)
+            element.tick(TIME_STEP, this);
+        double[] values = Tools.multiply(inverse, inverse.length, Z);
+        reInjectFromCalculatedValues(values);
     }
 
     public Element[] getElements() {
         return elements.toArray(new Element[0]);
+    }
+
+    /**
+     * Get a clone of X matrix.
+     */
+    public double[][] getX() {
+        return X.clone();
+    }
+
+    /**
+     * Get a clone of Z matrix.
+     */
+    public double[] getZ() {
+        return Z.clone();
+    }
+
+    /**
+     * Get a clone of G matrix.
+     */
+    public double[][] getG() {
+        return G.clone();
+    }
+
+    public MatrixBuilder getMatrixBuilder(){
+        return new MatrixBuilder(G, Z);
     }
 }

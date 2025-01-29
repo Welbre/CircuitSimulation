@@ -27,11 +27,6 @@ public class VoltageSource extends Element {
     }
 
     @Override
-    public double getPower() {
-        return getVoltageDifference() * getCurrent();
-    }
-
-    @Override
     protected double getPropriety() {
         return voltage;
     }

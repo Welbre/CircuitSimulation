@@ -1,5 +1,7 @@
 package kuse.welbre.ctf.electricalsim.tools;
 
+import java.util.function.ToDoubleBiFunction;
+
 public class Tools {
     public static double[] multiply(double[][] a, int n, double[] b){
         double[] c = new double[n];
@@ -111,5 +113,23 @@ public class Tools {
                     a[index[i]][l] -= pj*a[index[j]][l];
             }
         }
+    }
+
+    public static double[] deepCopy(double[] original){
+        int n0 = original.length;
+        double[] copy = new double[n0];
+        System.arraycopy(original, 0, copy, 0, n0);
+
+        return copy;
+    }
+
+    public static double[][] deepCopy(double[][] original){
+        int n0 = original.length, n1 = original[0].length;
+        double[][] copy = new double[n0][n1];
+        for (int i = 0; i < n0; i++)
+            for (int j = 0; j < n1; j++)
+                copy[i][j] = original[i][j];
+
+        return copy;
     }
 }

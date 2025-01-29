@@ -74,8 +74,10 @@ public abstract class Element {
     public double getVoltageDifference(){
         double a = pinA == null ? 0 : pinA.P_voltage == null ? Double.NaN : pinA.P_voltage[0];
         double b = pinB == null ? 0 : pinB.P_voltage == null ? Double.NaN : pinB.P_voltage[0];
-        return b - a;
+        return a - b;
     }
     public abstract double getCurrent();
-    public abstract double getPower();
+    public double getPower() {
+        return getVoltageDifference() * getCurrent();
+    }
 }

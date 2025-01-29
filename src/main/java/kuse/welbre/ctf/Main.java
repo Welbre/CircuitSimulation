@@ -5,16 +5,26 @@ import kuse.welbre.ctf.electricalsim.*;
 public class Main {
     public static void main(String[] args) {
         Circuit circuit = capacitorTest();
-        circuit.tick(1);
-        printCircuitMatrix(circuit);
-        printAllComponents(circuit);
+        System.out.print("Time\t\tV0\t\tV1\t\tIf\n");
+
+        circuit.preCompile();
+        System.out.print(0 * Circuit.TIME_STEP * 1000 + "ms\t");
+        printX(circuit);
+        System.out.println();
+
+        for (int i = 0; i < 10; i++) {
+            System.out.print(i * Circuit.TIME_STEP * 1000 + "ms\t");
+            circuit.tick(1);
+            printX(circuit);
+            System.out.println();
+        }
     }
 
     public static Circuit capacitorTest(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
-        Resistor r = new Resistor(100);
-        Capacitor c = new Capacitor(0.001);
+        Resistor r = new Resistor(1);
+        Capacitor c = new Capacitor(0.01);
 
         circuit.addElement(v0,r,c);
         v0.connect(r.getPinA(),null);
@@ -150,11 +160,11 @@ public class Main {
 
     public static void printCircuitMatrix(Circuit matrix){
         System.out.println("G matrix:");
-        printMatrix(matrix.DEBUG_G);
+        printMatrix(matrix.getG());
         System.out.println("X matrix:");
-        printMatrix(matrix.DEBUG_X);
+        printMatrix(matrix.getX());
         System.out.println("Z matrix:");
-        printMatrix(matrix.DEBUG_Z);
+        printMatrix(matrix.getZ());
     }
 
     public static void printMatrix(double[][] matrix){
@@ -183,5 +193,9 @@ public class Main {
         }
     }
 
-
+    public static void printX(Circuit circuit) {
+        for (int i = 0; i < circuit.getX().length; i++) {
+            System.out.printf("%.3f\t",circuit.getX()[i][0]);
+        }
+    }
 }

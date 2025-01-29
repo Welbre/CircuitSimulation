@@ -17,6 +17,7 @@ class TestCircuit {
 
         for (int i = 0; i < circuits.length; i++) {
             Circuit circuit = circuits[i];
+            circuit.preCompile();
             circuit.tick(1);
 
             Element[] elements = circuit.getElements();
@@ -68,7 +69,7 @@ class TestCircuit {
     void testElement(Element element, double[] expected){
         assertTrue(equals(abs(element.getVoltageDifference()), abs(expected[0])), "Voltage is different!" + String.format(" expected %f, got %f.", abs(expected[0]), abs(element.getVoltageDifference())));
         assertTrue(equals(abs(element.getCurrent()), abs(expected[1])), "Current is different!" + String.format(" expected %f, got %f.", abs(expected[1]), abs(element.getCurrent())));
-        assertTrue(equals(element.getPower(), expected[2]), "Power is different!" + String.format(" expected %f, got %f.", expected[2], element.getPower()));
+        assertTrue(equals(abs(element.getPower()), abs(expected[2])), "Power is different!" + String.format(" expected %f, got %f.", abs(expected[2]), abs(element.getPower())));
     }
 
     boolean equals(double a, double b) {

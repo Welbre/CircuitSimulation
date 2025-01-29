@@ -37,11 +37,6 @@ public class Resistor extends Element {
     }
 
     @Override
-    public double getPower() {
-        return getVoltageDifference() * getCurrent();
-    }
-
-    @Override
     protected double getPropriety() {
         return resistance;
     }

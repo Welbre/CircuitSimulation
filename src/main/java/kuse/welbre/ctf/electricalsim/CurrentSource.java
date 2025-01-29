@@ -20,11 +20,6 @@ public class CurrentSource extends Element {
     }
 
     @Override
-    public double getPower() {
-        return getVoltageDifference() * getCurrent();
-    }
-
-    @Override
     protected double getPropriety() {
         return current;
     }
