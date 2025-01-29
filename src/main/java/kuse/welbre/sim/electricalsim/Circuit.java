@@ -147,7 +147,6 @@ public class Circuit {
         }
 
         public void stampCurrentSource(Pin a, Pin b, double current){
-            //todo the current need's to add from a and subtracted from b, this is only a test to implement capacitors.
             if (a != null)
                 Z[a.address] += current;
             if (b != null)
