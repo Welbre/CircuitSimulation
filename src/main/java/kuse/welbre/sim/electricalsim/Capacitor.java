@@ -1,4 +1,4 @@
-package kuse.welbre.ctf.electricalsim;
+package kuse.welbre.sim.electricalsim;
 
 public class Capacitor extends Element implements Simulable {
     private double capacitance;

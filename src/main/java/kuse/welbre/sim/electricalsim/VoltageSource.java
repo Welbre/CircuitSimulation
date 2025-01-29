@@ -1,4 +1,4 @@
-package kuse.welbre.ctf.electricalsim;
+package kuse.welbre.sim.electricalsim;
 
 public class VoltageSource extends Element {
     private double voltage;

@@ -1,10 +1,10 @@
-package kuse.welbre.ctf;
+package kuse.welbre.sim;
 
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
-import kuse.welbre.ctf.electricalsim.Circuit;
-import kuse.welbre.ctf.electricalsim.Element;
+import kuse.welbre.sim.electricalsim.Circuit;
+import kuse.welbre.sim.electricalsim.Element;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;

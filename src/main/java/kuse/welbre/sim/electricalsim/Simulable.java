@@ -1,4 +1,4 @@
-package kuse.welbre.ctf.electricalsim;
+package kuse.welbre.sim.electricalsim;
 
 public interface Simulable {
     void tick(double dt, Circuit circuit);

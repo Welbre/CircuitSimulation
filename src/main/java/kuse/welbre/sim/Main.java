@@ -1,6 +1,6 @@
-package kuse.welbre.ctf;
+package kuse.welbre.sim;
 
-import kuse.welbre.ctf.electricalsim.*;
+import kuse.welbre.sim.electricalsim.*;
 
 public class Main {
     public static void main(String[] args) {

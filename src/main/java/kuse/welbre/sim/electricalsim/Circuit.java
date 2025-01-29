@@ -1,7 +1,7 @@
-package kuse.welbre.ctf.electricalsim;
+package kuse.welbre.sim.electricalsim;
 
-import kuse.welbre.ctf.electricalsim.Element.Pin;
-import kuse.welbre.ctf.electricalsim.tools.Tools;
+import kuse.welbre.sim.electricalsim.Element.Pin;
+import kuse.welbre.sim.electricalsim.tools.Tools;
 
 import java.util.*;
 

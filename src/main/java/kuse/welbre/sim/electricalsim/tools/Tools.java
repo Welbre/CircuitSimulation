@@ -1,6 +1,4 @@
-package kuse.welbre.ctf.electricalsim.tools;
-
-import java.util.function.ToDoubleBiFunction;
+package kuse.welbre.sim.electricalsim.tools;
 
 public class Tools {
     public static double[] multiply(double[][] a, int n, double[] b){
