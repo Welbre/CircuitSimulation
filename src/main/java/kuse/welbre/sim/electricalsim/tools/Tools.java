@@ -158,9 +158,8 @@ public class Tools {
     public static String proprietyToSi(double value, final String unity, int precision){
         var abs = Math.abs(value);
         String prefix = ""; double mult = 1;
-        BigDecimal decimal = BigDecimal.valueOf(value).setScale(precision, RoundingMode.HALF_UP);
 
-        if (abs > 1E15) return String.format("%s%s%s", decimal.stripTrailingZeros(), prefix, unity);
+        if (abs > 1E15) return String.format("%s%s%s", BigDecimal.valueOf(value).setScale(precision, RoundingMode.HALF_UP).stripTrailingZeros(), prefix, unity);
         else if (abs > 1E12) {prefix = "T";mult = 1E-12;}
         else if (abs >= 1E9) {prefix = "G"; mult = 1E-9;}
         else if (abs >= 1E6) {prefix = "M"; mult = 1E-6;}
@@ -169,14 +168,8 @@ public class Tools {
         else if (abs >= 1E-3) {prefix = "m"; mult = 1E3;}
         else if (abs >= 1E-6) {prefix = "μ"; mult = 1E6;}
         else if (abs >= 1E-9) {prefix = "n"; mult = 1E9;}
-        else return String.format("%s%s%s", decimal.stripTrailingZeros(), prefix, unity);
+        else return String.format("%s%s%s", BigDecimal.valueOf(value).setScale(precision, RoundingMode.HALF_UP).stripTrailingZeros(), prefix, unity);
 
-        final double pow = Math.pow(10, precision);
-        double round = Math.round(value * mult * pow) / pow;
-        if ((((int) round)) == round)
-            return String.format("%d%s%s", (int) round, prefix, unity);
-        else {
-            return String.format(String.format("%%.%df%%s%%s", precision), round, prefix, unity);
-        }
+        return String.format("%s%s%s", BigDecimal.valueOf(value * mult).setScale(precision, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString(), prefix, unity);
     }
 }

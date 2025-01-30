@@ -11,7 +11,7 @@ class ToolsTest {
         assertEquals("10TW", Tools.proprietyToSi(9999E9, "W"));
         assertEquals("1.26GW", Tools.proprietyToSi(1.259E9, "W"));
         assertEquals("1.25MW", Tools.proprietyToSi(1254896.23, "W"));
-        assertEquals("10.50MW", Tools.proprietyToSi(10.5E6, "W"));
+        assertEquals("10.5MW", Tools.proprietyToSi(10.5E6, "W"));
 
         assertEquals("1.31kV", Tools.proprietyToSi(1313, "V"));
         assertEquals("1.31kV", Tools.proprietyToSi(1313.001, "V"));
