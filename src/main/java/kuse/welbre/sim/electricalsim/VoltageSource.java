@@ -1,8 +1,15 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
+
+import java.util.Random;
+
 public class VoltageSource extends Element {
     private double voltage;
     private double[] current;
+    /// This field represents the row of the Z matrix that then voltage source will set the voltage.
+    /// Starts will a random number, but will be assigned in {@link Circuit#preparePinsAndSources(CircuitAnalyser.Result, double[][]) preparePinsAndSources};
+    public short address = (short) new Random().nextInt();
 
     public VoltageSource() {
     }
@@ -16,14 +23,15 @@ public class VoltageSource extends Element {
         this.voltage = voltage;
     }
 
-    @Override
-    public double getVoltageDifference() {
+    public double getSourcesVoltage() {
         return voltage;
     }
 
     @Override
     public double getCurrent() {
-        return current == null ? Double.NaN : current[0];
+        if (current == null)
+            throw new IllegalStateException("Try to get a current in a voltage source that doesn't be initiated!");
+        return current[0];
     }
 
     @Override

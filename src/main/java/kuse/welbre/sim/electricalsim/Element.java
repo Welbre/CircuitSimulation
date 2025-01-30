@@ -72,8 +72,19 @@ public abstract class Element {
     }
 
     public double getVoltageDifference(){
-        double a = pinA == null ? 0 : pinA.P_voltage == null ? Double.NaN : pinA.P_voltage[0];
-        double b = pinB == null ? 0 : pinB.P_voltage == null ? Double.NaN : pinB.P_voltage[0];
+        double a = 0, b = 0;
+        if (pinA != null)
+            if (pinA.P_voltage == null)
+                throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
+            else
+                a = pinA.P_voltage[0];
+
+        if (pinB != null)
+            if (pinB.P_voltage == null)
+                throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
+            else
+                b = pinB.P_voltage[0];
+
         return a - b;
     }
     public abstract double getCurrent();

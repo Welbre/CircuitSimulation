@@ -36,6 +36,8 @@ class CircuitTest {
     }
 
     public static void testElements(Element[] elements,double[][] answers, Consumer<Element> ifFails){
+        if (elements.length != answers.length)
+            throw new RuntimeException("Fail in test, the number of elements and answers is different!");
         for (int i = 0; i < elements.length; i++) {
             Element element = elements[i];
             try {
