@@ -27,6 +27,11 @@ public class Capacitor extends Element implements Simulable {
     }
 
     @Override
+    protected String getProprietySymbol() {
+        return "F";
+    }
+
+    @Override
     public double getCurrent() {
         return (getVoltageDifference() - lastVoltage) * compConductance;
     }

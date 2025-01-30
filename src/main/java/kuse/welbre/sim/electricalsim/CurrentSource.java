@@ -23,4 +23,9 @@ public class CurrentSource extends Element {
     protected double getPropriety() {
         return current;
     }
+
+    @Override
+    protected String getProprietySymbol() {
+        return "A";
+    }
 }

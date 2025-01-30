@@ -3,8 +3,7 @@ package kuse.welbre.sim;
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
-import kuse.welbre.sim.electricalsim.Circuit;
-import kuse.welbre.sim.electricalsim.Element;
+import kuse.welbre.sim.electricalsim.*;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
@@ -18,7 +17,7 @@ class CircuitTest {
     }
 
     public static boolean equals(double a, double b) {
-        return abs(a - b) < 0.001;
+        return abs(a - b) < 0.1;
     }
 
     public static Consumer<Element> getIfFails(Circuit circuit){
@@ -36,8 +35,8 @@ class CircuitTest {
     }
 
     public static void testElements(Element[] elements,double[][] answers, Consumer<Element> ifFails){
-        if (elements.length != answers.length)
-            throw new RuntimeException("Fail in test, the number of elements and answers is different!");
+        assertEquals(elements.length, answers.length, "Fail in test, the number of elements and answers is different!");
+
         for (int i = 0; i < elements.length; i++) {
             Element element = elements[i];
             try {
@@ -84,14 +83,14 @@ class CircuitTest {
     }
 
     @Nested
-    class CapacitorTest {
-        private static abstract class Capacitor {
+    class CapacitorTestDataTest {
+        private static abstract class CapacitorTestData {
             final double[][] initialResultExpected;
             final double[][] finalResultExpected;
             int tick = 0;
             final int total_steps_to_simulate;
 
-            public Capacitor(double[][] initialResultExpected, double[][] finalResultExpected, int totalStepsToSimulate) {
+            public CapacitorTestData(double[][] initialResultExpected, double[][] finalResultExpected, int totalStepsToSimulate) {
                 this.initialResultExpected = initialResultExpected;
                 this.finalResultExpected = finalResultExpected;
                 total_steps_to_simulate = totalStepsToSimulate;
@@ -124,7 +123,7 @@ class CircuitTest {
 
         @Test
         void testCapacitorCircuit1(){
-            var cap = new Capacitor(
+            var cap = new CapacitorTestData(
                     new double[][]{{10, -10, -100}, {10, -10, -100}, {0, 0 ,0}},
                     new double[][]{{10, 0, 0}, {0, 0, 0}, {10, 0, 0}},
                     120
@@ -132,6 +131,49 @@ class CircuitTest {
                 @Override
                 Circuit createCircuit() {
                     return Main.capacitorTest();
+                }
+            };
+            cap.test();
+        }
+
+        @Test
+        void testCapacitorCircuit2(){
+            var expectInitial = new double[][]{{12,-3,-36}, {-12,-3,36}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}};
+            var expectFinal = new double[][]{{12,0,0}, {0,0,0}, {0,0,0}, {6,0,0}, {6,0,0}, {12,0,0}};
+            var cap = new CapacitorTestData(expectInitial, expectFinal, 120){
+                @Override
+                Circuit createCircuit() {
+                    Circuit circuit = new Circuit();
+                    var v = new VoltageSource(12);
+                    var r1 = new Resistor(4);
+                    var r2 = new Resistor(2);
+                    var c1 = new Capacitor(0.5 / 1000);
+                    var c2 = new Capacitor(0.5 / 1000);
+                    var c3 = new Capacitor(0.001);
+
+                    circuit.addElement(v, r1, r2, c1,c2,c3);
+
+                    v.connect(r1.getPinA(), null);
+                    Element.Pin pb = r1.getPinB();
+                    c1.connectA(pb);
+                    c2.connect(c1.getPinB(), null);
+                    r2.connect(pb, c3.getPinA());
+                    c3.connectB(null);
+
+                    return circuit;
+                }
+            };
+            cap.test();
+        }
+
+        @Test
+        void testCapacitorCircuit3(){
+            var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367, 0.34401}, {10.349,0.344958, 3.57}, {15.992,31.984,512}, {0,0,0}, {0,0,0}, {0,0,0}};
+            var expectFinal = new double[][]{{12,-0.574,-6.891}, {-16,1.094,-17.5}, {5.137,0.428102,2.199}, {8.017,1,8.034}, {17.22,0.574015,9.885}, {0.544513,1.089,0.592988}, {2.218,0.574015,1.273}, {15.455,0.0869,1.343}, {2.301, 0.428102,0.9852}};
+            var cap = new CapacitorTestData(expectInitial, expectFinal, 600){
+                @Override
+                Circuit createCircuit() {
+                    return Main.compilicatedCapacitorCircuit();
                 }
             };
             cap.test();

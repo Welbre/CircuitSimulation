@@ -29,7 +29,16 @@ public class Tools {
             b[i][i] = 1;
 
         // Transform the matrix into an upper triangle
-        gaussian(a, index);
+        final int swaps  = gaussian(a, index);
+        // Calculate determinant
+        double determinant = 1.0;
+        for (int i = 0; i < n; i++) {
+            determinant *= a[index[i]][i];
+        }
+        determinant *= (swaps % 2 == 0) ? 1 : -1;
+        //Check if the matrix is invertible
+        if (determinant == 0 || !Double.isFinite(determinant))
+            throw new IllegalStateException("Matrix determinant("+ determinant + ") invalid!, some fault happen in stamp process.");
 
         // Update the matrix b[i][j] with the ratios stored
         for (int i=0; i<n-1; ++i)
@@ -57,11 +66,10 @@ public class Tools {
 
     // Method to carry out the partial-pivoting Gaussian
     // elimination.  Here index[] stores pivoting order.
-
-    private static void gaussian(double[][] a, int[] index)
-    {
+    private static int gaussian(double[][] a, int[] index) {
         int n = index.length;
         double[] c = new double[n];
+        int swaps = 0;
 
         // Initialize the index
         for (int i=0; i<n; ++i)
@@ -95,6 +103,13 @@ public class Tools {
                 }
             }
 
+            if (k != j) { // Row swap
+                int itmp = index[j];
+                index[j] = index[k];
+                index[k] = itmp;
+                swaps++;
+            }
+
             // Interchange rows according to the pivoting order
             int itmp = index[j];
             index[j] = index[k];
@@ -111,6 +126,8 @@ public class Tools {
                     a[index[i]][l] -= pj*a[index[j]][l];
             }
         }
+
+        return swaps;
     }
 
     public static double[] deepCopy(double[] original){
@@ -129,5 +146,30 @@ public class Tools {
                 copy[i][j] = original[i][j];
 
         return copy;
+    }
+
+    public static String proprietyToSi(double value, final String unity) {
+        return proprietyToSi(value, unity, 2);
+    }
+
+    public static String proprietyToSi(double value, final String unity, int precision){
+        var abs = Math.abs(value);
+        String prefix = ""; double mult = 1;
+        if (abs > 1E12) {prefix = "T";mult = 1E-12;}
+        else if (abs >= 1E9) {prefix = "G"; mult = 1E-9;}
+        else if (abs >= 1E6) {prefix = "M"; mult = 1E-6;}
+        else if (abs >= 1E3) {prefix = "k"; mult = 1E-3;}
+        else if (abs < 1E3 && abs > 10E-3) {prefix = "";}
+        else if (abs >= 1E-3) {prefix = "m"; mult = 1E3;}
+        else if (abs >= 1E-6) {prefix = "μ"; mult = 1E6;}
+        else if (abs >= 1E-9) {prefix = "n"; mult = 1E9;}
+        else if (abs >= 1E-12) {prefix = "p"; mult = 1E12;}
+
+        final double pow = Math.pow(10, precision);
+        double round = Math.round(value * mult * pow) / pow;
+        if ((((int) round)) == round)
+            return String.format("%d%s%s", (int) round, prefix, unity);
+        else
+            return String.format(String.format("%%.%df%%s%%s", precision), round, prefix, unity);
     }
 }

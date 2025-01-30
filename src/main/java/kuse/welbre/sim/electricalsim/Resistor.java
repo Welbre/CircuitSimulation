@@ -40,4 +40,9 @@ public class Resistor extends Element {
     protected double getPropriety() {
         return resistance;
     }
+
+    @Override
+    protected String getProprietySymbol() {
+        return "Ω";
+    }
 }

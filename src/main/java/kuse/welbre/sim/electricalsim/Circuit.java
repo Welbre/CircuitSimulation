@@ -8,8 +8,10 @@ import kuse.welbre.sim.electricalsim.tools.Tools;
 import java.util.*;
 
 public class Circuit {
-    /** 5ms time step */
+    /// 5ms time step
     public static final double TIME_STEP = 0.005;
+    /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
+    public static final double MAX_CONDUCTANCE = 1E10;
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
@@ -111,8 +113,8 @@ public class Circuit {
         //To a capacitor that we use the companion method to simulate it in the matrix,
         // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
         for (Capacitor c : result.capacitors) {
-            //Set max conductance to simulate an open circuit.
-            builder.stampResistor(c.getPinA(), c.getPinB(), Double.MAX_VALUE);
+            //Set high conductance to simulate an open circuit.
+            builder.stampResistor(c.getPinA(), c.getPinB(), Circuit.MAX_CONDUCTANCE);
             //Current can't flow yet, so set to 0.
             //builder.stampCurrentSource(c.getPinA(), c.getPinB(), 0);
         }

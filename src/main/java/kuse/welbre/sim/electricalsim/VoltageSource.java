@@ -39,6 +39,11 @@ public class VoltageSource extends Element {
         return voltage;
     }
 
+    @Override
+    protected String getProprietySymbol() {
+        return "V";
+    }
+
     public void setCurrentPointer(double[] pointer) {
         current = pointer;
     }

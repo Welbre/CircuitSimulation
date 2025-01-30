@@ -4,20 +4,7 @@ import kuse.welbre.sim.electricalsim.*;
 
 public class Main {
     public static void main(String[] args) {
-        Circuit circuit = capacitorTest();
-        System.out.print("Time\t\tV0\t\tV1\t\tIf\n");
 
-        circuit.preCompile();
-        System.out.print(0 * Circuit.TIME_STEP * 1000 + "ms\t");
-        printX(circuit);
-        System.out.printf("%s\n", circuit.getElements()[2]);
-
-        for (int i = 0; i < 45; i++) {
-            System.out.printf("%.1fms\t", i * Circuit.TIME_STEP * 1000);
-            circuit.tick(1);
-            printX(circuit);
-            System.out.printf("%s\n", circuit.getElements()[2]);
-        }
     }
 
     public static Circuit capacitorTest(){
@@ -29,6 +16,35 @@ public class Main {
         circuit.addElement(v0,r,c);
         v0.connect(r.getPinA(),null);
         c.connect(r.getPinB(),null);
+
+        return circuit;
+    }
+
+    public static Circuit compilicatedCapacitorCircuit(){
+        Circuit circuit = new Circuit();
+        var v1 = new VoltageSource(12);
+        var v2 = new VoltageSource(-16);
+        var r1 = new Resistor(12);
+        var r2 = new Resistor(8);
+        var r3 = new Resistor(30);
+        var r4 = new Resistor(0.5);
+        var c1 = new Capacitor(0.750);
+        var c2 = new Capacitor(1);
+        var c3 = new Capacitor(0.5);
+
+        circuit.addElement(v1,v2,r1,r2,r3,r4,c1,c2,c3);
+
+        v1.connect(c1.getPinA(), r3.getPinA());
+        r3.connectB(null);
+        var r3b = r3.getPinB();
+        r1.connectB(r3b);
+        r2.connectA(r3b);
+        var r2b = r2.getPinB();
+        var c1b = c1.getPinB();
+        c3.connect(c1b, r1.getPinA());
+        c2.connect(c1b, r2b);
+        v2.connect(c1b, r4.getPinA());
+        r4.connectB(r2b);
 
         return circuit;
     }

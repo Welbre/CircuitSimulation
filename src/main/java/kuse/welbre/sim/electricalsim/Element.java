@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.Tools;
+
 import java.util.Random;
 
 public abstract class Element {
@@ -56,13 +58,14 @@ public abstract class Element {
      * Ex: A resistor returns the resistance, a Voltage source returns the voltage.
      */
     protected abstract double getPropriety();
+    protected abstract String getProprietySymbol();
 
     @Override
     public String toString() {
         return String.format(
-                "%s(%.2f)[%s,%s]: %.2fv, %.2fA, %.2fW",
+                "%s(%s)[%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
-                getPropriety(),
+                Tools.proprietyToSi(getPropriety(), getProprietySymbol(), 2),
                 pinA == null ? "gnd" : pinA.address+1,
                 pinB == null ? "gnd" : pinB.address+1,
                 getVoltageDifference(),
