@@ -3,6 +3,7 @@ package kuse.welbre.sim.electricalsim;
 public class Capacitor extends Element implements Simulable {
     private double capacitance;
     private double compConductance;
+    private double lastVoltage = 0;
 
     public Capacitor() {
     }
@@ -27,12 +28,13 @@ public class Capacitor extends Element implements Simulable {
 
     @Override
     public double getCurrent() {
-        return getVoltageDifference() * compConductance;
+        return (getVoltageDifference() - lastVoltage) * compConductance;
     }
 
     @Override
     public void tick(double dt, Circuit circuit) {
-        circuit.getMatrixBuilder().stampCurrentSource(this.getPinA(), this.getPinB(), getCurrent());
+        circuit.getMatrixBuilder().stampCurrentSource(this.getPinA(), this.getPinB(), getVoltageDifference() * compConductance);
+        lastVoltage = getVoltageDifference();
     }
 
     @Override

@@ -10,13 +10,13 @@ public class Main {
         circuit.preCompile();
         System.out.print(0 * Circuit.TIME_STEP * 1000 + "ms\t");
         printX(circuit);
-        System.out.println();
+        System.out.printf("%s\n", circuit.getElements()[2]);
 
-        for (int i = 0; i < 10; i++) {
-            System.out.print(i * Circuit.TIME_STEP * 1000 + "ms\t");
+        for (int i = 0; i < 45; i++) {
+            System.out.printf("%.1fms\t", i * Circuit.TIME_STEP * 1000);
             circuit.tick(1);
             printX(circuit);
-            System.out.println();
+            System.out.printf("%s\n", circuit.getElements()[2]);
         }
     }
 

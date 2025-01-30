@@ -14,6 +14,7 @@ public class Circuit {
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
 
+    private CircuitAnalyser.Result analyseResult;
     private MatrixBuilder matrixBuilder;
     /**
      * This array storage 'n' nodes voltage pointers and 'm' current throw a voltage source.<br>
@@ -64,7 +65,7 @@ public class Circuit {
     }
 
     public void buildMatrix() {
-        final CircuitAnalyser.Result result = CircuitAnalyser.analyseCircuit(this);
+        final var result = CircuitAnalyser.analyseCircuit(this);
         final int nm = result.nodes + result.voltage_source.size();
 
         final double[][] G = new double[nm][nm];
@@ -73,6 +74,7 @@ public class Circuit {
         preparePinsAndSources(result, X);
 
         matrixBuilder = new MatrixBuilder(G, Z);
+        analyseResult = result;
 
         //Stamp resistors
         for (Resistor r : result.resistors)
@@ -154,10 +156,20 @@ public class Circuit {
     }
 
     public void tick(double dt) {
-        for (Simulable element : simulableElements)
-            element.tick(TIME_STEP, this);
-        double[] values = matrixBuilder.getResult();
-        reInjectFromCalculatedValues(values);
+        if (isDirt)
+            clean();
+        else {
+            Arrays.fill(matrixBuilder.getZ(), 0);
+
+            for (var vs : analyseResult.voltage_source)
+                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getSourcesVoltage());
+            for (var cs : analyseResult.current_sources)
+                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+            for (Simulable element : simulableElements)
+                element.tick(TIME_STEP, this);
+            double[] values = matrixBuilder.getResult();
+            reInjectFromCalculatedValues(values);
+        }
     }
 
     public Element[] getElements() {

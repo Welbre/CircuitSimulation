@@ -35,6 +35,10 @@ public final class MatrixBuilder {
         }
     }
 
+    public void stampZMatrixVoltageSource(int nodes_length, double voltage){
+        Z[nodes_length] = voltage;
+    }
+
     public void stampVoltageSource(Element.Pin a, Element.Pin b, int nodes_length, double voltage){
         if (isClosed) throw new IllegalStateException("Try stamp a voltage source in a closed builder!");
         if (a != null) {
