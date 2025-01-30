@@ -1,5 +1,8 @@
 package kuse.welbre.sim.electricalsim.tools;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class Tools {
     public static double[] multiply(double[][] a, int n, double[] b){
         double[] c = new double[n];
@@ -155,21 +158,25 @@ public class Tools {
     public static String proprietyToSi(double value, final String unity, int precision){
         var abs = Math.abs(value);
         String prefix = ""; double mult = 1;
-        if (abs > 1E12) {prefix = "T";mult = 1E-12;}
+        BigDecimal decimal = BigDecimal.valueOf(value).setScale(precision, RoundingMode.HALF_UP);
+
+        if (abs > 1E15) return String.format("%s%s%s", decimal.stripTrailingZeros(), prefix, unity);
+        else if (abs > 1E12) {prefix = "T";mult = 1E-12;}
         else if (abs >= 1E9) {prefix = "G"; mult = 1E-9;}
         else if (abs >= 1E6) {prefix = "M"; mult = 1E-6;}
         else if (abs >= 1E3) {prefix = "k"; mult = 1E-3;}
-        else if (abs < 1E3 && abs > 10E-3) {prefix = "";}
+        else if (abs < 1E3 && abs >= 1) {prefix = "";}
         else if (abs >= 1E-3) {prefix = "m"; mult = 1E3;}
         else if (abs >= 1E-6) {prefix = "μ"; mult = 1E6;}
         else if (abs >= 1E-9) {prefix = "n"; mult = 1E9;}
-        else if (abs >= 1E-12) {prefix = "p"; mult = 1E12;}
+        else return String.format("%s%s%s", decimal.stripTrailingZeros(), prefix, unity);
 
         final double pow = Math.pow(10, precision);
         double round = Math.round(value * mult * pow) / pow;
         if ((((int) round)) == round)
             return String.format("%d%s%s", (int) round, prefix, unity);
-        else
+        else {
             return String.format(String.format("%%.%df%%s%%s", precision), round, prefix, unity);
+        }
     }
 }
