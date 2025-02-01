@@ -1,7 +1,9 @@
 package kuse.welbre.sim.electricalsim;
 
-public interface Simulable {
-    void tick(double dt, Circuit circuit);
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
-    void doInitialTick(Circuit circuit);
+public interface Simulable {
+    void tick(double dt, MatrixBuilder builder);
+
+    void doInitialTick(MatrixBuilder builder);
 }

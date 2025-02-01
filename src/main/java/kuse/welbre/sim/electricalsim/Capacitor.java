@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+
 public class Capacitor extends Element implements Simulable {
     private double capacitance;
     private double compConductance;
@@ -37,13 +39,13 @@ public class Capacitor extends Element implements Simulable {
     }
 
     @Override
-    public void tick(double dt, Circuit circuit) {
-        circuit.getMatrixBuilder().stampCurrentSource(this.getPinA(), this.getPinB(), getVoltageDifference() * compConductance);
+    public void tick(double dt, MatrixBuilder builder) {
+        builder.stampCurrentSource(this.getPinA(), this.getPinB(), getVoltageDifference() * compConductance);
         lastVoltage = getVoltageDifference();
     }
 
     @Override
-    public void doInitialTick(Circuit circuit) {
+    public void doInitialTick(MatrixBuilder builder) {
         compConductance = capacitance / Circuit.TIME_STEP;
     }
 }

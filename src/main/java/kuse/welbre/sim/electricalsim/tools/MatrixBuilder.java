@@ -1,6 +1,7 @@
 package kuse.welbre.sim.electricalsim.tools;
 
 import kuse.welbre.sim.electricalsim.Element;
+import org.apache.commons.math4.legacy.linear.MatrixUtils;
 
 /**
  * An aid to build the G matrix, uses null to connect the element to ground.
@@ -64,9 +65,16 @@ public final class MatrixBuilder {
         stampCurrentSource(a, b, current);
     }
 
+    public void stampInductor(Element.Pin a, Element.Pin b, double inductance_per_tick, double current){
+        stampResistor(a, b, inductance_per_tick);
+        stampCurrentSource(a, b, current);
+    }
+
     public void close(){
         if (isClosed) return;
-        inverse = Tools.invert(Tools.deepCopy(G));
+        //todo implement a better solver
+        //inverse = Tools.invert(Tools.deepCopy(G));
+        inverse =  MatrixUtils.inverse(MatrixUtils.createRealMatrix(Tools.deepCopy(G))).getData();
         isClosed = true;
     }
 

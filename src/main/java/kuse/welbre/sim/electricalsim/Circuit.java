@@ -90,6 +90,8 @@ public class Circuit {
         //Stamp the capacitors
         for (Capacitor c : result.capacitors)
             matrixBuilder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / TIME_STEP, c.getCurrent());
+        for (Inductor l : result.inductors)
+            matrixBuilder.stampInductor(l.getPinA(), l.getPinB(), l.getInductance() / TIME_STEP, 0);
 
         //D matrix will be implemented soon.
         for (int m0 = result.nodes; m0 < nm; m0++) {
@@ -122,12 +124,12 @@ public class Circuit {
         builder.close();
         //Inject values in pointers.
         double[] initial = builder.getResult();
-        reInjectFromCalculatedValues(initial);
+        injectValuesInX(initial);
 
         //At this point (t-1), the initial voltage and current states on nodes and voltage sources is available, and correctly computed.
         for (Simulable simulable : simulableElements) {
             //A non-time tick, so the elements can inject the initial values.
-            simulable.doInitialTick(this);
+            simulable.doInitialTick(this.getMatrixBuilder());
         }
     }
 
@@ -147,7 +149,7 @@ public class Circuit {
      * The Current source needs the potential difference to calculate the power.
      * The resistor needs potential difference to calculate the current and the power.
      */
-    private void reInjectFromCalculatedValues(double[] values){
+    private void injectValuesInX(double[] values){
         for (int i = 0; i < X.length; i++) {
             X[i][0] = values[i];
         }
@@ -168,9 +170,9 @@ public class Circuit {
             for (var cs : analyseResult.current_sources)
                 matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
             for (Simulable element : simulableElements)
-                element.tick(TIME_STEP, this);
+                element.tick(TIME_STEP, this.getMatrixBuilder());
             double[] values = matrixBuilder.getResult();
-            reInjectFromCalculatedValues(values);
+            injectValuesInX(values);
         }
     }
 

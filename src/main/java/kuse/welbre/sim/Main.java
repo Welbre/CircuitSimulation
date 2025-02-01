@@ -4,7 +4,16 @@ import kuse.welbre.sim.electricalsim.*;
 
 public class Main {
     public static void main(String[] args) {
+        Circuit circuit = getInductorResistanceCircuit();
+        circuit.preCompile();
 
+        printAllElements(circuit);
+        int i = 0;
+        while (i < 50) {
+            circuit.tick(Circuit.TIME_STEP);
+            System.out.println(circuit.getElements()[2]);
+            i++;
+        }
     }
 
     public static Circuit capacitorTest(){
@@ -45,6 +54,19 @@ public class Main {
         c2.connect(c1b, r2b);
         v2.connect(c1b, r4.getPinA());
         r4.connectB(r2b);
+
+        return circuit;
+    }
+
+    public static Circuit getInductorResistanceCircuit(){
+        Circuit circuit = new Circuit();
+        VoltageSource v0 = new VoltageSource(10);
+        Resistor r = new Resistor(1);
+        Inductor c = new Inductor(0.01);
+
+        circuit.addElement(v0,r,c);
+        v0.connect(r.getPinA(),null);
+        c.connect(r.getPinB(),null);
 
         return circuit;
     }
@@ -202,7 +224,7 @@ public class Main {
         System.out.println(builder);
     }
 
-    public static void printAllComponents(Circuit circuit){
+    public static void printAllElements(Circuit circuit){
         System.out.println("List of all elements: ");
         for (Element element : circuit.getElements()) {
             System.out.println(element);

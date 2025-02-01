@@ -14,9 +14,11 @@ public final class CircuitAnalyser {
         public final List<CurrentSource> current_sources;
         public final List<Resistor> resistors;
         public final List<Capacitor> capacitors;
+        public final List<Inductor> inductors;
         public final Set<Element.Pin> pins;
 
-        private Result(Set<Element.Pin> pins, List<VoltageSource> voltage_source, List<CurrentSource> current_sources, List<Resistor> resistors, List<Capacitor> capacitors) {
+        private Result(Set<Element.Pin> pins, List<VoltageSource> voltage_source, List<CurrentSource> current_sources, List<Resistor> resistors, List<Capacitor> capacitors, List<Inductor> inductors) {
+            this.inductors = inductors;
             //removes the ground from the list, because it isn't having relevance in the matrix.
             pins.remove(null);
             this.nodes = pins.size();
@@ -38,6 +40,7 @@ public final class CircuitAnalyser {
         List<CurrentSource> currentSources = new ArrayList<>();
         List<Resistor> resistors = new ArrayList<>();
         List<Capacitor> capacitors = new ArrayList<>();
+        List<Inductor> inductors = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
             pins.add(element.getPinA());
@@ -47,11 +50,12 @@ public final class CircuitAnalyser {
                 case CurrentSource cs -> currentSources.add(cs);
                 case Resistor r -> resistors.add(r);
                 case Capacitor cs -> capacitors.add(cs);
+                case Inductor i -> inductors.add(i);
                 default -> {
                 }
             }
         }
 
-        return new Result(pins, voltageSources, currentSources, resistors, capacitors);
+        return new Result(pins, voltageSources, currentSources, resistors, capacitors, inductors);
     }
 }
