@@ -83,13 +83,14 @@ public class Circuit {
             matrixBuilder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
         //Stamp the voltage sources.
         for (VoltageSource vs : result.voltage_source)
-            matrixBuilder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getSourcesVoltage());
+            matrixBuilder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
         //Stamp the current sources.
         for (CurrentSource cs : result.current_sources)
             matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
-        //Stamp the capacitors
+        //Stamp the capacitors.
         for (Capacitor c : result.capacitors)
             matrixBuilder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / TIME_STEP, c.getCurrent());
+        //Stamp inductors.
         for (Inductor l : result.inductors)
             matrixBuilder.stampInductor(l.getPinA(), l.getPinB(), l.getInductance() / TIME_STEP, 0);
 
@@ -115,23 +116,45 @@ public class Circuit {
         //To a capacitor that we use the companion method to simulate it in the matrix,
         // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
         for (Capacitor c : result.capacitors) {
-            //Set high conductance to simulate an open circuit.
+            //Set high conductance to simulate short closed circuit.
             builder.stampResistor(c.getPinA(), c.getPinB(), Circuit.MAX_CONDUCTANCE);
-            //Current can't flow yet, so set to 0.
-            //builder.stampCurrentSource(c.getPinA(), c.getPinB(), 0);
+        }
+        //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
+        for (var l : result.inductors)
+            builder.stampResistor(l.getPinA(), l.getPinB(), -l.getInductance() / Circuit.TIME_STEP);
+
+        //Start the time-dependent variables.
+        for (Simulable simulable : simulableElements) {
+            simulable.doInitialTick(this.getMatrixBuilder());
         }
 
         builder.close();
-        //Inject values in pointers.
+        //Calculate the values and inject in pointers.
         double[] initial = builder.getResult();
         injectValuesInX(initial);
+    }
 
-        //At this point (t-1), the initial voltage and current states on nodes and voltage sources is available, and correctly computed.
-        for (Simulable simulable : simulableElements) {
-            //A non-time tick, so the elements can inject the initial values.
-            simulable.doInitialTick(this.getMatrixBuilder());
+    public void tick(double dt) {
+        if (isDirt)
+            clean();
+        else {
+            Arrays.fill(matrixBuilder.getZ(), 0);
+
+            for (var vs : analyseResult.voltage_source)
+                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
+            for (var cs : analyseResult.current_sources)
+                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+            for (Simulable element : simulableElements)
+                element.tick(TIME_STEP, this.getMatrixBuilder());
+            double[] values = matrixBuilder.getResult();
+            injectValuesInX(values);
+
+            for (var e : getElements())
+                if (e instanceof Simulable s)
+                    s.posTick();
         }
     }
+
 
     public void dirt() {
         isDirt = true;
@@ -157,23 +180,6 @@ public class Circuit {
 
     public void preCompile(){
         clean();
-    }
-
-    public void tick(double dt) {
-        if (isDirt)
-            clean();
-        else {
-            Arrays.fill(matrixBuilder.getZ(), 0);
-
-            for (var vs : analyseResult.voltage_source)
-                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getSourcesVoltage());
-            for (var cs : analyseResult.current_sources)
-                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
-            for (Simulable element : simulableElements)
-                element.tick(TIME_STEP, this.getMatrixBuilder());
-            double[] values = matrixBuilder.getResult();
-            injectValuesInX(values);
-        }
     }
 
     public Element[] getElements() {

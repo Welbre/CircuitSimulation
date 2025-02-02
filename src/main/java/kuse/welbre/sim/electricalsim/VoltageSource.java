@@ -23,7 +23,8 @@ public class VoltageSource extends Element {
         this.voltage = voltage;
     }
 
-    public double getSourcesVoltage() {
+    @Override
+    public double getVoltageDifference() {
         return voltage;
     }
 

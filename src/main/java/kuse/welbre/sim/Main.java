@@ -1,6 +1,7 @@
 package kuse.welbre.sim;
 
 import kuse.welbre.sim.electricalsim.*;
+import java.io.PrintStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -196,16 +197,20 @@ public class Main {
     }
 
 
-    public static void printCircuitMatrix(Circuit matrix){
-        System.out.println("G matrix:");
-        printMatrix(matrix.getG());
-        System.out.println("X matrix:");
-        printMatrix(matrix.getX());
-        System.out.println("Z matrix:");
-        printMatrix(matrix.getZ());
+    public static void printCircuitMatrix(Circuit matrix, PrintStream stream){
+        stream.println("G matrix:");
+        printMatrix(matrix.getG(), stream);
+        stream.println("X matrix:");
+        printMatrix(matrix.getX(), stream);
+        stream.println("Z matrix:");
+        printMatrix(matrix.getZ(), stream);
     }
 
-    public static void printMatrix(double[][] matrix){
+    public static void printCircuitMatrix(Circuit matrix){
+        printCircuitMatrix(matrix, System.out);
+    }
+
+    public static void printMatrix(double[][] matrix, PrintStream stream){
         StringBuilder builder = new StringBuilder();
         for (double[] doubles : matrix) {
             for (double aDouble : doubles) {
@@ -213,27 +218,42 @@ public class Main {
             }
             builder.append("\n");
         }
-        System.out.println(builder);
+        stream.println(builder);
     }
 
-    public static void printMatrix(double[] matrix){
+    public static void printMatrix(double[][] matrix) {
+        printMatrix(matrix, System.out);
+    }
+
+    public static void printMatrix(double[] matrix, PrintStream stream){
         StringBuilder builder = new StringBuilder();
         for (double v : matrix) {
             builder.append(String.format("%.3f", v)).append("\n");
         }
-        System.out.println(builder);
+        stream.println(builder);
     }
 
-    public static void printAllElements(Circuit circuit){
-        System.out.println("List of all elements: ");
+    public static void printMatrix(double[] matrix) {
+        printMatrix(matrix, System.out);
+    }
+
+    public static void printAllElements(Circuit circuit, PrintStream stream) {
         for (Element element : circuit.getElements()) {
-            System.out.println(element);
+            stream.println(element);
+        }
+    }
+
+    public static void printAllElements(Circuit circuit) {
+        printAllElements(circuit, System.out);
+    }
+
+    public static void printX(Circuit circuit, PrintStream stream) {
+        for (int i = 0; i < circuit.getX().length; i++) {
+            stream.printf("%.3f\t",circuit.getX()[i][0]);
         }
     }
 
     public static void printX(Circuit circuit) {
-        for (int i = 0; i < circuit.getX().length; i++) {
-            System.out.printf("%.3f\t",circuit.getX()[i][0]);
-        }
+        printX(circuit, System.out);
     }
 }

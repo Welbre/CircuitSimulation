@@ -41,8 +41,30 @@ public class Capacitor extends Element implements Simulable {
     @Override
     public void tick(double dt, MatrixBuilder builder) {
         builder.stampCurrentSource(this.getPinA(), this.getPinB(), getVoltageDifference() * compConductance);
-        lastVoltage = getVoltageDifference();
+        this.lastVoltage = getVoltageDifference();
     }
+
+    @Override
+    public void posTick() {
+
+    }
+
+    /*
+    @Override
+    public double getCurrent() {
+        return (lastVoltage * compConductance);
+    }
+
+    @Override
+    public void tick(double dt, MatrixBuilder builder) {
+        builder.stampCurrentSource(this.getPinA(), this.getPinB(), (getVoltageDifference() - lastVoltage) * compConductance);
+    }
+
+    @Override
+    public void posTick() {
+        this.lastVoltage = getVoltageDifference();
+    }
+     */
 
     @Override
     public void doInitialTick(MatrixBuilder builder) {

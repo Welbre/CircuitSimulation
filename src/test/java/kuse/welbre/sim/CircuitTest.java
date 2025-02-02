@@ -4,11 +4,16 @@ import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import kuse.welbre.sim.electricalsim.*;
+import kuse.welbre.sim.electricalsim.tools.Tools;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.function.Consumer;
 
 class CircuitTest {
@@ -54,6 +59,8 @@ class CircuitTest {
         double[][] answers = getExpectedAnswers()[addr];
         circuit.preCompile();
         testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+        Main.printAllElements(circuit);
     }
 
     @Test
@@ -112,18 +119,31 @@ class CircuitTest {
                 Circuit circuit = createCircuit();
                 circuit.preCompile();
                 Element[] elements = circuit.getElements();
+
                 testElements(elements, initialResultExpected, getDynamicFails(circuit));
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                {
+                    PrintStream printStream = new PrintStream(stream);
+                    Main.printAllElements(circuit, printStream);
+                    printStream.print("\n------------------------------------------------------\n");
+                }
+
                 //Simulate
                 while (tick < this.total_steps_to_simulate) {
                     circuit.tick(Circuit.TIME_STEP);
                     this.tick++;
                 }
                 testElements(elements, finalResultExpected, getDynamicFails(circuit));
+                System.out.printf("Tick(%d)\t %s final result:\n", 0, Tools.proprietyToSi(0, "s"));
+                System.out.println(stream);
+                System.out.printf("Tick(%d)\t %s final result:\n", tick, Tools.proprietyToSi(tick*Circuit.TIME_STEP, "s"));
+                Main.printAllElements(circuit);
             }
         }
 
         @Test
-        void testCapacitorResistanceCircuit(){
+        @Order(1)
+        void testRCCircuit(){
             var cap = new DynamicData(
                     new double[][]{{10, -10, -100}, {10, -10, -100}, {0, 0 ,0}},
                     new double[][]{{10, 0, 0}, {0, 0, 0}, {10, 0, 0}},
@@ -138,6 +158,7 @@ class CircuitTest {
         }
 
         @Test
+        @Order(1)
         void testCapacitorCircuit1(){
             var expectInitial = new double[][]{{12,-3,-36}, {-12,-3,36}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}};
             var expectFinal = new double[][]{{12,0,0}, {0,0,0}, {0,0,0}, {6,0,0}, {6,0,0}, {12,0,0}};
@@ -168,6 +189,7 @@ class CircuitTest {
         }
 
         @Test
+        @Order(2)
         void testCapacitorCircuit2(){
             var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367, 0.34401}, {10.349,0.344958, 3.57}, {15.992,31.984,512}, {0,0,0}, {0,0,0}, {0,0,0}};
             var expectFinal = new double[][]{{12,-0.574,-6.891}, {-16,1.094,-17.5}, {5.137,0.428102,2.199}, {8.017,1,8.034}, {17.22,0.574015,9.885}, {0.544513,1.089,0.592988}, {2.218,0.574015,1.273}, {15.455,0.0869,1.343}, {2.301, 0.428102,0.9852}};
@@ -179,8 +201,10 @@ class CircuitTest {
             };
             cap.test();
         }
+
         @Test
-        void testInductorResistanceCircuit(){
+        @Order(3)
+        void testRLCircuit(){
             var expectInitial = new double[][]{{10,0,0}, {0,0,0}, {10,0,0}};
             var expectFinal = new double[][]{{10,-10,-100}, {10,-10,-100}, {0,10,0}};
             var cap = new DynamicData(expectInitial, expectFinal, 600){
