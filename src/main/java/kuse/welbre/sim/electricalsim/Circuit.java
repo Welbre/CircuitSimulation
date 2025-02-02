@@ -5,6 +5,7 @@ import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
+import java.io.PrintStream;
 import java.util.*;
 
 public class Circuit {
@@ -121,7 +122,8 @@ public class Circuit {
         }
         //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
         for (var l : result.inductors)
-            builder.stampResistor(l.getPinA(), l.getPinB(), -l.getInductance() / Circuit.TIME_STEP);
+            //Get the opposite inductance per tick to remove the conductance added previously and multiply by 0.99999999 to get a value close to 0 but not zero.
+            builder.stampResistor(l.getPinA(), l.getPinB(), (-l.getInductance() / Circuit.TIME_STEP)*.99999999);
 
         //Start the time-dependent variables.
         for (Simulable simulable : simulableElements) {
@@ -209,5 +211,28 @@ public class Circuit {
      */
     public double[][] getG() {
         return matrixBuilder.getCopyOfG();
+    }
+
+    public void printCircuitText(PrintStream stream){
+        if (this.analyseResult == null)
+            throw new IllegalStateException("Matrix need's to be build before run this method.");
+        for (Element element : elements) {
+            short a = -1, b = -1;
+            if (element.getPinA() != null)
+                a = element.getPinA().address;
+            if (element.getPinB() != null)
+                b = element.getPinB().address;
+
+            if (element instanceof VoltageSource)
+                stream.println("Vs " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+            else if (element instanceof CurrentSource)
+                stream.println("Cs " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+            else if (element instanceof Resistor)
+                stream.println("R " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+            else if (element instanceof Capacitor)
+                stream.println("C " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+            else if (element instanceof Inductor)
+                stream.println("L " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+        }
     }
 }
