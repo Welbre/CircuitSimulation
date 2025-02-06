@@ -35,12 +35,12 @@ public class Inductor extends Element implements Simulable {
 
     @Override
     public double getCurrent() {
-        return this.lastCurrent;
+        return 0;
     }
 
     @Override
     public void tick(double dt, MatrixBuilder builder) {
-        builder.stampCurrentSource(getPinA(), getPinB(), (-getVoltageDifference()/compResistor) + lastCurrent);
+        builder.stampCurrentSource(getPinA(), getPinB(), lastCurrent);
     }
 
     @Override

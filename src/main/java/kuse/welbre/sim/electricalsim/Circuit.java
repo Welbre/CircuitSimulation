@@ -10,7 +10,7 @@ import java.util.*;
 
 public class Circuit {
     /// 5ms time step
-    public static final double TIME_STEP = 0.005;
+    public static final double TIME_STEP = 0.05;
     /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
     public static final double MAX_CONDUCTANCE = 1E10;
 
@@ -41,8 +41,9 @@ public class Circuit {
     /**
      * Try to find if some node or element can crash the matrix generation.
      */
-    private void checkInconsistencies() {
+    private boolean checkInconsistencies() {
         //todo need's to be implemented.
+        return true;
     }
 
     /**
@@ -103,7 +104,10 @@ public class Circuit {
         }
 
         matrixBuilder.close();
-        solveInitialConditions(result, matrixBuilder.copy());
+        //solveInitialConditions(result, matrixBuilder.copy());
+        for (Simulable simulable : simulableElements) {
+            simulable.doInitialTick(this.getMatrixBuilder());
+        }
     }
 
     /**
@@ -123,7 +127,7 @@ public class Circuit {
         //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
         for (var l : result.inductors)
             //Get the opposite inductance per tick to remove the conductance added previously and multiply by 0.99999999 to get a value close to 0 but not zero.
-            builder.stampResistor(l.getPinA(), l.getPinB(), (-l.getInductance() / Circuit.TIME_STEP)*.99999999);
+            builder.stampResistor(l.getPinA(), l.getPinB(), (-l.getInductance() / Circuit.TIME_STEP)*.999);
 
         //Start the time-dependent variables.
         for (Simulable simulable : simulableElements) {
@@ -134,6 +138,10 @@ public class Circuit {
         //Calculate the values and inject in pointers.
         double[] initial = builder.getResult();
         injectValuesInX(initial);
+
+        for (var e : getElements())
+            if (e instanceof Simulable s)
+                s.posTick();
     }
 
     public void tick(double dt) {
@@ -163,7 +171,8 @@ public class Circuit {
     }
 
     private void clean() {
-        checkInconsistencies();
+        if (! checkInconsistencies())
+            throw new RuntimeException("Circuit with inconsistencies");
         buildMatrix();
         isDirt = false;
     }

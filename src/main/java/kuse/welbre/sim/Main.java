@@ -5,16 +5,36 @@ import java.io.PrintStream;
 
 public class Main {
     public static void main(String[] args) {
-        Circuit circuit = getInductorResistanceCircuit();
-        circuit.preCompile();
+        Circuit circuit = new Circuit();
+        var v = new VoltageSource(12);
+        var r1 = new Resistor(4);
+        var r2 = new Resistor(2);
+        var l1 = new Inductor(0.5 / 1000);
+        var l2 = new Inductor(0.5 / 1000);
+        var l3 = new Inductor(0.001);
 
+        circuit.addElement(v, r1, r2, l1,l2,l3);
+
+        v.connect(r1.getPinA(), null);
+        Element.Pin pb = r1.getPinB();
+        l1.connectA(pb);
+        l2.connect(l1.getPinB(), null);
+        r2.connect(pb, l3.getPinA());
+        l3.connectB(null);
+
+        circuit.preCompile();
         printAllElements(circuit);
+        System.out.println();
+
         int i = 0;
-        while (i < 50) {
+        while (i < 45) {
             circuit.tick(Circuit.TIME_STEP);
-            System.out.println(circuit.getElements()[2]);
+            printAllElements(circuit);
+            System.out.println();
             i++;
         }
+
+        circuit.printCircuitText(System.out);
     }
 
     public static Circuit capacitorTest(){
@@ -59,7 +79,7 @@ public class Main {
         return circuit;
     }
 
-    public static Circuit getInductorResistanceCircuit(){
+    public static Circuit getRlCircuit(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
         Resistor r = new Resistor(1);

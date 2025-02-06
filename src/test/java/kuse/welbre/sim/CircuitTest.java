@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.function.Consumer;
@@ -210,7 +209,52 @@ class CircuitTest {
             var cap = new DynamicData(expectInitial, expectFinal, 600){
                 @Override
                 Circuit createCircuit() {
-                    return Main.getInductorResistanceCircuit();
+                    return Main.getRlCircuit();
+                }
+            };
+            cap.test();
+        }
+
+        @Test
+        @Order(4)
+        void testInductorCircuit1(){
+            var expectInitial = new double[][]{{12,0,0}, {0,0,0}, {0,0,0}, {6,0,0}, {6,0,0}, {12,0,0}};
+            var expectFinal = new double[][]{{12,-3,-36}, {12,-3,-36}, {0,0,0}, {0,-3,0}, {0,-3,0}, {0,0,0}};
+            var cap = new DynamicData(expectInitial, expectFinal, 120){
+                @Override
+                Circuit createCircuit() {
+                    Circuit circuit = new Circuit();
+                    var v = new VoltageSource(12);
+                    var r1 = new Resistor(4);
+                    var r2 = new Resistor(2);
+                    var l1 = new Inductor(0.5 / 1000);
+                    var l2 = new Inductor(0.5 / 1000);
+                    var l3 = new Inductor(0.001);
+
+                    circuit.addElement(v, r1, r2, l1,l2,l3);
+
+                    v.connect(r1.getPinA(), null);
+                    Element.Pin pb = r1.getPinB();
+                    l1.connectA(pb);
+                    l2.connect(l1.getPinB(), null);
+                    r2.connect(pb, l3.getPinA());
+                    l3.connectB(null);
+
+                    return circuit;
+                }
+            };
+            cap.test();
+        }
+
+        @Test
+        @Order(5)
+        void testInductorCircuit2(){
+            var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367, 0.34401}, {10.349,0.344958, 3.57}, {15.992,31.984,512}, {0,0,0}, {0,0,0}, {0,0,0}};
+            var expectFinal = new double[][]{{12,-0.574,-6.891}, {-16,1.094,-17.5}, {5.137,0.428102,2.199}, {8.017,1,8.034}, {17.22,0.574015,9.885}, {0.544513,1.089,0.592988}, {2.218,0.574015,1.273}, {15.455,0.0869,1.343}, {2.301, 0.428102,0.9852}};
+            var cap = new DynamicData(expectInitial, expectFinal, 600){
+                @Override
+                Circuit createCircuit() {
+                    return Main.compilicatedCapacitorCircuit();
                 }
             };
             cap.test();
