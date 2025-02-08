@@ -65,8 +65,8 @@ public final class MatrixBuilder {
         stampCurrentSource(a, b, current);
     }
 
-    public void stampInductor(Element.Pin a, Element.Pin b, double inductance_per_tick, double current){
-        stampResistor(a, b, inductance_per_tick);
+    public void stampInductor(Element.Pin a, Element.Pin b, double time_per_inductance, double current){
+        stampResistor(a, b, time_per_inductance);
         stampCurrentSource(a, b, current);
     }
 

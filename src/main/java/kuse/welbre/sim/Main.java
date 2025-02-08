@@ -28,7 +28,7 @@ public class Main {
 
         int i = 0;
         while (i < 45) {
-            circuit.tick(Circuit.TIME_STEP);
+            circuit.tick(Circuit.DEFAULT_TIME_STEP);
             printAllElements(circuit);
             System.out.println();
             i++;
@@ -37,7 +37,7 @@ public class Main {
         circuit.printCircuitText(System.out);
     }
 
-    public static Circuit capacitorTest(){
+    public static Circuit getRcCircuit(){
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
         Resistor r = new Resistor(1);
@@ -83,11 +83,11 @@ public class Main {
         Circuit circuit = new Circuit();
         VoltageSource v0 = new VoltageSource(10);
         Resistor r = new Resistor(1);
-        Inductor c = new Inductor(0.01);
+        Inductor l = new Inductor(0.01);
 
-        circuit.addElement(v0,r,c);
+        circuit.addElement(v0,r,l);
         v0.connect(r.getPinA(),null);
-        c.connect(r.getPinB(),null);
+        l.connect(r.getPinB(),null);
 
         return circuit;
     }

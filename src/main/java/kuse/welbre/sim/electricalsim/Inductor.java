@@ -4,8 +4,8 @@ import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 public class Inductor extends Element implements Simulable {
     private double inductance;
-    private double compResistor;
-    private double lastCurrent;
+    private double compConductance;
+    private double currentSource;
 
     public Inductor() {
     }
@@ -35,21 +35,21 @@ public class Inductor extends Element implements Simulable {
 
     @Override
     public double getCurrent() {
-        return 0;
+        return currentSource;
     }
 
     @Override
-    public void tick(double dt, MatrixBuilder builder) {
-        builder.stampCurrentSource(getPinA(), getPinB(), lastCurrent);
+    public void initiate(Circuit circuit) {
+        compConductance = circuit.getTickRate() / getInductance();
     }
 
     @Override
-    public void posTick(){
-        this.lastCurrent = (-getVoltageDifference() / compResistor) + lastCurrent;
+    public void preEvaluation(MatrixBuilder builder) {
+        builder.stampCurrentSource(getPinB(), getPinA(), currentSource);
     }
 
     @Override
-    public void doInitialTick(MatrixBuilder builder) {
-        compResistor = inductance / Circuit.TIME_STEP;
+    public void posEvaluation(MatrixBuilder builder) {
+        currentSource = currentSource + (compConductance * getVoltageDifference());
     }
 }

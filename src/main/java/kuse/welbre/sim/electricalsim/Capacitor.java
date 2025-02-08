@@ -5,7 +5,7 @@ import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 public class Capacitor extends Element implements Simulable {
     private double capacitance;
     private double compConductance;
-    private double lastVoltage = 0;
+    private double currentSource = 0;
 
     public Capacitor() {
     }
@@ -33,41 +33,25 @@ public class Capacitor extends Element implements Simulable {
         return "F";
     }
 
+    double lastVoltageDif;
     @Override
     public double getCurrent() {
-        return (getVoltageDifference() - lastVoltage) * compConductance;
+        return compConductance * (lastVoltageDif - getVoltageDifference());
     }
 
     @Override
-    public void tick(double dt, MatrixBuilder builder) {
-        builder.stampCurrentSource(this.getPinA(), this.getPinB(), getVoltageDifference() * compConductance);
-        this.lastVoltage = getVoltageDifference();
+    public void initiate(Circuit circuit) {
+        compConductance = getCapacitance() / circuit.getTickRate();
     }
 
     @Override
-    public void posTick() {
-
-    }
-
-    /*
-    @Override
-    public double getCurrent() {
-        return (lastVoltage * compConductance);
+    public void preEvaluation(MatrixBuilder builder) {
+        builder.stampCurrentSource(getPinA(), getPinB(), currentSource);
+        lastVoltageDif = getVoltageDifference();
     }
 
     @Override
-    public void tick(double dt, MatrixBuilder builder) {
-        builder.stampCurrentSource(this.getPinA(), this.getPinB(), (getVoltageDifference() - lastVoltage) * compConductance);
-    }
-
-    @Override
-    public void posTick() {
-        this.lastVoltage = getVoltageDifference();
-    }
-     */
-
-    @Override
-    public void doInitialTick(MatrixBuilder builder) {
-        compConductance = capacitance / Circuit.TIME_STEP;
+    public void posEvaluation(MatrixBuilder builder) {
+        currentSource = compConductance * getVoltageDifference();
     }
 }

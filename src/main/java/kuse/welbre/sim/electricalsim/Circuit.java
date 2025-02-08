@@ -9,8 +9,9 @@ import java.io.PrintStream;
 import java.util.*;
 
 public class Circuit {
-    /// 5ms time step
-    public static final double TIME_STEP = 0.05;
+    /// 50ms time step
+    public static final double DEFAULT_TIME_STEP = 0.05;
+    private double tickRate = DEFAULT_TIME_STEP;
     /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
     public static final double MAX_CONDUCTANCE = 1E10;
 
@@ -91,10 +92,10 @@ public class Circuit {
             matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
         //Stamp the capacitors.
         for (Capacitor c : result.capacitors)
-            matrixBuilder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / TIME_STEP, c.getCurrent());
+            matrixBuilder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate(), c.getCurrent());
         //Stamp inductors.
         for (Inductor l : result.inductors)
-            matrixBuilder.stampInductor(l.getPinA(), l.getPinB(), l.getInductance() / TIME_STEP, 0);
+            matrixBuilder.stampInductor(l.getPinA(), l.getPinB(), getTickRate() / l.getInductance(), l.getCurrent());
 
         //D matrix will be implemented soon.
         for (int m0 = result.nodes; m0 < nm; m0++) {
@@ -104,10 +105,7 @@ public class Circuit {
         }
 
         matrixBuilder.close();
-        //solveInitialConditions(result, matrixBuilder.copy());
-        for (Simulable simulable : simulableElements) {
-            simulable.doInitialTick(this.getMatrixBuilder());
-        }
+        solveInitialConditions(result, matrixBuilder.copy());
     }
 
     /**
@@ -120,28 +118,27 @@ public class Circuit {
     private void solveInitialConditions(CircuitAnalyser.Result result, MatrixBuilder builder){
         //To a capacitor that we use the companion method to simulate it in the matrix,
         // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
-        for (Capacitor c : result.capacitors) {
+        for (Capacitor c : result.capacitors)
             //Set high conductance to simulate short closed circuit.
             builder.stampResistor(c.getPinA(), c.getPinB(), Circuit.MAX_CONDUCTANCE);
-        }
         //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
         for (var l : result.inductors)
             //Get the opposite inductance per tick to remove the conductance added previously and multiply by 0.99999999 to get a value close to 0 but not zero.
-            builder.stampResistor(l.getPinA(), l.getPinB(), (-l.getInductance() / Circuit.TIME_STEP)*.999);
+            builder.stampResistor(l.getPinA(), l.getPinB(), (-getTickRate() / l.getInductance()));
 
-        //Start the time-dependent variables.
-        for (Simulable simulable : simulableElements) {
-            simulable.doInitialTick(this.getMatrixBuilder());
-        }
+        //Start simulable elements
+        for (Simulable simulable : simulableElements)
+            simulable.initiate(this);
 
         builder.close();
+
+        //preTick in t
+        for (var sim : simulableElements)
+            sim.preEvaluation(matrixBuilder);
+
         //Calculate the values and inject in pointers.
         double[] initial = builder.getResult();
         injectValuesInX(initial);
-
-        for (var e : getElements())
-            if (e instanceof Simulable s)
-                s.posTick();
     }
 
     public void tick(double dt) {
@@ -150,18 +147,22 @@ public class Circuit {
         else {
             Arrays.fill(matrixBuilder.getZ(), 0);
 
+            //Re stamp fixes sources
             for (var vs : analyseResult.voltage_source)
                 matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
             for (var cs : analyseResult.current_sources)
                 matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+            //we are in t, so use actual values to prepare evaluation to t+1
             for (Simulable element : simulableElements)
-                element.tick(TIME_STEP, this.getMatrixBuilder());
-            double[] values = matrixBuilder.getResult();
-            injectValuesInX(values);
+                element.preEvaluation(matrixBuilder);
 
-            for (var e : getElements())
-                if (e instanceof Simulable s)
-                    s.posTick();
+            //above is t
+            injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
+            //below is t + 1
+
+            //Pos ticking to calculate values in t + 1
+            for (var sim : simulableElements)
+                sim.posEvaluation(matrixBuilder);
         }
     }
 
@@ -220,6 +221,16 @@ public class Circuit {
      */
     public double[][] getG() {
         return matrixBuilder.getCopyOfG();
+    }
+
+    public void setTickRate(double tickRate) {
+        if (tickRate <= 0) throw new IllegalArgumentException("Tick rate must be bigger that 0!");
+        this.tickRate = tickRate;
+        dirt();
+    }
+
+    public double getTickRate(){
+        return tickRate;
     }
 
     public void printCircuitText(PrintStream stream){

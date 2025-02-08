@@ -107,7 +107,7 @@ class CircuitTest {
 
             public Consumer<Element> getDynamicFails(Circuit circuit){
                 return element -> {
-                    System.out.printf("Tick(%d)\t %.1fms\n", tick, tick * Circuit.TIME_STEP * 1000);
+                    System.out.printf("Tick(%d)\t %.1fms\n", tick, tick * Circuit.DEFAULT_TIME_STEP * 1000);
                     Main.printCircuitMatrix(circuit);
                     Main.printAllElements(circuit);
                     System.err.println(element);
@@ -129,13 +129,13 @@ class CircuitTest {
 
                 //Simulate
                 while (tick < this.total_steps_to_simulate) {
-                    circuit.tick(Circuit.TIME_STEP);
+                    circuit.tick(Circuit.DEFAULT_TIME_STEP);
                     this.tick++;
                 }
                 testElements(elements, finalResultExpected, getDynamicFails(circuit));
                 System.out.printf("Tick(%d)\t %s final result:\n", 0, Tools.proprietyToSi(0, "s"));
                 System.out.println(stream);
-                System.out.printf("Tick(%d)\t %s final result:\n", tick, Tools.proprietyToSi(tick*Circuit.TIME_STEP, "s"));
+                System.out.printf("Tick(%d)\t %s final result:\n", tick, Tools.proprietyToSi(tick*Circuit.DEFAULT_TIME_STEP, "s"));
                 Main.printAllElements(circuit);
             }
         }
@@ -150,7 +150,7 @@ class CircuitTest {
             ){
                 @Override
                 Circuit createCircuit() {
-                    return Main.capacitorTest();
+                    return Main.getRcCircuit();
                 }
             };
             cap.test();
@@ -267,7 +267,7 @@ class CircuitTest {
                 Main.loadCase1(), Main.loadCase2(),
                 Main.loadCase3(), Main.loadCase4(),
                 Main.loadCase5(), Main.loadCase6(),
-                Main.capacitorTest()
+                Main.getRcCircuit()
         };
     }
 

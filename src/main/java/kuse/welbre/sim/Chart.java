@@ -12,14 +12,12 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Main.compilicatedCapacitorCircuit();
-        String csv = createCsvFromCircuit(c, 60, new PlotConfigs(c)
-                .see(0, true, true, false, "v0")
-                .see(1, true, true, false, "v1")
-                .see(3, true, true, true, "r1")
-                .see(6, true, true, false, "c1")
-                .see(7, true, true, false, "c2")
-                .see(8, true, true, false, "c3")
+        Circuit c = Main.getRcCircuit();
+        c.setTickRate(0.005);
+        String csv = createCsvFromCircuit(c, 0.5, new PlotConfigs(c)
+                .see(0, false, true, false, "v")
+                .see(1, true, false, false, "r")
+                .see(2, true, true, false, "c")
         );
         c.printCircuitText(System.out);
 
@@ -127,8 +125,7 @@ public class Chart {
                     power.setName(conf.name + "_Power");
             }
 
-            for (int i = 0; i < data.size(); i++) {
-                ElementData eData = data.get(i);
+            for (ElementData eData : data) {
                 if (voltage != null) voltage.add(eData.voltage);
                 if (current != null) current.add(eData.current);
                 if (power != null) power.add(eData.power);
@@ -142,7 +139,7 @@ public class Chart {
             Line time = new Line();
             time.setName("Time");
             for (int i = 0; i < dataMap.get(circuit.getElements()[0]).size(); i++)
-                time.add(i*Circuit.TIME_STEP);
+                time.add(i*this.circuit.getTickRate());
 
             list.add(time);
 
@@ -210,9 +207,9 @@ public class Chart {
 
         double i = 0;
         while (i < time) {
-            circuit.tick(Circuit.TIME_STEP);
+            circuit.tick(Circuit.DEFAULT_TIME_STEP);
             data.generateAndAddData(circuit);
-            i += Circuit.TIME_STEP;
+            i += circuit.getTickRate();
         }
 
         StringBuilder builder = new StringBuilder();
@@ -225,7 +222,7 @@ public class Chart {
             if (j < lines.length - 1)
                 builder.append(",");
             else
-                builder.append("\n");
+                builder.append(",\n");
         }
 
         for (int k = 0; k < lines[0].points.size(); k++) {
@@ -237,7 +234,7 @@ public class Chart {
                 if (j < lines.length - 1)
                     builder.append(",");
                 else
-                    builder.append("\n");
+                    builder.append(",\n");
             }
         }
 

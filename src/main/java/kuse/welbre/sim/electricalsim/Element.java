@@ -59,6 +59,11 @@ public abstract class Element {
      */
     protected abstract double getPropriety();
     protected abstract String getProprietySymbol();
+    /**
+     * The current through the element.
+     * Using the conventional current direction, so Voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.
+     */
+    public abstract double getCurrent();
 
     @Override
     public String toString() {
@@ -74,6 +79,10 @@ public abstract class Element {
         );
     }
 
+    /**
+     * The voltage difference in the element.
+     * Assuming that Voltage in A is bigger than B.
+     */
     public double getVoltageDifference(){
         double a = 0, b = 0;
         if (pinA != null)
@@ -88,9 +97,8 @@ public abstract class Element {
             else
                 b = pinB.P_voltage[0];
 
-        return a - b;
+        return a-b;
     }
-    public abstract double getCurrent();
     public double getPower() {
         return getVoltageDifference() * getCurrent();
     }
