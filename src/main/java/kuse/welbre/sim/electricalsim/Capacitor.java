@@ -33,10 +33,9 @@ public class Capacitor extends Element implements Simulable {
         return "F";
     }
 
-    double lastVoltageDif;
     @Override
     public double getCurrent() {
-        return compConductance * (lastVoltageDif - getVoltageDifference());
+        return compConductance * getVoltageDifference() - currentSource;
     }
 
     @Override
@@ -46,12 +45,12 @@ public class Capacitor extends Element implements Simulable {
 
     @Override
     public void preEvaluation(MatrixBuilder builder) {
+        currentSource = compConductance * getVoltageDifference();
         builder.stampCurrentSource(getPinA(), getPinB(), currentSource);
-        lastVoltageDif = getVoltageDifference();
     }
 
     @Override
     public void posEvaluation(MatrixBuilder builder) {
-        currentSource = compConductance * getVoltageDifference();
+
     }
 }
