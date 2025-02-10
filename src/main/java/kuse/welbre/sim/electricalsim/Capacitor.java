@@ -2,10 +2,11 @@ package kuse.welbre.sim.electricalsim;
 
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
+@SuppressWarnings("unused")
 public class Capacitor extends Element implements Simulable {
     private double capacitance;
     private double compConductance;
-    private double currentSource = 0;
+    private double currentSource;
 
     public Capacitor() {
     }
@@ -33,9 +34,10 @@ public class Capacitor extends Element implements Simulable {
         return "F";
     }
 
+    private double capacitorCurrent = 0;
     @Override
     public double getCurrent() {
-        return compConductance * getVoltageDifference() - currentSource;
+        return capacitorCurrent;
     }
 
     @Override
@@ -51,6 +53,6 @@ public class Capacitor extends Element implements Simulable {
 
     @Override
     public void posEvaluation(MatrixBuilder builder) {
-
+        capacitorCurrent = compConductance * getVoltageDifference() - currentSource;
     }
 }

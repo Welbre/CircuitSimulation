@@ -20,6 +20,7 @@ public class Circuit {
 
     private CircuitAnalyser.Result analyseResult;
     private MatrixBuilder matrixBuilder;
+    private CircuitAnalyser.Result result;
     /**
      * This array storage 'n' nodes voltage pointers and 'm' current throw a voltage source.<br>
      * The array it's a double[n+m][1], each index represents a double pointer, so this allows passing a reference for each element
@@ -70,7 +71,7 @@ public class Circuit {
     }
 
     public void buildMatrix() {
-        final var result = CircuitAnalyser.analyseCircuit(this);
+        result = CircuitAnalyser.analyseCircuit(this);
         final int nm = result.nodes + result.voltage_source.size();
 
         final double[][] G = new double[nm][nm];
@@ -105,7 +106,6 @@ public class Circuit {
         }
 
         matrixBuilder.close();
-        solveInitialConditions(result, matrixBuilder.copy());
     }
 
     /**
@@ -115,14 +115,14 @@ public class Circuit {
      * But without this method called before the simulation step, the current value will be wrongly computed
      * because the initial voltage differential at t = -1 doesn't exist. Then this method ensures that the initial voltage across the capacitor in t = -1 will be 0.
      */
-    private void solveInitialConditions(CircuitAnalyser.Result result, MatrixBuilder builder){
+    private void solveInitialConditions(MatrixBuilder builder){
         //To a capacitor that we use the companion method to simulate it in the matrix,
         // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
-        for (Capacitor c : result.capacitors)
+        for (Capacitor c : this.result.capacitors)
             //Set high conductance to simulate short closed circuit.
-            builder.stampResistor(c.getPinA(), c.getPinB(), Circuit.MAX_CONDUCTANCE);
+            builder.stampResistor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate());
         //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
-        for (var l : result.inductors)
+        for (var l : this.result.inductors)
             //Get the opposite inductance per tick to remove the conductance added previously and multiply by 0.99999999 to get a value close to 0 but not zero.
             builder.stampResistor(l.getPinA(), l.getPinB(), (-getTickRate() / l.getInductance()));
 
@@ -139,6 +139,9 @@ public class Circuit {
         //Calculate the values and inject in pointers.
         double[] initial = builder.getResult();
         injectValuesInX(initial);
+
+        for (var sim : simulableElements)
+            sim.posEvaluation(matrixBuilder);
     }
 
     public void tick(double dt) {
@@ -152,6 +155,7 @@ public class Circuit {
                 matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
             for (var cs : analyseResult.current_sources)
                 matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Simulable element : simulableElements)
                 element.preEvaluation(matrixBuilder);
@@ -175,6 +179,14 @@ public class Circuit {
         if (! checkInconsistencies())
             throw new RuntimeException("Circuit with inconsistencies");
         buildMatrix();
+
+        final double _tickRate = this.tickRate;
+        this.tickRate = 1e-10;
+        solveInitialConditions(matrixBuilder.copy());
+        this.tickRate = _tickRate;
+        for (Simulable simulable : simulableElements)
+            simulable.initiate(this);
+
         isDirt = false;
     }
 

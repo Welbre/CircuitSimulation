@@ -14,10 +14,10 @@ public class Chart {
     public static void main(String[] args) throws Exception {
         Circuit c = Main.getRcCircuit();
         c.setTickRate(0.005);
-        String csv = createCsvFromCircuit(c, 0.5, new PlotConfigs(c)
+        String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, false, true, false, "v")
-                .see(1, true, false, false, "r")
-                .see(2, true, true, false, "c")
+                .see(1, false, true, false, "r")
+                .see(2, false, true, false, "c")
         );
         c.printCircuitText(System.out);
 
@@ -133,15 +133,9 @@ public class Chart {
 
             return new Line[]{voltage, current, power};
         }
-        public Line[] convertToChart(){
+        public Line[] convertToChartUsingXAxes(Line xAxes){
             List<Line> list = new ArrayList<>();
-
-            Line time = new Line();
-            time.setName("Time");
-            for (int i = 0; i < dataMap.get(circuit.getElements()[0]).size(); i++)
-                time.add(i*this.circuit.getTickRate());
-
-            list.add(time);
+            list.add(xAxes);
 
             for (int i = 0; i < circuit.getElements().length; i++) {
                 Line[] chart = convertToChart(i);
@@ -149,8 +143,16 @@ public class Chart {
                     if (series != null)
                         list.add(series);
             }
-
             return list.toArray(new Line[0]);
+        }
+
+        public Line[] convertToChart(){
+            Line time = new Line();
+            time.setName("Time");
+            for (int i = 0; i < dataMap.get(circuit.getElements()[0]).size(); i++)
+                time.add(i*this.circuit.getTickRate());
+
+            return convertToChartUsingXAxes(time);
         }
     }
     public static class PlotConfigs {
