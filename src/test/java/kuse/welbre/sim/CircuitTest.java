@@ -15,6 +15,7 @@ import org.opentest4j.AssertionFailedError;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 class CircuitTest {
 
@@ -23,7 +24,9 @@ class CircuitTest {
     }
 
     public static boolean equals(double a, double b) {
-        return abs(a - b) < 0.1;
+        if (b == 0)
+            return abs(a - b) < 0.100; //100m of absolute error.
+        return (1 - abs(a/b)) < 0.01 && abs(a - b) < 0.100; //1% of error.
     }
 
     public static Consumer<Element> getIfFails(Circuit circuit){
@@ -121,6 +124,10 @@ class CircuitTest {
         Main.printAllElements(circuit);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////Dynamic Tests/////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Nested
     class DynamicTest {
         private static final class DynamicData {
@@ -130,18 +137,18 @@ class CircuitTest {
             private int tick = 0;
             private double tickRate = Circuit.DEFAULT_TIME_STEP;
             final double total_time;
-            private final Circuit circuit;
+            private final Supplier<Circuit> circuitProvider;
 
-            public DynamicData(Circuit circuit, double[][] initialResultExpected, double[][] finalResultExpected, double totalTimeToSimulate) {
+            public DynamicData(Supplier<Circuit> circuitProvider, double[][] initialResultExpected, double[][] finalResultExpected, double totalTimeToSimulate) {
                 this.initialResultExpected = initialResultExpected;
                 this.finalResultExpected = finalResultExpected;
                 total_time = totalTimeToSimulate;
-                this.circuit = circuit;
+                this.circuitProvider = circuitProvider;
             }
 
-            public Consumer<Element> getDynamicFails(Circuit circuit){
+            public Consumer<Element> getDynamicFails(Circuit circuit, double modifiedTick){
                 return element -> {
-                    System.out.printf("Tick(%d)\t %s\n", tick, Tools.proprietyToSi(time, "s"));
+                    System.out.printf("Tick(%d)\t TickRate(%s)\t %s\n", tick,Tools.proprietyToSi(modifiedTick, "Hz"), Tools.proprietyToSi(time, "s"));
                     Main.printCircuitMatrix(circuit);
                     Main.printAllElements(circuit);
                     System.out.println();
@@ -151,11 +158,17 @@ class CircuitTest {
             }
 
             void test(){
-                circuit.setTickRate(tickRate);
+                final double modified_tick_rate = tickRate;
+                final Circuit circuit = circuitProvider.get();
+                time = 0;
+                tick = 0;
+
+                circuit.setTickRate(modified_tick_rate);
                 circuit.preCompile();
+
                 Element[] elements = circuit.getElements();
 
-                testElements(elements, initialResultExpected, getDynamicFails(circuit));
+                testElements(elements, initialResultExpected, getDynamicFails(circuit, modified_tick_rate));
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 {
                     PrintStream printStream = new PrintStream(stream);
@@ -165,15 +178,15 @@ class CircuitTest {
 
                 //Simulate
                 while (time < this.total_time) {
-                    circuit.tick(circuit.getTickRate());
+                    circuit.tick(modified_tick_rate);
 
                     this.tick++;
-                    time += circuit.getTickRate();
+                    time += modified_tick_rate;
                 }
-                testElements(elements, finalResultExpected, getDynamicFails(circuit));
-                System.out.printf("Tick(%d)\t %s final result:\n", 0, Tools.proprietyToSi(0, "s"));
+                testElements(elements, finalResultExpected, getDynamicFails(circuit, modified_tick_rate));
+                System.out.printf("Tick(%d)\t TickRate(%s)\t %s initial result:\n", 0,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(0, "s"));
                 System.out.println(stream);
-                System.out.printf("Tick(%d)\t %s final result:\n", tick, Tools.proprietyToSi(time, "s"));
+                System.out.printf("Tick(%d)\t TickRate(%s)\t %s final result:\n", tick,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(time, "s"));
                 Main.printAllElements(circuit);
             }
 
@@ -185,26 +198,26 @@ class CircuitTest {
 
         @Test
         @Order(1)
-        void testCapacitorCircuit0(){
+        void testRcCircuit(){
             final double[][] initialState = {{10, -10, -100}, {10, 10, 100}, {0, 10 ,0}};
             final double[][] finalState = {{10, 0, 0}, {0, 0, 0}, {10, 0, 0}};
-            new DynamicData(Circuits.Capacitors.getRcCircuit(), initialState, finalState, 0.6).test();
+            new DynamicData(Circuits.Capacitors::getRcCircuit, initialState, finalState, 0.6).test();
         }
 
         @Test
         @Order(1)
-        void testCapacitorCircuit1(){
-            var expectInitial = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0,0}, {0,0,0}, {0,0,0}};//done
+        void testCapacitorAssociationCircuit(){
+            var expectInitial = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0,0}, {0,0,0}, {0,0,0}};
             var expectFinal = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {2.1,0,0}, {2.1,0,0}, {31.79,0,0}, {4.2,0,0}, {4.2,0,0}, {4.2,0,0}};
-            new DynamicData(Circuits.Capacitors.getAssociationCircuit(), expectInitial, expectFinal, 2).test();
+            new DynamicData(Circuits.Capacitors::getAssociationCircuit, expectInitial, expectFinal, 2).test();
         }
 
         @Test
         @Order(2)
-        void testCapacitorCircuit2(){
+        void testMultiplesCapacitorsCircuit(){
             var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367,0.34401},{10.349,0.344958, 3.57},{15.992,31.984,512}, {0,0.3448,0}, {0,-31.789,0}, {0,0.137,0}};
             var expectFinal = new double[][]{{12, -0.10114, -1.2136}, {-16, 0.12526, 2}, {-0.264, 0.0022, 0}, {0.9854, -0.12318, -0.1213},{-3.034,-0.10114,0.3},{0.00626,0.12526,0},{23.91,0.101,2.41},{-15.93,0.002,0.031},{-14.68,-0.022,0.3229}};
-            new DynamicData(Circuits.Capacitors.getMultiplesCapacitorsCircuit(), expectInitial, expectFinal, 60).test();
+            new DynamicData(Circuits.Capacitors::getMultiplesCapacitorsCircuit, expectInitial, expectFinal, 60).test();
         }
 
         @Test
@@ -212,19 +225,23 @@ class CircuitTest {
         void testRLCircuit(){
             var expectInitial = new double[][]{{10,0,0}, {0,0,0}, {10,0,0}};
             var expectFinal = new double[][]{{10,-10,-100}, {10,-10,-100}, {0,10,0}};
-            new DynamicData(Circuits.Inductors.getRlCircuit(), expectInitial, expectFinal, 60).test();
+            new DynamicData(Circuits.Inductors::getRlCircuit, expectInitial, expectFinal, 60).test();
         }
 
         @Test
         @Order(4)
-        void testInductorCircuit1(){
-
+        void testInductorAssociationCircuit(){
+            var expectInitial = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {0.12,0,0}, {0.12,0,0}, {35.76,0,0}, {0.2355,0,0}, {0.2355,0,0}, {0.2355,0,0}};
+            var expectFinal = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0.00015,0}, {0,0.00015,0}, {0,0.00015,0}};//done
+            new DynamicData(Circuits.Inductors::getAssociationCircuit, expectInitial, expectFinal, 1).test();
         }
 
         @Test
         @Order(5)
         void testInductorCircuit2(){
-
+            var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
+            var expectFinal = new double[][]{{12,0,0},{0,0,0},{0,0,0},{0,0,0}};//done
+            new DynamicData(Circuits.RLC::getSeries, expectInitial, expectFinal, 1).test();
         }
     }
 }

@@ -13,12 +13,13 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.Inductors.getRlCircuit();
+        Circuit c = Circuits.RLC.getSeries();
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "r")
                 .see(2, true, true, false, "c")
+                .see(3, true, true, false, "l")
         );
         c.exportToSpiceNetlist(System.out);
 

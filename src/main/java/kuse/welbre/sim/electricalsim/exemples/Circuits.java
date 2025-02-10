@@ -216,5 +216,53 @@ public final class Circuits {
 
             return circuit;
         }
+
+        public static Circuit getAssociationCircuit(){
+            Circuit circuit = new Circuit();
+            VoltageSource v1 = new VoltageSource(36);
+            Resistor r1 = new Resistor(12);
+            Resistor r2 = new Resistor(12);
+            Inductor l1 = new Inductor(0.300);
+            Inductor l2 = new Inductor(0.300);
+            Inductor l3 = new Inductor(0.020);
+            Inductor l4 = new Inductor(400e-6);
+            Inductor l5 = new Inductor(400e-6);
+            Inductor l6 = new Inductor(400e-6);
+            circuit.addElement(v1,r1,r2,l1,l2,l3,l4,l5,l6);
+
+            Pin c2a = l2.getPinA();
+            Pin r1a = r1.getPinA(), r1b = r1.getPinB();
+            Pin r2b = r2.getPinB();
+
+            v1.connect(r1b, null);
+
+            l1.connect(l2.getPinB(), null);
+            l3.connect(r1a, c2a);
+
+            r2.connectA(c2a);
+            l4.connect(r2b, null);
+            l5.connect(r2b, null);
+            l6.connect(r2b, null);
+
+            return circuit;
+        }
+    }
+    public static final class RLC {
+        public static Circuit getSeries(){
+            Circuit circuit = new Circuit();
+            VoltageSource v1 = new VoltageSource(12);
+            Resistor r1 = new Resistor(1);
+            Capacitor c1 = new Capacitor(0.010);
+            Inductor l1 = new Inductor(0.1);
+
+            circuit.addElement(v1,r1,c1,l1);
+
+            v1.connect(r1.getPinB(), null);
+            r1.connectA(c1.getPinB());
+            c1.connectA(l1.getPinB());
+            l1.connectB(null);
+
+            return circuit;
+        }
     }
 }
