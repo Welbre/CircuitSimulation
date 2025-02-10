@@ -10,6 +10,7 @@ import java.util.*;
 
 public class Circuit {
     /// 50ms time step
+    public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-10;
     public static final double DEFAULT_TIME_STEP = 0.05;
     private double tickRate = DEFAULT_TIME_STEP;
     /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
@@ -109,24 +110,33 @@ public class Circuit {
     }
 
     /**
-     * Due to the differential equations nature of the capacitors and inductors, we need to compute an additional step.<br>
-     * This extra step will calculate the initial values at (t = -1) to ensure the precision at t = 0.<br>
-     *  Ex: In an RC circuit, the expected initial current and voltage across the capacitor is ic = δ/R, U = 0.
-     * But without this method called before the simulation step, the current value will be wrongly computed
-     * because the initial voltage differential at t = -1 doesn't exist. Then this method ensures that the initial voltage across the capacitor in t = -1 will be 0.
+     * Due to the differential equations nature in dynamic elements as capacitor and inductors,
+     * and backwards Euler method that is used to solve it, we need to compute an additional step.<br>
+     * Backwards euler method computes an approximation of derivatives using the preview values, so as the simulation starts in t = 0, it is impossible to compute derivatives because the t = -1 not exists.<br>
+     * This extra step will initiate all electrical elements at t = 0, and compute a tiny step forwards to compute the derivatives, this step is so tiny that we can approximate it to 0
+     * thus, defining the initial conditions at t = 0.
      */
     private void solveInitialConditions(MatrixBuilder builder){
-        //To a capacitor that we use the companion method to simulate it in the matrix,
-        // use R ~= 0 ensure then the voltage across the resistor will be next to 0, simulating a discharged capacitor.
-        for (Capacitor c : this.result.capacitors)
-            //Set high conductance to simulate short closed circuit.
-            builder.stampResistor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate());
-        //To the inductor is the same principle, but in t = -1, the inductor acts as open circuit, so remove the conductance added in the preview method.
-        for (var l : this.result.inductors)
-            //Get the opposite inductance per tick to remove the conductance added previously and multiply by 0.99999999 to get a value close to 0 but not zero.
+        //todo add this method to build matrix.
+        //How this method runs after the companion model being added to G matrix, we need to remove the conductance added.
+        for (Inductor l : this.result.inductors)
             builder.stampResistor(l.getPinA(), l.getPinB(), (-getTickRate() / l.getInductance()));
 
-        //Start simulable elements
+        final double originalTickRate = getTickRate();
+        this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
+
+        //This sim uses backwards Euler method to discretize the capacitors and inductors, and create a companion model that consists of a current source and a parallel resistor.
+        //As the timeStep that we use approaches to 0, the companion resistor of a capacitor model gets close to 0, and the companion resistor of inductor model gets close to infinite.
+        for (Capacitor c : this.result.capacitors)
+            //As the conductance is the inverse of resistance, when r approaches to 0, (g approaches to infinite) simulating a short circuit.
+            //But is important to keep in mind that float point numbers have major problems with infinite values and NaN,
+            //instead add an infinite conductance; we add a fix number to simulate the short circuit.
+            builder.stampResistor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate());
+        for (Inductor l : this.result.inductors)
+            //The inductor is the same idea, but at t = 0, the indicator act as an open circuit (G = 0).
+            builder.stampResistor(l.getPinA(), l.getPinB(), (-getTickRate() / l.getInductance()));
+
+        //initial the elements to solve initial conditions.
         for (Simulable simulable : simulableElements)
             simulable.initiate(this);
 
@@ -140,8 +150,15 @@ public class Circuit {
         double[] initial = builder.getResult();
         injectValuesInX(initial);
 
+        //Pos tick
         for (var sim : simulableElements)
             sim.posEvaluation(matrixBuilder);
+
+
+        this.tickRate = originalTickRate;
+        //Start simulable elements with original tick rate.
+        for (Simulable simulable : simulableElements)
+            simulable.initiate(this);
     }
 
     public void tick(double dt) {
@@ -179,13 +196,7 @@ public class Circuit {
         if (! checkInconsistencies())
             throw new RuntimeException("Circuit with inconsistencies");
         buildMatrix();
-
-        final double _tickRate = this.tickRate;
-        this.tickRate = 1e-10;
         solveInitialConditions(matrixBuilder.copy());
-        this.tickRate = _tickRate;
-        for (Simulable simulable : simulableElements)
-            simulable.initiate(this);
 
         isDirt = false;
     }

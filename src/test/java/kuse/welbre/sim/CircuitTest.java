@@ -128,6 +128,7 @@ class CircuitTest {
             final double[][] finalResultExpected;
             private double time = 0;
             private int tick = 0;
+            private double tickRate = Circuit.DEFAULT_TIME_STEP;
             final double total_time;
             private final Circuit circuit;
 
@@ -150,6 +151,7 @@ class CircuitTest {
             }
 
             void test(){
+                circuit.setTickRate(tickRate);
                 circuit.preCompile();
                 Element[] elements = circuit.getElements();
 
@@ -174,6 +176,11 @@ class CircuitTest {
                 System.out.printf("Tick(%d)\t %s final result:\n", tick, Tools.proprietyToSi(time, "s"));
                 Main.printAllElements(circuit);
             }
+
+            DynamicData setTickRate(double rate){
+                tickRate = rate;
+                return this;
+            }
         }
 
         @Test
@@ -189,7 +196,7 @@ class CircuitTest {
         void testCapacitorCircuit1(){
             var expectInitial = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0,0}, {0,0,0}, {0,0,0}};//done
             var expectFinal = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {2.1,0,0}, {2.1,0,0}, {31.79,0,0}, {4.2,0,0}, {4.2,0,0}, {4.2,0,0}};
-            new DynamicData(Circuits.Capacitors.getAssociationCircuit(), expectInitial, expectFinal, 0.6).test();
+            new DynamicData(Circuits.Capacitors.getAssociationCircuit(), expectInitial, expectFinal, 2).test();
         }
 
         @Test

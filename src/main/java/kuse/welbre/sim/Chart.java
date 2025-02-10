@@ -18,7 +18,7 @@ public class Chart {
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "r")
-                .see(2, true, true, false, "l")
+                .see(2, true, true, false, "c")
         );
         c.exportToSpiceNetlist(System.out);
 
