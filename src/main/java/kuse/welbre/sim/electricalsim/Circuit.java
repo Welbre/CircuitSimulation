@@ -245,26 +245,36 @@ public class Circuit {
         return tickRate;
     }
 
-    public void printCircuitText(PrintStream stream){
+    public void exportToSpiceNetlist(PrintStream stream){
         if (this.analyseResult == null)
             throw new IllegalStateException("Matrix need's to be build before run this method.");
-        for (Element element : elements) {
-            short a = -1, b = -1;
-            if (element.getPinA() != null)
-                a = element.getPinA().address;
-            if (element.getPinB() != null)
-                b = element.getPinB().address;
 
-            if (element instanceof VoltageSource)
-                stream.println("Vs " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
-            else if (element instanceof CurrentSource)
-                stream.println("Cs " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
-            else if (element instanceof Resistor)
-                stream.println("R " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
-            else if (element instanceof Capacitor)
-                stream.println("C " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
-            else if (element instanceof Inductor)
-                stream.println("L " + (a == -1 ? "null" : a) + " " + (b == -1 ? "null" : b) + " " + element.getPropriety());
+        stream.println("Exported by Welber's Circuit sim");
+        {
+            int idx = 1;
+            for (VoltageSource source : analyseResult.voltage_source)
+                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
         }
+        {
+            int idx = 1;
+            for (CurrentSource source : analyseResult.current_sources)
+                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+        }
+        {
+            int idx = 1;
+            for (Resistor source : analyseResult.resistors)
+                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+        }
+        {
+            int idx = 1;
+            for (Capacitor source : analyseResult.capacitors)
+                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+        }
+        {
+            int idx = 1;
+            for (Inductor source : analyseResult.inductors)
+                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+        }
+        stream.println(".tran 0 1 0 0.005 startup\n.backanno\n.end");
     }
 }

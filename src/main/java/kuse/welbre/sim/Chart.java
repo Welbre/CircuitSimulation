@@ -2,6 +2,7 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electricalsim.Circuit;
 import kuse.welbre.sim.electricalsim.Element;
+import kuse.welbre.sim.electricalsim.exemples.Circuits;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,14 +13,14 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Main.getRcCircuit();
+        Circuit c = Circuits.Inductors.getRlCircuit();
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
-                .see(0, false, true, false, "v")
-                .see(1, false, true, false, "r")
-                .see(2, false, true, false, "c")
+                .see(0, true, true, false, "v")
+                .see(1, true, true, false, "r")
+                .see(2, true, true, false, "l")
         );
-        c.printCircuitText(System.out);
+        c.exportToSpiceNetlist(System.out);
 
         File file = new File("./ggggkkkkkk.csv");
 
