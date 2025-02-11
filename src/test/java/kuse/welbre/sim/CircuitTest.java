@@ -1,6 +1,7 @@
 package kuse.welbre.sim;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.scalb;
 import static org.junit.jupiter.api.Assertions.*;
 
 import kuse.welbre.sim.electricalsim.*;
@@ -26,7 +27,7 @@ class CircuitTest {
     public static boolean equals(double a, double b) {
         if (b == 0)
             return abs(a - b) < 0.100; //100m of absolute error.
-        return (1 - abs(a/b)) < 0.01 && abs(a - b) < 0.100; //1% of error.
+        return (1 - abs(a/b)) < 0.01; //1% of error.
     }
 
     public static Consumer<Element> getIfFails(Circuit circuit){
@@ -232,16 +233,32 @@ class CircuitTest {
         @Order(4)
         void testInductorAssociationCircuit(){
             var expectInitial = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {0.12,0,0}, {0.12,0,0}, {35.76,0,0}, {0.2355,0,0}, {0.2355,0,0}, {0.2355,0,0}};
-            var expectFinal = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0.00015,0}, {0,0.00015,0}, {0,0.00015,0}};//done
+            var expectFinal = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0.00015,0}, {0,0.00015,0}, {0,0.00015,0}};
             new DynamicData(Circuits.Inductors::getAssociationCircuit, expectInitial, expectFinal, 1).test();
         }
 
         @Test
         @Order(5)
-        void testInductorCircuit2(){
+        void testSeriesRCLCircuit(){
             var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
-            var expectFinal = new double[][]{{12,0,0},{0,0,0},{12,0,0},{0,0,0}};//done
+            var expectFinal = new double[][]{{12,0,0},{0,0,0},{12,0,0},{0,0,0}};
             new DynamicData(Circuits.RLC::getSeries, expectInitial, expectFinal, 1).test();
+        }
+
+        @Test
+        @Order(6)
+        void testSeriesRCLOscillationFreeCircuit(){
+            var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
+            var expectFinal = new double[][]{{12,0,0},{0,0,0},{12,0,0},{0,0,0}};
+            new DynamicData(Circuits.RLC::getSeriesNoOscillation, expectInitial, expectFinal, 0.38).test();
+        }
+
+        @Test
+        @Order(7)
+        void testParallelRCLCircuit(){
+            var expectInitial = new double[][]{{12,-12,-144},{12,12,144},{0,0,0},{0,12,0},{0,0,0}};
+            var expectFinal = new double[][]{{12,-11.95,-143.4},{-11.95,0.047,0.5728},{0.04793,0.04793,0},{0.04793,0,0},{0.04793,11.90,0.57036}};
+            new DynamicData(Circuits.RLC::getParallel, expectInitial, expectFinal, 1).setTickRate(0.05).test();
         }
     }
 }

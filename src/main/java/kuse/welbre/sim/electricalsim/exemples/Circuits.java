@@ -296,5 +296,32 @@ public final class Circuits {
 
             return circuit;
         }
+
+        public static Circuit getSeriesNoOscillation(){
+            Circuit circuit = getSeries();
+            ((Resistor) circuit.getElements()[1]).setResistance(6);
+
+            return circuit;
+        }
+
+        public static Circuit getParallel(){
+            Circuit circuit = new Circuit();
+            VoltageSource v1 = new VoltageSource(12);
+            Resistor r1 = new Resistor(1);
+            Resistor r2 = new Resistor(1);
+            Capacitor c1 = new Capacitor(0.010);
+            Inductor l1 = new Inductor(0.1);
+
+            circuit.addElement(v1,r1,r2,c1,l1);
+
+            v1.connect(r1.getPinA(), null);
+            Pin b = r1.getPinB();
+
+            r2.connect(b, null);
+            c1.connect(b, null);
+            l1.connect(b, null);
+
+            return circuit;
+        }
     }
 }
