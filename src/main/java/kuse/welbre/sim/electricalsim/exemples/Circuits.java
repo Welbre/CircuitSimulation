@@ -248,6 +248,38 @@ public final class Circuits {
         }
     }
     public static final class RLC {
+        /**
+         * Version 4
+         * SHEET 1 880 680
+         * WIRE 16 128 -96 128
+         * WIRE 192 128 96 128
+         * WIRE 320 128 256 128
+         * WIRE 160 208 -96 208
+         * WIRE 400 208 400 128
+         * WIRE 400 208 160 208
+         * FLAG 160 208 0
+         * SYMBOL voltage -96 112 R0
+         * WINDOW 123 0 0 Left 0
+         * WINDOW 39 0 0 Left 0
+         * SYMATTR InstName V1
+         * SYMATTR Value 12
+         * SYMBOL res 112 112 R90
+         * WINDOW 0 0 56 VBottom 2
+         * WINDOW 3 32 56 VTop 2
+         * SYMATTR InstName R1
+         * SYMATTR Value 1
+         * SYMBOL cap 256 112 R90
+         * WINDOW 0 0 32 VBottom 2
+         * WINDOW 3 32 32 VTop 2
+         * SYMATTR InstName C1
+         * SYMATTR Value 0.01
+         * SYMBOL ind 416 112 R90
+         * WINDOW 0 5 56 VBottom 2
+         * WINDOW 3 32 56 VTop 2
+         * SYMATTR InstName L1
+         * SYMATTR Value 100m
+         * TEXT -128 232 Left 2 !.tran 0 1 0 0.005 startup
+         */
         public static Circuit getSeries(){
             Circuit circuit = new Circuit();
             VoltageSource v1 = new VoltageSource(12);
