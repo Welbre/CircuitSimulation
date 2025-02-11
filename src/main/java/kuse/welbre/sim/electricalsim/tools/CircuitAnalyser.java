@@ -8,39 +8,25 @@ import java.util.List;
 import java.util.Set;
 
 public final class CircuitAnalyser {
-    public static final class Result {
-        public final int nodes;
-        public final List<VoltageSource> voltage_source;
-        public final List<CurrentSource> current_sources;
-        public final List<Resistor> resistors;
-        public final List<Capacitor> capacitors;
-        public final List<Inductor> inductors;
-        public final Set<Element.Pin> pins;
-
-        private Result(Set<Element.Pin> pins, List<VoltageSource> voltage_source, List<CurrentSource> current_sources, List<Resistor> resistors, List<Capacitor> capacitors, List<Inductor> inductors) {
-            this.inductors = inductors;
-            //removes the ground from the list, because it isn't having relevance in the matrix.
-            pins.remove(null);
-            this.nodes = pins.size();
-            this.voltage_source = voltage_source;
-            this.current_sources = current_sources;
-            this.resistors = resistors;
-            this.capacitors = capacitors;
-            this.pins = pins;
-        }
-    }
+    public final int nodes;
+    public final List<VoltageSource> voltageSources;
+    public final List<CurrentSource> currentSources;
+    public final List<Resistor> resistors;
+    public final List<Capacitor> capacitors;
+    public final List<Inductor> inductors;
+    public final Set<Element.Pin> pins;
 
     /**
      * Find all nodes in the circuit.
-     * @return A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
+     * A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
      */
-    public static CircuitAnalyser.Result analyseCircuit(Circuit circuit) {
-        Set<Element.Pin> pins = new HashSet<>();
-        List<VoltageSource> voltageSources = new ArrayList<>();
-        List<CurrentSource> currentSources = new ArrayList<>();
-        List<Resistor> resistors = new ArrayList<>();
-        List<Capacitor> capacitors = new ArrayList<>();
-        List<Inductor> inductors = new ArrayList<>();
+    public CircuitAnalyser(Circuit circuit) {
+        pins = new HashSet<>();
+        voltageSources = new ArrayList<>();
+        currentSources = new ArrayList<>();
+        resistors = new ArrayList<>();
+        capacitors = new ArrayList<>();
+        inductors = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
             pins.add(element.getPinA());
@@ -56,6 +42,9 @@ public final class CircuitAnalyser {
             }
         }
 
-        return new Result(pins, voltageSources, currentSources, resistors, capacitors, inductors);
+        this.nodes = pins.size();
+
+        //removes the ground from the list, because it isn't having relevance in the matrix.
+        pins.remove(null);
     }
 }

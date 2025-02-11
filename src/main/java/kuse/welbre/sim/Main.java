@@ -7,7 +7,7 @@ import java.io.PrintStream;
 
 public class Main {
     public static void main(String[] args) {
-        Circuit circuit = Circuits.Inductors.getAssociationCircuit();
+        Circuit circuit = Circuits.RLC.getSeries();
         circuit.preCompile();
 
         circuit.exportToSpiceNetlist(System.out);

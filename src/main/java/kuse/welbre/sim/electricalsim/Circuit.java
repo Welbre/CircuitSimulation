@@ -10,7 +10,7 @@ import java.util.*;
 
 public class Circuit {
     /// 50ms time step
-    public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-12;
+    public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-5;
     public static final double DEFAULT_TIME_STEP = 0.05;
     private double tickRate = DEFAULT_TIME_STEP;
     /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
@@ -19,7 +19,7 @@ public class Circuit {
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
 
-    private CircuitAnalyser.Result analyseResult;
+    private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
     /**
      * This array storage 'n' nodes voltage pointers and 'm' current throw a voltage source.<br>
@@ -43,16 +43,15 @@ public class Circuit {
     /**
      * Try to find if some node or element can crash the matrix generation.
      */
-    private boolean checkInconsistencies() {
+    private void checkInconsistencies() {
         //todo need's to be implemented.
-        return true;
     }
 
     /**
      * Convert the random pins address to a workable value, the address is some short number between 0 and {@link Short#MAX_VALUE}.<br>
      * Set the pointers in the {@link Pin pin}, and set the voltageSource current pointer.
      */
-    private void preparePinsAndSources(CircuitAnalyser.Result result, double[][] X){
+    private void preparePinsAndSources(CircuitAnalyser result, double[][] X){
         short next = 0;
         for (Pin pin : result.pins) {
             //Set to useful index in a matrix.
@@ -63,16 +62,18 @@ public class Circuit {
 
         //Dislocate result.nodes from the top of Z matrix, to set the voltage sources values in the correct row.
         short index = (short) result.nodes;
-        for (int i = 0; i < result.voltage_source.size(); i++) {
+        for (int i = 0; i < result.voltageSources.size(); i++) {
             //Set the current pointer.
-            result.voltage_source.get(i).setCurrentPointer(X[i + result.pins.size()]);
-            result.voltage_source.get(i).address = index++;
+            result.voltageSources.get(i).setCurrentPointer(X[i + result.pins.size()]);
+            result.voltageSources.get(i).address = index++;
         }
     }
 
     public void buildMatrix() {
-        analyseResult = CircuitAnalyser.analyseCircuit(this);
-        final int nm = analyseResult.nodes + analyseResult.voltage_source.size();
+        if (analyseResult == null)
+            throw new IllegalStateException("Build matrix called before circuit analysis!");
+
+        final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
 
         final double[][] G = new double[nm][nm];
         final double[] Z = new double[nm];
@@ -85,10 +86,10 @@ public class Circuit {
         for (Resistor r : analyseResult.resistors)
             matrixBuilder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
         //Stamp the voltage sources.
-        for (VoltageSource vs : analyseResult.voltage_source)
+        for (VoltageSource vs : analyseResult.voltageSources)
             matrixBuilder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
         //Stamp the current sources.
-        for (CurrentSource cs : analyseResult.current_sources)
+        for (CurrentSource cs : analyseResult.currentSources)
             matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
         //Stamp the capacitors.
         for (Capacitor c : analyseResult.capacitors)
@@ -115,22 +116,17 @@ public class Circuit {
      * thus, defining the initial conditions at t = 0.
      */
     private void solveInitialConditions(){
-        final int nm = analyseResult.nodes + analyseResult.voltage_source.size();
+        final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
         MatrixBuilder builder = new MatrixBuilder(new double[nm][nm],new double[nm]);
+
+        final double originalTickRate = getTickRate();
+        this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
 
         //Stamp resistors
         for (Resistor r : analyseResult.resistors)
             builder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
-        //Stamp the voltage sources.
-        for (VoltageSource vs : analyseResult.voltage_source)
-            //builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
-            builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
-        //Stamp the current sources.
-        for (CurrentSource cs : analyseResult.current_sources)
-            builder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
-
-        final double originalTickRate = getTickRate();
-        this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
+        for (VoltageSource vs : analyseResult.voltageSources)
+            builder.stampVoltageSource(vs.getPinA(), vs.getPinB(),vs.address, 0);
 
         //This sim uses backwards Euler method to discretize the capacitors and inductors, and create a companion model that consists of a current source and a parallel resistor.
         //As the timeStep that we use approaches to 0, the companion resistor of a capacitor model gets close to 0, and the companion resistor of inductor model gets close to infinite.
@@ -141,7 +137,7 @@ public class Circuit {
             builder.stampResistor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate());
         for (Inductor l : this.analyseResult.inductors)
             //The inductor is the same idea, but at t = 0, the indicator act as an open circuit (G = 0).
-            builder.stampResistor(l.getPinA(), l.getPinB(), (getTickRate() / l.getInductance()));
+            builder.stampResistor(l.getPinA(), l.getPinB(), getTickRate() / l.getInductance());
 
         //initial the elements to solve initial conditions.
         for (Simulable simulable : simulableElements)
@@ -149,23 +145,28 @@ public class Circuit {
 
         builder.close();
 
-        //preTick in t
-        for (var sim : simulableElements)
-            sim.preEvaluation(matrixBuilder);
+        for (double ramp = 0; ramp < 1; ramp += 0.1) {
+            Arrays.fill(matrixBuilder.getZ(), 0);
 
-        //Calculate the values and inject in pointers.
-        double[] initial = builder.getResult();
-        injectValuesInX(initial);
+            //Re stamp fixes sources
+            for (var vs : analyseResult.voltageSources)
+                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference() * ramp);
+            for (var cs : analyseResult.currentSources)
+                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent() * ramp);
 
-        //Pos tick
-        for (var sim : simulableElements)
-            sim.posEvaluation(matrixBuilder);
+            //we are in t, so use actual values to prepare evaluation to t+1
+            for (Simulable element : simulableElements)
+                element.preEvaluation(matrixBuilder);
 
+            //above is t
+            injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
+            //below is t + 1
 
+            //Pos ticking to calculate values in t + 1
+            for (var sim : simulableElements)
+                sim.posEvaluation(matrixBuilder);
+        }
         this.tickRate = originalTickRate;
-        //Start simulable elements with original tick rate.
-        for (Simulable simulable : simulableElements)
-            simulable.initiate(this);
     }
 
     public void tick(double dt) {
@@ -175,9 +176,9 @@ public class Circuit {
             Arrays.fill(matrixBuilder.getZ(), 0);
 
             //Re stamp fixes sources
-            for (var vs : analyseResult.voltage_source)
+            for (var vs : analyseResult.voltageSources)
                 matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
-            for (var cs : analyseResult.current_sources)
+            for (var cs : analyseResult.currentSources)
                 matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
 
             //we are in t, so use actual values to prepare evaluation to t+1
@@ -200,8 +201,13 @@ public class Circuit {
     }
 
     private void clean() {
-        if (! checkInconsistencies())
-            throw new RuntimeException("Circuit with inconsistencies");
+        analyseResult = new CircuitAnalyser(this);
+
+        try {checkInconsistencies();} catch (RuntimeException e) {
+            e.printStackTrace(System.err);
+            throw new RuntimeException("Circuit with inconsistencies!");
+        }
+
         buildMatrix();
         solveInitialConditions();
 
@@ -270,12 +276,12 @@ public class Circuit {
         stream.println("Exported by Welber's Circuit sim");
         {
             int idx = 1;
-            for (VoltageSource source : analyseResult.voltage_source)
+            for (VoltageSource source : analyseResult.voltageSources)
                 stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
         }
         {
             int idx = 1;
-            for (CurrentSource source : analyseResult.current_sources)
+            for (CurrentSource source : analyseResult.currentSources)
                 stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
         }
         {
