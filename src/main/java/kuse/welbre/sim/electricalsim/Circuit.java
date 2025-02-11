@@ -5,12 +5,14 @@ import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
 public class Circuit {
     /// 50ms time step
-    public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-5;
+    public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-10;
     public static final double DEFAULT_TIME_STEP = 0.05;
     private double tickRate = DEFAULT_TIME_STEP;
     /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
@@ -44,7 +46,36 @@ public class Circuit {
      * Try to find if some node or element can crash the matrix generation.
      */
     private void checkInconsistencies() {
-        //todo need's to be implemented.
+        //initiation
+        Pin gnd = new Pin();
+        HashMap<Pin, List<Element>> elements_per_pin = new HashMap<>();
+
+        elements_per_pin.put(gnd, new ArrayList<>());
+        for (Pin pin : this.analyseResult.pins)
+            elements_per_pin.put(pin, new ArrayList<>());
+
+        for (Element element : elements) {
+            elements_per_pin.get(element.getPinA() == null ? gnd : element.getPinA()).add(element);
+            elements_per_pin.get(element.getPinB() == null ? gnd : element.getPinB()).add(element);
+        }
+
+        //Error check
+        for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet()) {
+            Pin key = entry.getKey(); List<Element> list = entry.getValue();
+
+            if (entry.getValue().isEmpty())
+                throw new IllegalStateException(String.format("%s have no connections! possible fault in circuit formation.", key));
+
+            if (entry.getValue().size() == 1) {
+                Element element = list.getFirst();
+                throw new IllegalStateException(String.format("%s(%s)[%s,%s] is connected to %s without a path, possible fault in circuit formation!",
+                        element.getClass().getSimpleName(),
+                        Tools.proprietyToSi(element.getPropriety(), element.getProprietySymbol(), 2),
+                        element.getPinA() == null ? "gnd" : element.getPinA().address,
+                        element.getPinB() == null ? "gnd" : element.getPinB().address,
+                        key));
+            }
+        }
     }
 
     /**
@@ -119,14 +150,19 @@ public class Circuit {
         final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
         MatrixBuilder builder = new MatrixBuilder(new double[nm][nm],new double[nm]);
 
-        final double originalTickRate = getTickRate();
-        this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
-
         //Stamp resistors
         for (Resistor r : analyseResult.resistors)
             builder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
+        //Stamp the voltage sources.
         for (VoltageSource vs : analyseResult.voltageSources)
-            builder.stampVoltageSource(vs.getPinA(), vs.getPinB(),vs.address, 0);
+            //builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
+            builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
+        //Stamp the current sources.
+        for (CurrentSource cs : analyseResult.currentSources)
+            builder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+
+        final double originalTickRate = getTickRate();
+        this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
 
         //This sim uses backwards Euler method to discretize the capacitors and inductors, and create a companion model that consists of a current source and a parallel resistor.
         //As the timeStep that we use approaches to 0, the companion resistor of a capacitor model gets close to 0, and the companion resistor of inductor model gets close to infinite.
@@ -145,28 +181,23 @@ public class Circuit {
 
         builder.close();
 
-        for (double ramp = 0; ramp < 1; ramp += 0.1) {
-            Arrays.fill(matrixBuilder.getZ(), 0);
+        //preTick in t
+        for (var sim : simulableElements)
+            sim.preEvaluation(matrixBuilder);
 
-            //Re stamp fixes sources
-            for (var vs : analyseResult.voltageSources)
-                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference() * ramp);
-            for (var cs : analyseResult.currentSources)
-                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent() * ramp);
+        //Calculate the values and inject in pointers.
+        double[] initial = builder.getResult();
+        injectValuesInX(initial);
 
-            //we are in t, so use actual values to prepare evaluation to t+1
-            for (Simulable element : simulableElements)
-                element.preEvaluation(matrixBuilder);
+        //Pos tick
+        for (var sim : simulableElements)
+            sim.posEvaluation(matrixBuilder);
 
-            //above is t
-            injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
-            //below is t + 1
 
-            //Pos ticking to calculate values in t + 1
-            for (var sim : simulableElements)
-                sim.posEvaluation(matrixBuilder);
-        }
         this.tickRate = originalTickRate;
+        //Start simulable elements with original tick rate.
+        for (Simulable simulable : simulableElements)
+            simulable.initiate(this);
     }
 
     public void tick(double dt) {

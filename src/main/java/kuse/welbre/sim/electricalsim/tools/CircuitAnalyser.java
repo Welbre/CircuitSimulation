@@ -42,9 +42,9 @@ public final class CircuitAnalyser {
             }
         }
 
-        this.nodes = pins.size();
-
         //removes the ground from the list, because it isn't having relevance in the matrix.
         pins.remove(null);
+
+        this.nodes = pins.size();
     }
 }

@@ -17,6 +17,11 @@ public abstract class Element {
         public Pin() {
             address = (short) rand.nextInt();
         }
+
+        @Override
+        public String toString() {
+            return "Pin[" + address + "]";
+        }
     }
     private Pin pinA;
     private Pin pinB;

@@ -240,7 +240,7 @@ class CircuitTest {
         @Order(5)
         void testInductorCircuit2(){
             var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
-            var expectFinal = new double[][]{{12,0,0},{0,0,0},{0,0,0},{0,0,0}};//done
+            var expectFinal = new double[][]{{12,0,0},{0,0,0},{12,0,0},{0,0,0}};//done
             new DynamicData(Circuits.RLC::getSeries, expectInitial, expectFinal, 1).test();
         }
     }

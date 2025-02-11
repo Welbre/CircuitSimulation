@@ -291,7 +291,7 @@ public final class Circuits {
 
             v1.connect(r1.getPinB(), null);
             r1.connectA(c1.getPinB());
-            c1.connectA(l1.getPinB());
+            c1.connectA(l1.getPinA());
             l1.connectB(null);
 
             return circuit;
