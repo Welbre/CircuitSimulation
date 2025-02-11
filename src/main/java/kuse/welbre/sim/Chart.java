@@ -1,8 +1,6 @@
 package kuse.welbre.sim;
 
-import kuse.welbre.sim.electricalsim.Circuit;
-import kuse.welbre.sim.electricalsim.Element;
-import kuse.welbre.sim.electricalsim.exemples.Circuits;
+import kuse.welbre.sim.electricalsim.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,13 +11,20 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.RLC.getParallel();
+        Circuit c = new Circuit();
+        ACVoltageSource vs = new ACVoltageSource(12, 5);
+        Resistor r1 = new Resistor(1);
+        Capacitor c1 = new Capacitor(0.10);
+
+        c.addElement(vs, r1, c1);
+        vs.connect(r1.getPinA(), null);
+        c1.connect(r1.getPinB(), null);
+
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "r")
                 .see(2, true, true, false, "c")
-                .see(3, true, true, false, "l")
         );
         c.exportToSpiceNetlist(System.out);
 

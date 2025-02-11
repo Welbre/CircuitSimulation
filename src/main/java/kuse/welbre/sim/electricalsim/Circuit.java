@@ -5,8 +5,6 @@ import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -15,8 +13,6 @@ public class Circuit {
     public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-10;
     public static final double DEFAULT_TIME_STEP = 0.05;
     private double tickRate = DEFAULT_TIME_STEP;
-    /// Max conductance value to avoid a Nan sum of 2 or more {@link Double#MAX_VALUE} resulting in inf.
-    public static final double MAX_CONDUCTANCE = 1E10;
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
