@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
 import java.util.Random;
@@ -69,6 +70,7 @@ public abstract class Element {
      * Using the conventional current direction, so Voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.
      */
     public abstract double getCurrent();
+    public abstract void stamp(MatrixBuilder builder);
 
     @Override
     public String toString() {

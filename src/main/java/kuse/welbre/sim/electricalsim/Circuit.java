@@ -109,28 +109,13 @@ public class Circuit {
 
         matrixBuilder = new MatrixBuilder(G, Z);
 
-        //Stamp resistors
-        for (Resistor r : analyseResult.resistors)
-            matrixBuilder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
-        //Stamp the voltage sources.
-        for (VoltageSource vs : analyseResult.voltageSources)
-            matrixBuilder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
-        //Stamp the current sources.
-        for (CurrentSource cs : analyseResult.currentSources)
-            matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
-        //Stamp the capacitors.
-        for (Capacitor c : analyseResult.capacitors)
-            matrixBuilder.stampCapacitor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate(), c.getCurrent());
-        //Stamp inductors.
-        for (Inductor l : analyseResult.inductors)
-            matrixBuilder.stampInductor(l.getPinA(), l.getPinB(), getTickRate() / l.getInductance(), l.getCurrent());
+        //Init simulable
+        for (Simulable s : simulableElements)
+            s.initiate(this);
 
-        //D matrix will be implemented soon.
-        for (int m0 = analyseResult.nodes; m0 < nm; m0++) {
-            for (int m1 = analyseResult.nodes; m1 < nm; m1++) {
-                G[m0][m1] = 0;
-            }
-        }
+        //Stamp and init all elements
+        for (Element e : elements)
+            e.stamp(matrixBuilder);
 
         matrixBuilder.close();
     }
@@ -146,34 +131,16 @@ public class Circuit {
         final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
         MatrixBuilder builder = new MatrixBuilder(new double[nm][nm],new double[nm]);
 
-        //Stamp resistors
-        for (Resistor r : analyseResult.resistors)
-            builder.stampResistor(r.getPinA(), r.getPinB(), r.getConductance());
-        //Stamp the voltage sources.
-        for (VoltageSource vs : analyseResult.voltageSources)
-            //builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
-            builder.stampVoltageSource(vs.getPinA(), vs.getPinB(), vs.address, vs.getVoltageDifference());
-        //Stamp the current sources.
-        for (CurrentSource cs : analyseResult.currentSources)
-            builder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
-
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
-
-        //This sim uses backwards Euler method to discretize the capacitors and inductors, and create a companion model that consists of a current source and a parallel resistor.
-        //As the timeStep that we use approaches to 0, the companion resistor of a capacitor model gets close to 0, and the companion resistor of inductor model gets close to infinite.
-        for (Capacitor c : this.analyseResult.capacitors)
-            //As the conductance is the inverse of resistance, when r approaches to 0, (g approaches to infinite) simulating a short circuit.
-            //But is important to keep in mind that float point numbers have major problems with infinite values and NaN,
-            //instead add an infinite conductance; we add a fix number to simulate the short circuit.
-            builder.stampResistor(c.getPinA(), c.getPinB(), c.getCapacitance() / getTickRate());
-        for (Inductor l : this.analyseResult.inductors)
-            //The inductor is the same idea, but at t = 0, the indicator act as an open circuit (G = 0).
-            builder.stampResistor(l.getPinA(), l.getPinB(), getTickRate() / l.getInductance());
 
         //initial the elements to solve initial conditions.
         for (Simulable simulable : simulableElements)
             simulable.initiate(this);
+
+        //Stamp
+        for (Element e : elements)
+            e.stamp(builder);
 
         builder.close();
 

@@ -1,6 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
 import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 import java.util.Random;
 
@@ -36,8 +37,13 @@ public class VoltageSource extends Element {
     }
 
     @Override
+    public void stamp(MatrixBuilder builder) {
+        builder.stampVoltageSource(this.getPinA(), this.getPinB(), this.address, this.getVoltageDifference());
+    }
+
+    @Override
     protected double getPropriety() {
-        return voltage;
+        return getVoltageDifference();
     }
 
     @Override

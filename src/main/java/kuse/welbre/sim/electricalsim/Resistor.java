@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+
 public class Resistor extends Element {
     private double resistance;
     private double conductance;
@@ -34,6 +36,11 @@ public class Resistor extends Element {
     @Override
     public double getCurrent() {
         return getVoltageDifference() / getResistance();
+    }
+
+    @Override
+    public void stamp(MatrixBuilder builder) {
+        builder.stampResistor(this.getPinA(), this.getPinB(), this.getConductance());
     }
 
     @Override

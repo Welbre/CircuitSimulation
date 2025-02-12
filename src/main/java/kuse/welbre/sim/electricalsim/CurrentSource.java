@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+
 public class CurrentSource extends Element {
     private double current;
 
@@ -17,6 +19,11 @@ public class CurrentSource extends Element {
 
     public double getCurrent() {
         return current;
+    }
+
+    @Override
+    public void stamp(MatrixBuilder builder) {
+        builder.stampCurrentSource(this.getPinA(), this.getPinB(), this.getCurrent());
     }
 
     @Override

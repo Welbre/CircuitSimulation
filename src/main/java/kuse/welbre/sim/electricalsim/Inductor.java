@@ -39,6 +39,11 @@ public class Inductor extends Element implements Simulable {
     }
 
     @Override
+    public void stamp(MatrixBuilder builder) {
+        builder.stampInductor(this.getPinA(), this.getPinB(), compConductance, this.getCurrent());
+    }
+
+    @Override
     public void initiate(Circuit circuit) {
         compConductance = circuit.getTickRate() / getInductance();
     }

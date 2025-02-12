@@ -12,19 +12,12 @@ public class Chart {
 
     public static void main(String[] args) throws Exception {
         Circuit c = new Circuit();
-        ACVoltageSource vs = new ACVoltageSource(12, 5);
+        VoltageSource vs = new VoltageSource(1);
         Resistor r1 = new Resistor(1);
-        Capacitor c1 = new Capacitor(0.10);
-
-        c.addElement(vs, r1, c1);
-        vs.connect(r1.getPinA(), null);
-        c1.connect(r1.getPinB(), null);
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
-                .see(0, true, true, false, "v")
-                .see(1, true, true, false, "r")
-                .see(2, true, true, false, "c")
+                .see(0, false, true, false, "v")
         );
         c.exportToSpiceNetlist(System.out);
 

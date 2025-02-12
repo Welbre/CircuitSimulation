@@ -34,6 +34,11 @@ public class Capacitor extends Element implements Simulable {
         return "F";
     }
 
+    @Override
+    public void stamp(MatrixBuilder builder) {
+        builder.stampCapacitor(this.getPinA(), this.getPinB(), compConductance, this.getCurrent());
+    }
+
     private double capacitorCurrent = 0;
     @Override
     public double getCurrent() {
