@@ -324,4 +324,21 @@ public final class Circuits {
             return circuit;
         }
     }
+    public static final class CurrentControlledCurrentSources {
+        public static Circuit getCCCSWithResistors(){
+            Circuit circuit = new Circuit();
+            var v1 = new VoltageSource(10);
+            var r1 = new Resistor(10);
+            var cccs1 = new CCCS(3);
+            var r2 = new Resistor(100);
+
+            circuit.addElement(v1,r1,cccs1,r2);
+
+            v1.connect(r1.getPinA(), null);
+            cccs1.connect(r2.getPinA(), null, r1.getPinB(),null);
+            r2.connectB(null);
+
+            return circuit;
+        }
+    }
 }

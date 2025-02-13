@@ -9,11 +9,13 @@ import java.util.Set;
 
 public final class CircuitAnalyser {
     public final int nodes;
+    public final int matrixSize;
     public final List<VoltageSource> voltageSources;
     public final List<CurrentSource> currentSources;
     public final List<Resistor> resistors;
     public final List<Capacitor> capacitors;
     public final List<Inductor> inductors;
+    public final List<CCCS> cccs;
     public final Set<Element.Pin> pins;
 
     /**
@@ -27,6 +29,7 @@ public final class CircuitAnalyser {
         resistors = new ArrayList<>();
         capacitors = new ArrayList<>();
         inductors = new ArrayList<>();
+        cccs = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
             pins.add(element.getPinA());
@@ -37,6 +40,7 @@ public final class CircuitAnalyser {
                 case Resistor r -> resistors.add(r);
                 case Capacitor cs -> capacitors.add(cs);
                 case Inductor i -> inductors.add(i);
+                case CCCS cs -> cccs.add(cs);//Current-controlled current source.
                 default -> {
                 }
             }
@@ -46,5 +50,8 @@ public final class CircuitAnalyser {
         pins.remove(null);
 
         this.nodes = pins.size();
+        //Each of these terms contributes to matrix size
+        //The node with an unknown voltage, and voltage sources with unknown currents.
+        this.matrixSize = this.nodes + voltageSources.size() + cccs.size();
     }
 }

@@ -58,6 +58,10 @@ public abstract class Element {
         this.pinB = pinB;
     }
 
+    public Pin[] getPins(){
+        return new Pin[]{getPinA(), getPinB()};
+    }
+
     /**
      * Returns the value of the element propriety.
      * @return The value that can be edited and will be printed next to the component name in {@link Element#toString()}.<br>
@@ -78,8 +82,8 @@ public abstract class Element {
                 "%s(%s)[%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
                 Tools.proprietyToSi(getPropriety(), getProprietySymbol(), 2),
-                pinA == null ? "gnd" : pinA.address+1,
-                pinB == null ? "gnd" : pinB.address+1,
+                getPinA() == null ? "gnd" : getPinA().address+1,
+                getPinB() == null ? "gnd" : getPinB().address+1,
                 getVoltageDifference(),
                 getCurrent(),
                 getPower()

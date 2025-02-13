@@ -3,6 +3,8 @@ package kuse.welbre.sim.electricalsim.tools;
 import kuse.welbre.sim.electricalsim.Element;
 import org.apache.commons.math4.legacy.linear.MatrixUtils;
 
+import java.util.Arrays;
+
 /**
  * An aid to build the G matrix, uses null to connect the element to ground.
  */
@@ -70,6 +72,15 @@ public final class MatrixBuilder {
         stampCurrentSource(a, b, current);
     }
 
+    public void stampGRaw(int row, int colum, double value){
+        if (isClosed) throw new IllegalStateException("Try stamp a voltage source in a closed builder!");
+        G[row][colum] = value;
+    }
+
+    public void clearZMatrix(){
+        Arrays.fill(Z, 0);
+    }
+
     public void close(){
         if (isClosed) return;
         //todo implement a better solver
@@ -91,14 +102,6 @@ public final class MatrixBuilder {
         if (!isClosed)
             throw new IllegalStateException("Try get inverse in a non closed matrix builder!");
         return inverse;
-    }
-
-    public double[][] getG() {
-        return G;
-    }
-
-    public double[] getZ() {
-        return Z;
     }
 
     public double[][] getCopyOfG() {

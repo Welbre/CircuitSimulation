@@ -46,14 +46,15 @@ public class Circuit {
         Pin gnd = new Pin();
         HashMap<Pin, List<Element>> elements_per_pin = new HashMap<>();
 
+        //All pins to map
         elements_per_pin.put(gnd, new ArrayList<>());
         for (Pin pin : this.analyseResult.pins)
             elements_per_pin.put(pin, new ArrayList<>());
 
-        for (Element element : elements) {
-            elements_per_pin.get(element.getPinA() == null ? gnd : element.getPinA()).add(element);
-            elements_per_pin.get(element.getPinB() == null ? gnd : element.getPinB()).add(element);
-        }
+        //Add all elements to correspondent pins.
+        for (Element element : elements)
+            for (Pin pin : element.getPins())
+                elements_per_pin.get(pin == null ? gnd : pin).add(element);
 
         //Error check
         for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet()) {
@@ -94,17 +95,22 @@ public class Circuit {
             result.voltageSources.get(i).setCurrentPointer(X[i + result.pins.size()]);
             result.voltageSources.get(i).address = index++;
         }
+        for (int i = 0; i < result.cccs.size(); i++) {
+            //Set the current pointer.
+            result.cccs.get(i).setCurrentPointer(X[i + result.pins.size()]);
+            result.cccs.get(i).address = index++;
+        }
     }
 
     public void buildMatrix() {
         if (analyseResult == null)
             throw new IllegalStateException("Build matrix called before circuit analysis!");
 
-        final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
+        final int size = analyseResult.matrixSize;
 
-        final double[][] G = new double[nm][nm];
-        final double[] Z = new double[nm];
-        X = new double[nm][1];
+        final double[][] G = new double[size][size];
+        final double[] Z = new double[size];
+        X = new double[size][1];
         preparePinsAndSources(analyseResult, X);
 
         matrixBuilder = new MatrixBuilder(G, Z);
@@ -128,8 +134,8 @@ public class Circuit {
      * thus, defining the initial conditions at t = 0.
      */
     private void solveInitialConditions(){
-        final int nm = analyseResult.nodes + analyseResult.voltageSources.size();
-        MatrixBuilder builder = new MatrixBuilder(new double[nm][nm],new double[nm]);
+        final int size = analyseResult.matrixSize;
+        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
 
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
@@ -167,13 +173,13 @@ public class Circuit {
         if (isDirt)
             clean();
         else {
-            Arrays.fill(matrixBuilder.getZ(), 0);
+            matrixBuilder.clearZMatrix();
 
             //Re stamp fixes sources
             for (var vs : analyseResult.voltageSources)
                 matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
             for (var cs : analyseResult.currentSources)
-                matrixBuilder.stampCurrentSource(cs.getPinA(), cs.getPinB(), cs.getCurrent());
+                cs.stamp(matrixBuilder);
 
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Simulable element : simulableElements)
@@ -292,6 +298,17 @@ public class Circuit {
             int idx = 1;
             for (Inductor source : analyseResult.inductors)
                 stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+        }
+        {
+            int idx = 1;
+            for (CCCS source : analyseResult.cccs)
+                stream.printf("CCCS%d %s %s %s %s %s\n",
+                        idx++,
+                        source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1),
+                        source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1),
+                        source.getPinC() == null ? 0 : "N" + (source.getPinC().address + 1),
+                        source.getPinD() == null ? 0 : "N" + (source.getPinD().address + 1),
+                        source.getPropriety());
         }
         stream.println(".tran 0 1 0 0.005 startup\n.backanno\n.end");
     }

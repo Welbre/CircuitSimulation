@@ -7,8 +7,10 @@ import java.io.PrintStream;
 
 public class Main {
     public static void main(String[] args) {
-        Circuit circuit = Circuits.RLC.getSeries();
+        Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCCSWithResistors();
         circuit.preCompile();
+
+        printAllElements(circuit);
 
         circuit.exportToSpiceNetlist(System.out);
     }

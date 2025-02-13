@@ -130,6 +130,7 @@ class CircuitTest {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Nested
+    @Order(1)
     class DynamicTest {
         private static final class DynamicData {
             final double[][] initialResultExpected;
@@ -259,6 +260,22 @@ class CircuitTest {
             var expectInitial = new double[][]{{12,-12,-144},{12,12,144},{0,0,0},{0,12,0},{0,0,0}};
             var expectFinal = new double[][]{{12,-11.95,-143.4},{-11.95,0.047,0.5728},{0.04793,0.04793,0},{0.04793,0,0},{0.04793,11.90,0.57036}};
             new DynamicData(Circuits.RLC::getParallel, expectInitial, expectFinal, 1).setTickRate(0.05).test();
+        }
+    }
+
+    @Nested
+    @Order(2)
+    class DependentSources {
+        @Test
+        @Order(1)
+        void testCCCSCircuit(){
+            double[][] answers = {{10,-1,10},{10,1,10},{100,-3,-300},{100,3,300}};
+            Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCCSWithResistors();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
         }
     }
 }
