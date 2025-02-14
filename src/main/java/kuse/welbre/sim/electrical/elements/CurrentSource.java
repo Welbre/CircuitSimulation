@@ -1,8 +1,9 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.tools.MatrixBuilder;
 
+@SuppressWarnings("unused")
 public class CurrentSource extends Element {
     private double current;
 
@@ -28,12 +29,12 @@ public class CurrentSource extends Element {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return current;
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "A";
     }
 }

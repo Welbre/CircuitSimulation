@@ -1,6 +1,6 @@
-package kuse.welbre.sim.electricalsim.tools;
+package kuse.welbre.tools;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Element;
 import org.apache.commons.math4.legacy.linear.MatrixUtils;
 
 import java.util.Arrays;

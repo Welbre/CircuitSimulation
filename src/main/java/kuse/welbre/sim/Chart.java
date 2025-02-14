@@ -1,7 +1,10 @@
 package kuse.welbre.sim;
 
-import kuse.welbre.sim.electricalsim.*;
-import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.Resistor;
+import kuse.welbre.sim.electrical.elements.VoltageSource;
+import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,9 +15,7 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = new Circuit();
-        VoltageSource vs = new VoltageSource(1);
-        Resistor r1 = new Resistor(1);
+        Circuit c = Circuits.RLC.getSeries();
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)

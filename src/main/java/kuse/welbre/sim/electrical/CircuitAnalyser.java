@@ -1,7 +1,7 @@
-package kuse.welbre.sim.electricalsim.tools;
+package kuse.welbre.sim.electrical;
 
-import kuse.welbre.sim.electricalsim.*;
-import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;

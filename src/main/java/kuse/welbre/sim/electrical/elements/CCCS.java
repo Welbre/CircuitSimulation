@@ -1,9 +1,9 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element4Pin;
-import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.sim.electrical.abstractt.Element4Pin;
+import kuse.welbre.sim.electrical.abstractt.RHSElement;
+import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.Tools;
 
 import java.util.Random;
 
@@ -14,7 +14,7 @@ import java.util.Random;
  * A {@link CCCS#alpha alpha} param is the amplification constant.<br><br>
  * So the control current from D to c will be amplified my {@link CCCS#alpha alpha} and outputted in A to B direction.
  */
-@SuppressWarnings("unsued")
+@SuppressWarnings("unused")
 public class CCCS extends Element4Pin implements RHSElement {
     private double alpha;
     private double[] current;
@@ -69,12 +69,12 @@ public class CCCS extends Element4Pin implements RHSElement {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return alpha;
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "";
     }
 

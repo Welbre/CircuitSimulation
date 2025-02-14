@@ -1,8 +1,9 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.tools.MatrixBuilder;
 
+@SuppressWarnings("unused")
 public class Resistor extends Element {
     private double resistance;
     private double conductance;
@@ -45,12 +46,12 @@ public class Resistor extends Element {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return resistance;
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "Ω";
     }
 }

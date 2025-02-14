@@ -1,7 +1,7 @@
-package kuse.welbre.sim.electricalsim.abstractt;
+package kuse.welbre.sim.electrical.abstractt;
 
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.Tools;
 
 import java.util.Random;
 
@@ -67,9 +67,9 @@ public abstract class Element {
      * @return The value that can be edited and will be printed next to the component name in {@link Element#toString()}.<br>
      * Ex: A resistor returns the resistance, a Voltage source returns the voltage.
      */
-    protected abstract double getQuantity();
+    public abstract double getQuantity();
     ///The SI official symbol of the quantity.
-    protected abstract String getQuantitySymbol();
+    public abstract String getQuantitySymbol();
     /**
      * The current through the element.
      * Using the conventional current direction, so voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.

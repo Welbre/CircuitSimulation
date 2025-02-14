@@ -1,6 +1,6 @@
-package kuse.welbre.sim.electricalsim.tools;
+package kuse.welbre.sim.electrical.tools;
 
-import org.junit.jupiter.api.RepeatedTest;
+import kuse.welbre.tools.Tools;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,8 +1,9 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Simulable;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
-
+import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.tools.MatrixBuilder;
+@SuppressWarnings("unused")
 public class ACVoltageSource extends VoltageSource implements Simulable {
     private double frequency;
     //How much angle oscillates per tick.

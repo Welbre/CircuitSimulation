@@ -1,9 +1,11 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.abstractt.Simulable;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.tools.MatrixBuilder;
 
+@SuppressWarnings("unused")
 public class Inductor extends Element implements Simulable {
     private double inductance;
     private double compConductance;
@@ -22,12 +24,12 @@ public class Inductor extends Element implements Simulable {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return inductance;
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "H";
     }
 

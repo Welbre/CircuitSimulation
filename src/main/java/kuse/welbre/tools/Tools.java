@@ -1,4 +1,4 @@
-package kuse.welbre.sim.electricalsim.tools;
+package kuse.welbre.tools;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -145,8 +145,7 @@ public class Tools {
         int n0 = original.length, n1 = original[0].length;
         double[][] copy = new double[n0][n1];
         for (int i = 0; i < n0; i++)
-            for (int j = 0; j < n1; j++)
-                copy[i][j] = original[i][j];
+            System.arraycopy(original[i], 0, copy[i], 0, n1);
 
         return copy;
     }

@@ -1,8 +1,8 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.RHSElement;
+import kuse.welbre.tools.MatrixBuilder;
 
 import java.util.Random;
 
@@ -41,12 +41,12 @@ public class VoltageSource extends Element implements RHSElement {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return getVoltageDifference();
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "V";
     }
 

@@ -1,13 +1,14 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.abstractt.Element4Pin;
-import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Element4Pin;
+import kuse.welbre.sim.electrical.abstractt.RHSElement;
+import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.Tools;
 
 import java.util.Random;
 
+@SuppressWarnings("unused")
 public class VCVS extends Element4Pin implements RHSElement {
     private double micro;
     private double[] current_pointer;
@@ -26,12 +27,12 @@ public class VCVS extends Element4Pin implements RHSElement {
     }
 
     @Override
-    protected double getQuantity() {
+    public double getQuantity() {
         return micro;
     }
 
     @Override
-    protected String getQuantitySymbol() {
+    public String getQuantitySymbol() {
         return "";
     }
 

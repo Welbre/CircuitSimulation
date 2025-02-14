@@ -1,7 +1,7 @@
-package kuse.welbre.sim.electricalsim.abstractt;
+package kuse.welbre.sim.electrical.abstractt;
 
-import kuse.welbre.sim.electricalsim.Circuit;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
+import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.tools.MatrixBuilder;
 
 public interface Simulable {
     void initiate(Circuit circuit);

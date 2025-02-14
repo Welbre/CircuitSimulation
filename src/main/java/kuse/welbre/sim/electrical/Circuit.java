@@ -1,15 +1,14 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electrical;
 
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.abstractt.Element.Pin;
-import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
-import kuse.welbre.sim.electricalsim.abstractt.Simulable;
-import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
-import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Element.Pin;
+import kuse.welbre.sim.electrical.abstractt.RHSElement;
+import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.sim.electrical.elements.*;
+import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class Circuit {

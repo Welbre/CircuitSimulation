@@ -3,10 +3,10 @@ package kuse.welbre.sim;
 import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
-import kuse.welbre.sim.electricalsim.*;
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.exemples.Circuits;
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.exemples.Circuits;
+import kuse.welbre.tools.Tools;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;

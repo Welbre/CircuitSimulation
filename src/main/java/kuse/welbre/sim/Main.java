@@ -1,8 +1,8 @@
 package kuse.welbre.sim;
 
-import kuse.welbre.sim.electricalsim.*;
-import kuse.welbre.sim.electricalsim.abstractt.Element;
-import kuse.welbre.sim.electricalsim.exemples.Circuits;
+import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.PrintStream;
 

@@ -1,7 +1,8 @@
-package kuse.welbre.sim.electricalsim.abstractt;
+package kuse.welbre.sim.electrical.abstractt;
 
-import kuse.welbre.sim.electricalsim.tools.Tools;
+import kuse.welbre.tools.Tools;
 
+@SuppressWarnings("unused")
 public abstract class Element4Pin extends Element {
     private Pin pinC;
     private Pin pinD;
