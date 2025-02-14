@@ -25,12 +25,12 @@ public class Capacitor extends Element implements Simulable {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return capacitance;
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "F";
     }
 

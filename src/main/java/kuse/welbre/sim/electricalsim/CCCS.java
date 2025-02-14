@@ -12,6 +12,7 @@ import java.util.Random;
  * A {@link CCCS#alpha alpha} param is the amplification constant.<br><br>
  * So the control current from D to c will be amplified my {@link CCCS#alpha alpha} and outputted in A to B direction.
  */
+@SuppressWarnings("unsued")
 public class CCCS extends Element4Pin {
     private double alpha;
     //A pointer to current
@@ -27,10 +28,10 @@ public class CCCS extends Element4Pin {
     }
 
     /**
-     * @param pinA The current source output positive pin.
-     * @param pinB The current source output negative pin.
-     * @param pinC The current control input negative pin.
-     * @param pinD The current control input positive pin.
+     * @param pinA The current source output positive(+) pin.
+     * @param pinB The current source output negative(-) pin.
+     * @param pinC The current control input negative(-) pin.
+     * @param pinD The current control input positive(+) pin.
      * @param alpha The amplification value.
      */
     public CCCS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double alpha) {
@@ -57,12 +58,12 @@ public class CCCS extends Element4Pin {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return alpha;
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "";
     }
 
@@ -71,7 +72,7 @@ public class CCCS extends Element4Pin {
         return String.format(
                 "%s(%s)[%s,%s,%s,%s]: %.2fv, %.2fA, %.2fW Control: %.2fA",
                 this.getClass().getSimpleName(),
-                Tools.proprietyToSi(getPropriety(), getProprietySymbol(), 4),
+                Tools.proprietyToSi(getQuantity(), getQuantitySymbol(), 4),
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getPinC() == null ? "gnd" : getPinC().address+1,

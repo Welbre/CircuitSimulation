@@ -67,11 +67,12 @@ public abstract class Element {
      * @return The value that can be edited and will be printed next to the component name in {@link Element#toString()}.<br>
      * Ex: A resistor returns the resistance, a Voltage source returns the voltage.
      */
-    protected abstract double getPropriety();
-    protected abstract String getProprietySymbol();
+    protected abstract double getQuantity();
+    ///The SI official symbol of the quantity.
+    protected abstract String getQuantitySymbol();
     /**
      * The current through the element.
-     * Using the conventional current direction, so Voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.
+     * Using the conventional current direction, so voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.
      */
     public abstract double getCurrent();
     public abstract void stamp(MatrixBuilder builder);
@@ -81,7 +82,7 @@ public abstract class Element {
         return String.format(
                 "%s(%s)[%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
-                Tools.proprietyToSi(getPropriety(), getProprietySymbol(), 2),
+                Tools.proprietyToSi(getQuantity(), getQuantitySymbol(), 2),
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getVoltageDifference(),
@@ -92,7 +93,7 @@ public abstract class Element {
 
     /**
      * The voltage difference in the element.
-     * Assuming that Voltage in A is bigger than B.
+     * Assuming that voltage in A is bigger than B. Therefore, current flows from A to B.
      */
     public double getVoltageDifference(){
         double a = 0, b = 0;

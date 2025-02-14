@@ -67,7 +67,7 @@ public class Circuit {
                 Element element = list.getFirst();
                 throw new IllegalStateException(String.format("%s(%s)[%s,%s] is connected to %s without a path, possible fault in circuit formation!",
                         element.getClass().getSimpleName(),
-                        Tools.proprietyToSi(element.getPropriety(), element.getProprietySymbol(), 2),
+                        Tools.proprietyToSi(element.getQuantity(), element.getQuantitySymbol(), 2),
                         element.getPinA() == null ? "gnd" : element.getPinA().address,
                         element.getPinB() == null ? "gnd" : element.getPinB().address,
                         key));
@@ -277,27 +277,27 @@ public class Circuit {
         {
             int idx = 1;
             for (VoltageSource source : analyseResult.voltageSources)
-                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
             for (CurrentSource source : analyseResult.currentSources)
-                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
             for (Resistor source : analyseResult.resistors)
-                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
             for (Capacitor source : analyseResult.capacitors)
-                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
             for (Inductor source : analyseResult.inductors)
-                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getPropriety());
+                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
@@ -308,7 +308,7 @@ public class Circuit {
                         source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1),
                         source.getPinC() == null ? 0 : "N" + (source.getPinC().address + 1),
                         source.getPinD() == null ? 0 : "N" + (source.getPinD().address + 1),
-                        source.getPropriety());
+                        source.getQuantity());
         }
         stream.println(".tran 0 1 0 0.005 startup\n.backanno\n.end");
     }

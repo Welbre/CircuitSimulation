@@ -20,12 +20,12 @@ public class Inductor extends Element implements Simulable {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return inductance;
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "H";
     }
 

@@ -27,12 +27,12 @@ public class CurrentSource extends Element {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return current;
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "A";
     }
 }

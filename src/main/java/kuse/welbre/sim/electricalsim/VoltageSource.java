@@ -9,7 +9,7 @@ public class VoltageSource extends Element {
     private double voltage;
     private double[] current;
     /// This field represents the row of the Z matrix that then voltage source will set the voltage.
-    /// Starts will a random number, but will be assigned in {@link Circuit#preparePinsAndSources(CircuitAnalyser.Result, double[][]) preparePinsAndSources};
+    /// Starts will a random number, but will be assigned in {@link Circuit#preparePinsAndSources(CircuitAnalyser, double[][])}
     public short address = (short) new Random().nextInt();
 
     public VoltageSource() {
@@ -42,12 +42,12 @@ public class VoltageSource extends Element {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return getVoltageDifference();
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "V";
     }
 

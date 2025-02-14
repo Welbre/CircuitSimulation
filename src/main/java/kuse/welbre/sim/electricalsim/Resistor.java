@@ -44,12 +44,12 @@ public class Resistor extends Element {
     }
 
     @Override
-    protected double getPropriety() {
+    protected double getQuantity() {
         return resistance;
     }
 
     @Override
-    protected String getProprietySymbol() {
+    protected String getQuantitySymbol() {
         return "Ω";
     }
 }
