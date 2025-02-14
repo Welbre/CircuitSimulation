@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electricalsim.abstractt.Simulable;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 @SuppressWarnings("unused")

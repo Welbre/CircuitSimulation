@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.abstractt.Simulable;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 public class ACVoltageSource extends VoltageSource implements Simulable {
@@ -37,7 +38,7 @@ public class ACVoltageSource extends VoltageSource implements Simulable {
     @Override
     public void preEvaluation(MatrixBuilder builder) {
         outputVoltage = super.getVoltageDifference() * Math.sin(theta);
-        builder.stampZMatrixVoltageSource(address, outputVoltage);
+        builder.stampZMatrixVoltageSource(getAddress(), outputVoltage);
     }
 
     @Override

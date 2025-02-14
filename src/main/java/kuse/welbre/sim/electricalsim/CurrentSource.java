@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.abstractt.Element;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 public class CurrentSource extends Element {

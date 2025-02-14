@@ -1,11 +1,15 @@
 package kuse.welbre.sim.electricalsim;
 
-import kuse.welbre.sim.electricalsim.Element.Pin;
+import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electricalsim.abstractt.Element.Pin;
+import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
+import kuse.welbre.sim.electricalsim.abstractt.Simulable;
 import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class Circuit {
@@ -16,6 +20,7 @@ public class Circuit {
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
+    private final List<RHSElement> elementsRHS = new ArrayList<>();
 
     private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
@@ -35,6 +40,8 @@ public class Circuit {
                 this.elements.add(element);
                 if (element instanceof Simulable sim)
                     simulableElements.add(sim);
+                if (element instanceof RHSElement rhs)
+                    elementsRHS.add(rhs);
             }
     }
 
@@ -65,9 +72,8 @@ public class Circuit {
 
             if (entry.getValue().size() == 1) {
                 Element element = list.getFirst();
-                throw new IllegalStateException(String.format("%s(%s)[%s,%s] is connected to %s without a path, possible fault in circuit formation!",
+                throw new IllegalStateException(String.format("%s[%s,%s] is connected to %s without a path, possible fault in circuit formation!",
                         element.getClass().getSimpleName(),
-                        Tools.proprietyToSi(element.getQuantity(), element.getQuantitySymbol(), 2),
                         element.getPinA() == null ? "gnd" : element.getPinA().address,
                         element.getPinB() == null ? "gnd" : element.getPinB().address,
                         key));
@@ -90,18 +96,10 @@ public class Circuit {
 
         //Dislocate result.nodes from the top of Z matrix, to set the voltage sources values in the correct row.
         short index = (short) result.nodes;
-        //Set the current pointer.
-        for (VoltageSource vs : result.voltageSources) {
-            vs.setCurrentPointer(X[index]);
-            vs.address = index++;
-        }
-        for (CCCS cccs : result.cccs) {
-            cccs.setCurrentPointer(X[index]);
-            cccs.address = index++;
-        }
-        for (VCVS vcvs : result.vcvs) {
-            vcvs.setCurrentPointer(X[index]);
-            vcvs.address = index++;
+        //Set the RHSElements
+        for (RHSElement rhs : elementsRHS){
+            rhs.setValuePointer(X[index]);
+            rhs.setAddress(index++);
         }
     }
 
@@ -178,9 +176,9 @@ public class Circuit {
         else {
             matrixBuilder.clearZMatrix();
 
-            //Re stamp fixes sources
+            //Re stamp independent sources.
             for (var vs : analyseResult.voltageSources)
-                matrixBuilder.stampZMatrixVoltageSource(vs.address, vs.getVoltageDifference());
+                matrixBuilder.stampZMatrixVoltageSource(vs.getAddress(), vs.getVoltageDifference());
             for (var cs : analyseResult.currentSources)
                 cs.stamp(matrixBuilder);
 

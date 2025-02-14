@@ -1,16 +1,15 @@
 package kuse.welbre.sim.electricalsim;
 
-import kuse.welbre.sim.electricalsim.tools.CircuitAnalyser;
+import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 import java.util.Random;
 
-public class VoltageSource extends Element {
+public class VoltageSource extends Element implements RHSElement {
     private double voltage;
     private double[] current;
-    /// This field represents the row of the Z matrix that then voltage source will set the voltage.
-    /// Starts will a random number, but will be assigned in {@link Circuit#preparePinsAndSources(CircuitAnalyser, double[][])}
-    public short address = (short) new Random().nextInt();
+    private short address = (short) new Random().nextInt();
 
     public VoltageSource() {
     }
@@ -51,7 +50,18 @@ public class VoltageSource extends Element {
         return "V";
     }
 
-    public void setCurrentPointer(double[] pointer) {
-        current = pointer;
+    @Override
+    public void setAddress(short address) {
+        this.address = address;
+    }
+
+    @Override
+    public int getAddress() {
+        return this.address;
+    }
+
+    @Override
+    public void setValuePointer(double[] pointer) {
+        this.current = pointer;
     }
 }

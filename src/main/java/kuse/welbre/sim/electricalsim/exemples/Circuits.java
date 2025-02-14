@@ -1,7 +1,7 @@
 package kuse.welbre.sim.electricalsim.exemples;
 
 import kuse.welbre.sim.electricalsim.*;
-import kuse.welbre.sim.electricalsim.Element.Pin;
+import kuse.welbre.sim.electricalsim.abstractt.Element.Pin;
 
 public final class Circuits {
     public static final class Resistors {

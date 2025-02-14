@@ -1,4 +1,4 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electricalsim.abstractt;
 
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;

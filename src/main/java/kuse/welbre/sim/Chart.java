@@ -1,6 +1,7 @@
 package kuse.welbre.sim;
 
 import kuse.welbre.sim.electricalsim.*;
+import kuse.welbre.sim.electricalsim.abstractt.Element;
 
 import java.io.*;
 import java.util.ArrayList;

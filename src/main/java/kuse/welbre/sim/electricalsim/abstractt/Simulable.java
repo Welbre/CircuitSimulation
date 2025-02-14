@@ -1,5 +1,6 @@
-package kuse.welbre.sim.electricalsim;
+package kuse.welbre.sim.electricalsim.abstractt;
 
+import kuse.welbre.sim.electricalsim.Circuit;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 
 public interface Simulable {

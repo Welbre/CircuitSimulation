@@ -4,6 +4,7 @@ import static java.lang.Math.abs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import kuse.welbre.sim.electricalsim.*;
+import kuse.welbre.sim.electricalsim.abstractt.Element;
 import kuse.welbre.sim.electricalsim.exemples.Circuits;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 import org.junit.jupiter.api.Assumptions;

@@ -1,14 +1,17 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.abstractt.Element;
+import kuse.welbre.sim.electricalsim.abstractt.Element4Pin;
+import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
 import java.util.Random;
 
-public class VCVS extends Element4Pin {
+public class VCVS extends Element4Pin implements RHSElement {
     private double micro;
     private double[] current_pointer;
-    public short address = (short) new Random().nextInt();
+    private short address = (short) new Random().nextInt();
 
     public VCVS() {
     }
@@ -47,8 +50,19 @@ public class VCVS extends Element4Pin {
             builder.stampGRaw(address, getPinD().address, micro);
     }
 
-    public void setCurrentPointer(double[] pointer) {
-        current_pointer = pointer;
+    @Override
+    public void setAddress(short address) {
+        this.address = address;
+    }
+
+    @Override
+    public int getAddress() {
+        return address;
+    }
+
+    @Override
+    public void setValuePointer(double[] pointer) {
+        this.current_pointer = pointer;
     }
 
     @Override

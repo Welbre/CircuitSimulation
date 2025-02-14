@@ -1,5 +1,7 @@
 package kuse.welbre.sim.electricalsim;
 
+import kuse.welbre.sim.electricalsim.abstractt.Element4Pin;
+import kuse.welbre.sim.electricalsim.abstractt.RHSElement;
 import kuse.welbre.sim.electricalsim.tools.MatrixBuilder;
 import kuse.welbre.sim.electricalsim.tools.Tools;
 
@@ -13,12 +15,10 @@ import java.util.Random;
  * So the control current from D to c will be amplified my {@link CCCS#alpha alpha} and outputted in A to B direction.
  */
 @SuppressWarnings("unsued")
-public class CCCS extends Element4Pin {
+public class CCCS extends Element4Pin implements RHSElement {
     private double alpha;
-    //A pointer to current
     private double[] current;
-    //Address in Z matrix.
-    public short address = (short) new Random().nextInt();
+    private short address = (short) new Random().nextInt();
 
     public CCCS() {
     }
@@ -53,8 +53,19 @@ public class CCCS extends Element4Pin {
             builder.stampGRaw(getPinB().address, address, -alpha);
     }
 
-    public void setCurrentPointer(double[] pointer) {
-        current = pointer;
+    @Override
+    public void setAddress(short address) {
+        this.address = address;
+    }
+
+    @Override
+    public int getAddress() {
+        return address;
+    }
+
+    @Override
+    public void setValuePointer(double[] pointer) {
+        this.current = pointer;
     }
 
     @Override
