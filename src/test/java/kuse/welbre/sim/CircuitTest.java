@@ -27,7 +27,7 @@ class CircuitTest {
     public static boolean equals(double a, double b) {
         if (b == 0)
             return abs(a - b) < 0.100; //100m of absolute error.
-        return (1 - abs(a/b)) < 0.01; //1% of error.
+        return abs((1 - abs(a/b))) < 0.01; //1% of error.
     }
 
     public static Consumer<Element> getIfFails(Circuit circuit){
@@ -271,6 +271,17 @@ class CircuitTest {
         void testCCCSCircuit(){
             double[][] answers = {{10,-1,10},{10,1,10},{100,-3,-300},{100,3,300}};
             Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCCSWithResistors();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+        @Test
+        @Order(2)
+        void testVCVSCircuit(){
+            double[][] answers = {{5,-1/3.0,-1.667}, {5/3.0,1/3.0,5.0/9.0},{10/3.0,1/3.0,10/9.0},{10,-1/5.0,-10/5.0},{10,1/5.0,2}};
+            Circuit circuit = Circuits.CurrentControlledCurrentSources.getVCVSWithResistors();
             circuit.preCompile();
 
             testElements(circuit.getElements(), answers, getIfFails(circuit));
