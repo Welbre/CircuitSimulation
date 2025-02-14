@@ -90,15 +90,18 @@ public class Circuit {
 
         //Dislocate result.nodes from the top of Z matrix, to set the voltage sources values in the correct row.
         short index = (short) result.nodes;
-        for (int i = 0; i < result.voltageSources.size(); i++) {
-            //Set the current pointer.
-            result.voltageSources.get(i).setCurrentPointer(X[i + result.pins.size()]);
-            result.voltageSources.get(i).address = index++;
+        //Set the current pointer.
+        for (VoltageSource vs : result.voltageSources) {
+            vs.setCurrentPointer(X[index]);
+            vs.address = index++;
         }
-        for (int i = 0; i < result.cccs.size(); i++) {
-            //Set the current pointer.
-            result.cccs.get(i).setCurrentPointer(X[i + result.pins.size()]);
-            result.cccs.get(i).address = index++;
+        for (CCCS cccs : result.cccs) {
+            cccs.setCurrentPointer(X[index]);
+            cccs.address = index++;
+        }
+        for (VCVS vcvs : result.vcvs) {
+            vcvs.setCurrentPointer(X[index]);
+            vcvs.address = index++;
         }
     }
 

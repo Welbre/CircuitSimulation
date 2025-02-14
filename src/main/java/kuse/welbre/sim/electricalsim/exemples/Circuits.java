@@ -340,5 +340,23 @@ public final class Circuits {
 
             return circuit;
         }
+
+        public static Circuit getVCVSWithResistors(){
+            Circuit circuit = new Circuit();
+            var v1 = new VoltageSource(5);
+            var r1 = new Resistor(5);
+            var r2 = new Resistor(10);
+            var vcvs = new VCVS(3);
+            var r3 = new Resistor(50);
+
+            circuit.addElement(v1,r1,r2,vcvs,r3);
+
+            v1.connect(r1.getPinA(), null);
+            r2.connect(r1.getPinB(), null);
+            vcvs.connect(r3.getPinA(), null, r2.getPinA(), null);
+            r3.connectB(null);
+
+            return circuit;
+        }
     }
 }

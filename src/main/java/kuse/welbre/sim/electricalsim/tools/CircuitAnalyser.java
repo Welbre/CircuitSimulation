@@ -16,6 +16,7 @@ public final class CircuitAnalyser {
     public final List<Capacitor> capacitors;
     public final List<Inductor> inductors;
     public final List<CCCS> cccs;
+    public final List<VCVS> vcvs;
     public final Set<Element.Pin> pins;
 
     /**
@@ -30,6 +31,7 @@ public final class CircuitAnalyser {
         capacitors = new ArrayList<>();
         inductors = new ArrayList<>();
         cccs = new ArrayList<>();
+        vcvs = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
             pins.add(element.getPinA());
@@ -41,6 +43,7 @@ public final class CircuitAnalyser {
                 case Capacitor cs -> capacitors.add(cs);
                 case Inductor i -> inductors.add(i);
                 case CCCS cs -> cccs.add(cs);//Current-controlled current source.
+                case VCVS vs -> vcvs.add(vs);//Voltage_controlled voltage source.
                 default -> {
                 }
             }
@@ -52,6 +55,6 @@ public final class CircuitAnalyser {
         this.nodes = pins.size();
         //Each of these terms contributes to matrix size
         //The node with an unknown voltage, and voltage sources with unknown currents.
-        this.matrixSize = this.nodes + voltageSources.size() + cccs.size();
+        this.matrixSize = this.nodes + voltageSources.size() + cccs.size() + vcvs.size();
     }
 }

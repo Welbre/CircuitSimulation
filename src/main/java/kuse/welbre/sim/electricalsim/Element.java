@@ -96,22 +96,31 @@ public abstract class Element {
      * Assuming that voltage in A is bigger than B. Therefore, current flows from A to B.
      */
     public double getVoltageDifference(){
-        double a = 0, b = 0;
-        if (pinA != null)
-            if (pinA.P_voltage == null)
-                throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
-            else
-                a = pinA.P_voltage[0];
-
-        if (pinB != null)
-            if (pinB.P_voltage == null)
-                throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
-            else
-                b = pinB.P_voltage[0];
-
-        return a-b;
+        return GET_VOLTAGE_DIFF(getPinA(), getPinB());
     }
+
     public double getPower() {
         return getVoltageDifference() * getCurrent();
+    }
+
+    /**
+     * The voltage difference.
+     * Assuming that voltage in K is bigger than L. Therefore, current flows from K to L.
+     */
+    public static double GET_VOLTAGE_DIFF(Pin k, Pin l){
+        double K = 0, L = 0;
+        if (k != null)
+            if (k.P_voltage == null)
+                throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
+            else
+                K = k.P_voltage[0];
+
+        if (l != null)
+            if (l.P_voltage == null)
+                throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
+            else
+                L = l.P_voltage[0];
+
+        return K-L;
     }
 }
