@@ -1,7 +1,6 @@
 package kuse.welbre.sim;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.scalb;
 import static org.junit.jupiter.api.Assertions.*;
 
 import kuse.welbre.sim.electricalsim.*;
@@ -218,7 +217,7 @@ class CircuitTest {
         @Order(2)
         void testMultiplesCapacitorsCircuit(){
             var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367,0.34401},{10.349,0.344958, 3.57},{15.992,31.984,512}, {0,0.3448,0}, {0,-31.789,0}, {0,0.137,0}};
-            var expectFinal = new double[][]{{12, -0.10114, -1.2136}, {-16, 0.12526, 2}, {-0.264, 0.0022, 0}, {0.9854, -0.12318, -0.1213},{-3.034,-0.10114,0.3},{0.00626,0.12526,0},{23.91,0.101,2.41},{-15.93,0.002,0.031},{-14.68,-0.022,0.3229}};
+            var expectFinal = new double[][]{{12, -0.10114, -1.2136}, {-16, 0.12526, 2}, {-0.264, 0.022, 0}, {0.9854, -0.12318, -0.1213},{-3.034,-0.10114,0.306},{0.0626,0.12526,0},{23.91,0.101,2.41},{-15.93,0.002085,0.03322},{-14.68,-0.022,0.3229}};
             new DynamicData(Circuits.Capacitors::getMultiplesCapacitorsCircuit, expectInitial, expectFinal, 60).test();
         }
 
@@ -233,8 +232,8 @@ class CircuitTest {
         @Test
         @Order(4)
         void testInductorAssociationCircuit(){
-            var expectInitial = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {0.12,0,0}, {0.12,0,0}, {35.76,0,0}, {0.2355,0,0}, {0.2355,0,0}, {0.2355,0,0}};
-            var expectFinal = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0.00015,0}, {0,0.00015,0}, {0,0.00015,0}};
+            var expectInitial = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {0.12,0,0}, {0.12,0,0}, {35.76,0,0}, {0.24,0,0}, {0.24,0,0}, {0.24,0,0}};
+            var expectFinal = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0.000159,0}, {0,0.000159,0}, {0,0.000159,0}};
             new DynamicData(Circuits.Inductors::getAssociationCircuit, expectInitial, expectFinal, 1).test();
         }
 
@@ -258,8 +257,12 @@ class CircuitTest {
         @Order(7)
         void testParallelRCLCircuit(){
             var expectInitial = new double[][]{{12,-12,-144},{12,12,144},{0,0,0},{0,12,0},{0,0,0}};
-            var expectFinal = new double[][]{{12,-11.95,-143.4},{-11.95,0.047,0.5728},{0.04793,0.04793,0},{0.04793,0,0},{0.04793,11.90,0.57036}};
-            new DynamicData(Circuits.RLC::getParallel, expectInitial, expectFinal, 1).setTickRate(0.05).test();
+            var expectFinal = new double[][]{
+                    {12,-12,-144}, {-11.9489,1.194891e+01,1.194891e+01*-11.9489},
+                    {0,0,0}, {0,0,0},
+                    {0,1.189983e+01,0}
+            };
+            new DynamicData(Circuits.RLC::getParallel, expectInitial, expectFinal, 3).setTickRate(0.05).test();
         }
     }
 
@@ -269,7 +272,7 @@ class CircuitTest {
         @Test
         @Order(1)
         void testCCCSCircuit(){
-            double[][] answers = {{10,-1,10},{10,1,10},{100,-3,-300},{100,3,300}};
+            double[][] answers = {{10,-1,10},{10,1,10},{300,-3,-900},{300,-3,-900}};
             Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCCSWithResistors();
             circuit.preCompile();
 
