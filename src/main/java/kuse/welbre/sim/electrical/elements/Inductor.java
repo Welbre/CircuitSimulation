@@ -5,6 +5,14 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Simulable;
 import kuse.welbre.tools.MatrixBuilder;
 
+/**
+ * A linear inductor (L).<br>
+ * The pins A and B are where the inductor is connected to.<br>
+ * We assume that the voltage in A > voltage in B so, the positive voltage difference is from A to B.<br>
+ * Therefore, the positive current direction in from A to B.<br>
+ * The {@link Inductor#inductance inductance} is how much voltage per ampere oscillation the inductor can induct.<br<br>
+ * <i>The backwards Euler is used to approximate the differential equations of this element.</i>
+ */
 @SuppressWarnings("unused")
 public class Inductor extends Element implements Simulable {
     private double inductance;

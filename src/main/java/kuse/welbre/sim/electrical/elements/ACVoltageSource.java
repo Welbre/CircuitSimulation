@@ -3,6 +3,14 @@ package kuse.welbre.sim.electrical.elements;
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Simulable;
 import kuse.welbre.tools.MatrixBuilder;
+
+/**
+ * An alternating voltage source (ACVS).<br>
+ * The pins A and B are the output pins that the voltage source will be injected,
+ * we assume that A > B so, the positive voltage difference is from A To B.<br>
+ * The current follow the same idea, the positive direction is from A to B.<br>
+ * The {@link ACVoltageSource#frequency frequency} is how many cycles per second the {@link Math#sin(double)} will do.
+ */
 @SuppressWarnings("unused")
 public class ACVoltageSource extends VoltageSource implements Simulable {
     private double frequency;

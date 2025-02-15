@@ -3,6 +3,12 @@ package kuse.welbre.sim.electrical.elements;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
+/**
+ * A linear resistor (R).<br>
+ * The pins A and B are where the resistor is connected to.<br>
+ * We assume that the voltage in A > voltage in B so, the positive voltage difference is from A to B.<br>
+ * Therefore, the positive current direction in from A to B.
+ */
 @SuppressWarnings("unused")
 public class Resistor extends Element {
     private double resistance;

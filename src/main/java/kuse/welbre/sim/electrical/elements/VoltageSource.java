@@ -6,6 +6,11 @@ import kuse.welbre.tools.MatrixBuilder;
 
 import java.util.Random;
 
+/**
+ * A simple voltage source (VS).<br>
+ * The pins A and B are the output pins that the voltage source will be injected, we assume that A > B so, the positive voltage difference is from A To B.<br>
+ * The current follow the same idea, the positive direction is from A to B.
+ */
 public class VoltageSource extends Element implements RHSElement {
     private double voltage;
     private double[] current;
