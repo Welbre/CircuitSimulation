@@ -1,61 +1,52 @@
 package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.*;
+import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
+import kuse.welbre.sim.electrical.abstractt.RHSElement;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class CircuitAnalyser {
     public final int nodes;
     public final int matrixSize;
-    public final List<VoltageSource> voltageSources;
-    public final List<CurrentSource> currentSources;
-    public final List<Resistor> resistors;
-    public final List<Capacitor> capacitors;
-    public final List<Inductor> inductors;
-    public final List<CCCS> cccs;
-    public final List<VCVS> vcvs;
     public final Set<Element.Pin> pins;
+    HashMap<Class<? extends Element>,List<Element>> map = new HashMap<>();
+
+    public <T extends Element> List<T> get(Class<T> tClass){
+        List<Element> elements = map.get(tClass);
+        if (elements == null)
+            return new ArrayList<>();
+        else
+            return (List<T>) elements;
+    }
 
     /**
      * Find all nodes in the circuit.
      * A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
      */
     public CircuitAnalyser(Circuit circuit) {
+        int matrixSize = 0;
         pins = new HashSet<>();
-        voltageSources = new ArrayList<>();
-        currentSources = new ArrayList<>();
-        resistors = new ArrayList<>();
-        capacitors = new ArrayList<>();
-        inductors = new ArrayList<>();
-        cccs = new ArrayList<>();
-        vcvs = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
             pins.add(element.getPinA());
             pins.add(element.getPinB());
-            switch (element) {
-                case VoltageSource vs -> voltageSources.add(vs);
-                case CurrentSource cs -> currentSources.add(cs);
-                case Resistor r -> resistors.add(r);
-                case Capacitor cs -> capacitors.add(cs);
-                case Inductor i -> inductors.add(i);
-                case CCCS cs -> cccs.add(cs);//Current-controlled current source.
-                case VCVS vs -> vcvs.add(vs);//Voltage_controlled voltage source.
-                default -> {
-                }
-            }
+
+            map.putIfAbsent(element.getClass(), new ArrayList<>());
+            map.get(element.getClass()).add(element);
+
+            //Each of these terms contributes to matrix size
+            //The node with an unknown voltage, and voltage sources with unknown currents.
+            if (element instanceof RHSElement)
+                matrixSize++;
+            else if (element instanceof MultipleRHSElement rhs)
+                matrixSize += rhs.getRHSAmount();
         }
 
         //removes the ground from the list, because it isn't having relevance in the matrix.
         pins.remove(null);
 
         this.nodes = pins.size();
-        //Each of these terms contributes to matrix size
-        //The node with an unknown voltage, and voltage sources with unknown currents.
-        this.matrixSize = this.nodes + voltageSources.size() + cccs.size() + vcvs.size();
+        this.matrixSize = matrixSize + this.nodes;
     }
 }

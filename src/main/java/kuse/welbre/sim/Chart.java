@@ -20,6 +20,8 @@ public class Chart {
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, false, true, false, "v")
+                .see(2, false, true, false, "c")
+                .see(3, false, true, false, "l")
         );
         c.exportToSpiceNetlist(System.out);
 

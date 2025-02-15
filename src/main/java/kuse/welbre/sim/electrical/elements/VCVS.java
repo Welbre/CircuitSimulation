@@ -8,6 +8,13 @@ import kuse.welbre.tools.Tools;
 
 import java.util.Random;
 
+/**
+ * This element is a voltage-controlled voltage source (VCVS).<br>
+ * The pins A and B are the output pins that the voltage source will be injected, we assume that A > B so, the positive voltage difference is from A To B.<br>
+ * The pins C and D are the control pins, we assume that C > D so, the positive voltage difference is from C To D.<br>
+ * A {@link VCVS#micro micro} param is the amplification constant.<br><br>
+ * So the control voltage from C to D will be amplified my {@link VCVS#micro micro} and outputted as a voltage in A to B direction.
+ */
 @SuppressWarnings("unused")
 public class VCVS extends Element4Pin implements RHSElement {
     private double micro;
@@ -21,6 +28,13 @@ public class VCVS extends Element4Pin implements RHSElement {
         this.micro = micro;
     }
 
+    /**
+     * @param pinA The voltage source output positive(+) pin.
+     * @param pinB The voltage source output negative(-) pin.
+     * @param pinC The voltage control input negative(+) pin.
+     * @param pinD The voltage control input positive(-) pin.
+     * @param micro The amplification value.
+     */
     public VCVS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double micro) {
         super(pinA, pinB, pinC, pinD);
         this.micro = micro;

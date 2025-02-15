@@ -10,9 +10,9 @@ import java.util.Random;
 /**
  * This element is a current-controlled current source (CCCS).<br>
  * The pins A and B are the output pins that the current source will flow,the positive current direction is from A to B.<br>
- * The pins C and D are the control pins, the positive current direction is from D to C.<br>
+ * The pins C and D are the control pins, the positive current direction is from C to D.<br>
  * A {@link CCCS#alpha alpha} param is the amplification constant.<br><br>
- * So the control current from D to c will be amplified my {@link CCCS#alpha alpha} and outputted in A to B direction.
+ * So the control current from C to D will be amplified my {@link CCCS#alpha alpha} and outputted in A to B direction.
  */
 @SuppressWarnings("unused")
 public class CCCS extends Element4Pin implements RHSElement {
@@ -30,8 +30,8 @@ public class CCCS extends Element4Pin implements RHSElement {
     /**
      * @param pinA The current source output positive(+) pin.
      * @param pinB The current source output negative(-) pin.
-     * @param pinC The current control input negative(-) pin.
-     * @param pinD The current control input positive(+) pin.
+     * @param pinC The current control input negative(+) pin.
+     * @param pinD The current control input positive(-) pin.
      * @param alpha The amplification value.
      */
     public CCCS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double alpha) {

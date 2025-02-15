@@ -2,6 +2,7 @@ package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
+import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.sim.electrical.abstractt.Simulable;
 import kuse.welbre.sim.electrical.elements.*;
@@ -19,7 +20,6 @@ public class Circuit {
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Simulable> simulableElements = new ArrayList<>();
-    private final List<RHSElement> elementsRHS = new ArrayList<>();
 
     private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
@@ -39,8 +39,6 @@ public class Circuit {
                 this.elements.add(element);
                 if (element instanceof Simulable sim)
                     simulableElements.add(sim);
-                if (element instanceof RHSElement rhs)
-                    elementsRHS.add(rhs);
             }
     }
 
@@ -96,9 +94,20 @@ public class Circuit {
         //Dislocate result.nodes from the top of Z matrix, to set the voltage sources values in the correct row.
         short index = (short) result.nodes;
         //Set the RHSElements
-        for (RHSElement rhs : elementsRHS){
-            rhs.setValuePointer(X[index]);
-            rhs.setAddress(index++);
+        for (Element e : elements){
+            if (e instanceof RHSElement rhs){
+                rhs.setValuePointer(X[index]);
+                rhs.setAddress(index++);
+            } else if (e instanceof MultipleRHSElement mRHS) {
+                double[][] pointers = new double[mRHS.getRHSAmount()][1];
+                short[] address = new short[mRHS.getRHSAmount()];
+                for (int i = 0; i < mRHS.getRHSAmount(); i++){
+                    pointers[i] = X[index];
+                    address[i] = index++;
+                }
+                mRHS.setValuePointer(pointers);
+                mRHS.setAddress(address);
+            }
         }
     }
 
@@ -176,9 +185,9 @@ public class Circuit {
             matrixBuilder.clearZMatrix();
 
             //Re stamp independent sources.
-            for (var vs : analyseResult.voltageSources)
+            for (VoltageSource vs : analyseResult.get(VoltageSource.class))
                 matrixBuilder.stampZMatrixVoltageSource(vs.getAddress(), vs.getVoltageDifference());
-            for (var cs : analyseResult.currentSources)
+            for (var cs : analyseResult.get(CurrentSource.class))
                 cs.stamp(matrixBuilder);
 
             //we are in t, so use actual values to prepare evaluation to t+1
@@ -276,32 +285,32 @@ public class Circuit {
         stream.println("Exported by Welber's Circuit sim");
         {
             int idx = 1;
-            for (VoltageSource source : analyseResult.voltageSources)
+            for (VoltageSource source : analyseResult.get(VoltageSource.class))
                 stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
-            for (CurrentSource source : analyseResult.currentSources)
+            for (CurrentSource source : analyseResult.get(CurrentSource.class))
                 stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
-            for (Resistor source : analyseResult.resistors)
+            for (Resistor source : analyseResult.get(Resistor.class))
                 stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
-            for (Capacitor source : analyseResult.capacitors)
+            for (Capacitor source : analyseResult.get(Capacitor.class))
                 stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
-            for (Inductor source : analyseResult.inductors)
+            for (Inductor source : analyseResult.get(Inductor.class))
                 stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
         }
         {
             int idx = 1;
-            for (CCCS source : analyseResult.cccs)
+            for (CCCS source : analyseResult.get(CCCS.class))
                 stream.printf("CCCS%d %s %s %s %s %s\n",
                         idx++,
                         source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1),

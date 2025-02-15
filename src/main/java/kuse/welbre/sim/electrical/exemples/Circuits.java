@@ -359,5 +359,40 @@ public final class Circuits {
 
             return circuit;
         }
+
+        public static Circuit getCCVSWithResistors(){
+            Circuit circuit = new Circuit();
+            var v1 = new VoltageSource(1000);
+            var r1 = new Resistor(1000);
+            var ccvs = new CCVS(2);
+            var r2 = new Resistor(0.500);
+
+            circuit.addElement(v1,r1,ccvs,r2);
+
+            ccvs.connectA(r2.getPinA());
+            ccvs.connectB(null);
+            ccvs.connectC(r1.getPinB());
+            ccvs.connectD(null);
+
+            v1.connect(r1.getPinA(), null);
+            r2.connectB(null);
+
+            return circuit;
+        }
+
+        public static Circuit getVCCSWithResistors(){
+            Circuit circuit = new Circuit();
+            var v1 = new VoltageSource(1000);
+            var ccvs = new VCCS(1e-3);
+            var r1 = new Resistor(0.500);
+
+            circuit.addElement(v1,ccvs,r1);
+
+            v1.connectB(null);
+            r1.connectB(null);
+            ccvs.connect(r1.getPinA(), null, v1.getPinA(), null);
+
+            return circuit;
+        }
     }
 }

@@ -292,5 +292,29 @@ class CircuitTest {
 
             Main.printAllElements(circuit);
         }
+
+        @Test
+        @Order(3)
+        void testCCVSCircuit(){
+            double[][] answers = {{1e3,-1,-1e3},{1e3,1,1e3},{2,-4,-8},{2,4,8}};
+            Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCVSWithResistors();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+
+        @Test
+        @Order(4)
+        void testVCCSCircuit(){
+            double[][] answers = {{1e3,0,0},{0.5,-1,-0.5},{0.5,1,0.5}};
+            Circuit circuit = Circuits.CurrentControlledCurrentSources.getVCCSWithResistors();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
     }
 }
