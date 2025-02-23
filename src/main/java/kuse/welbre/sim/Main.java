@@ -2,18 +2,20 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.exemples.Circuits;
+import kuse.welbre.tools.LU;
+import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
-        Circuit circuit = Circuits.CurrentControlledCurrentSources.getCCCSWithResistors();
-        circuit.preCompile();
+        double[][] circuit = new double[][]{{1, -1, 0, 1}, {-1, 3, -1, 0}, {0, -1, 2, 0}, {1, 0, 0, 0}};
+        LU decompose = LU.decompose(circuit);
+        double[][] inv = decompose.inverse();
 
-        printAllElements(circuit);
-
-        circuit.exportToSpiceNetlist(System.out);
+        System.out.println(Arrays.toString(Tools.multiply(inv, 4, new double[]{0, 0, 0, 10})));
+        System.out.println(Arrays.toString(Tools.multiply(Tools.invert(circuit), 4, new double[]{0, 0, 0, 10})));
     }
 
     public static void printCircuitMatrix(Circuit matrix, PrintStream stream){
