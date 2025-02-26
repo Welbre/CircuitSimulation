@@ -2,32 +2,99 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.Diode;
-import kuse.welbre.sim.electrical.elements.Resistor;
-import kuse.welbre.sim.electrical.elements.VoltageSource;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.function.Function;
+
+import static java.lang.Math.*;
 
 public class Main {
+    ////x^3 - 3x*y^2 = 1
+    ////3yx^2 - y^3 = 0
+
+    public static double[] rhs = new double[]{1,0};
+
+    public static double[][] jacobian(double[] u){
+        double x = u[0], y = u[1];
+        double[][] jacobian = new double[2][2];
+
+        // Partial derivatives for f1 = x^3 - 3*x*y^2 - 1
+        jacobian[0][0] = 3 * x * x;   // df1/dx
+        jacobian[0][1] = -6 * x * y;  // df1/dy
+
+        // Partial derivatives for f2 = 3*y*x^2 - y^3
+        jacobian[1][0] = 6 * x * y;   // df2/dx
+        jacobian[1][1] = 3 * x * x - 3 * y * y; // df2/dy
+
+        return jacobian;
+    }
+
+    public static double[] f(double[] u){
+        double x = u[0], y = u[1];
+        double[] values = new double[2];
+
+        values[0] = Math.pow(x, 3) - 3 * x * Math.pow(y, 2);
+        values[1] = 3 * y * Math.pow(x, 2) - Math.pow(y, 3);
+
+        return Tools.subtract(values, rhs);
+    }
+
+    public static boolean isValidResult(double[] result, double tolerance){
+        for (int i = 0; i < result.length; i++) {
+            if (Double.isNaN(result[i]))
+                throw new RuntimeException("Value is NaN, u can't converge!");
+            if (abs(result[i]) > tolerance)
+                return false;
+        }
+        return true;
+    }
+
+    public static boolean isConverging(double[] a, double[] b){
+        for (int j = 0; j < a.length; j++)
+            if ((abs(a[j]) - abs(b[j])) > 1e-6)
+                return false;
+        return true;
+    }
+
+    public static double[] converge(Function<Double, Double> LHS,Function<Double, Double> jacobian, double[] guess, Function<Double, Double> RHS){
+        double[] x = new double[]{1,0};//0,0 initial guesses
+        double[] dx = new double[]{Double.MAX_VALUE, Double.MAX_VALUE};
+        double[] fx = f(x);
+        int i = 0;
+
+        for (; i < 5000; i++) {
+            if (isValidResult(dx, 1e-6) || isValidResult(fx, 1e-6))
+                break;
+
+            dx = LU.decompose(jacobian(x)).solve(fx);
+
+            System.out.println(Arrays.toString(dx));
+
+            double[] t = Tools.subtract(x, dx);
+            double[] ft = f(t);
+            double a = 1;
+            int sub = 0; //Infinite control.
+
+            while (!isConverging(ft,fx)){
+                a /= 2.0;
+                t = Tools.subtract(x, Tools.multiply(dx,a));
+                ft = f(t);
+                if (++sub > 500)
+                    throw new RuntimeException("Non divergent! " + a);
+            }
+            dx = Tools.subtract(x, t);
+            x = t;
+            fx = ft;
+        }
+        return x;
+    }
+
     //Diode test
     public static void main(String[] args) {
-        Circuit circuit = new Circuit();
-        VoltageSource v = new VoltageSource(10);
-        Resistor r = new Resistor(1);
-        Diode d = new Diode(); //n = 1, sat = 1pA
 
-        v.connect(r.getPinA(), null);
-        d.connect(r.getPinB(), null);
-
-        circuit.addElement(v,r,d);
-
-        for (int i = 0; i < 50; i++) {
-            circuit.tick(0);
-            printAllElements(circuit);
-        }
     }
 
     //Lu solve
