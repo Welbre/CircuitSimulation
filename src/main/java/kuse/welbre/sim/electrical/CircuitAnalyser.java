@@ -56,7 +56,7 @@ public final class CircuitAnalyser {
     }
     //add only if non-contains and isn't null.
     private void addPin(List<Element.Pin> pins, Element.Pin pin){
-        if (pins == null)
+        if (pin == null)
             return;
         if (!pins.contains(pin))
             pins.add(pin);
