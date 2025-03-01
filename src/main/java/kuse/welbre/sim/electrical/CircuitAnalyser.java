@@ -11,7 +11,7 @@ public final class CircuitAnalyser {
     public final boolean nonLinear;
     public final int nodes;
     public final int matrixSize;
-    public final Set<Element.Pin> pins;
+    public final List<Element.Pin> pins;
     HashMap<Class<? extends Element>,List<Element>> map = new HashMap<>();
 
     public <T extends Element> List<T> get(Class<T> tClass){
@@ -30,11 +30,11 @@ public final class CircuitAnalyser {
     public CircuitAnalyser(Circuit circuit) {
         boolean isLinear = true;
         int matrixSize = 0;
-        pins = new HashSet<>();
+        pins = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
-            pins.add(element.getPinA());
-            pins.add(element.getPinB());
+            addPin(pins, element.getPinA());
+            addPin(pins, element.getPinB());
 
             map.putIfAbsent(element.getClass(), new ArrayList<>());
             map.get(element.getClass()).add(element);
@@ -50,11 +50,15 @@ public final class CircuitAnalyser {
                 matrixSize += rhs.getRHSAmount();
         }
 
-        //removes the ground from the list, because it isn't having relevance in the matrix.
-        pins.remove(null);
-
         this.nodes = pins.size();
         this.matrixSize = matrixSize + this.nodes;
         this.nonLinear = !isLinear;
+    }
+    //add only if non-contains and isn't null.
+    private void addPin(List<Element.Pin> pins, Element.Pin pin){
+        if (pins == null)
+            return;
+        if (!pins.contains(pin))
+            pins.add(pin);
     }
 }
