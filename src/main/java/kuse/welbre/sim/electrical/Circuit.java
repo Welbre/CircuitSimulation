@@ -6,6 +6,7 @@ import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.sim.electrical.abstractt.Simulable;
 import kuse.welbre.sim.electrical.elements.*;
+import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
@@ -16,6 +17,7 @@ public class Circuit {
     /// 50ms time step
     public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-10;
     public static final double DEFAULT_TIME_STEP = 0.05;
+
     private double tickRate = DEFAULT_TIME_STEP;
 
     private final List<Element> elements = new ArrayList<>();
@@ -144,10 +146,14 @@ public class Circuit {
      */
     private void solveInitialConditions(){
         final int size = analyseResult.matrixSize;
-        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
 
+        solveNonLinear(size);
+
+        //Solve initial conditions
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
+
+        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
 
         //initial the elements to solve initial conditions.
         for (Simulable simulable : simulableElements)
@@ -171,11 +177,64 @@ public class Circuit {
         for (var sim : simulableElements)
             sim.posEvaluation(matrixBuilder);
 
-
         this.tickRate = originalTickRate;
         //Start simulable elements with original tick rate.
         for (Simulable simulable : simulableElements)
             simulable.initiate(this);
+    }
+
+    private void solveNonLinear(int size){
+        //--------------------------------------------------------------
+        //This entire block is to linearize the non-linear components.
+        //--------------------------------------------------------------
+        if (!analyseResult.nonLinear)
+            return;
+
+        NonLinearHelper nl = new NonLinearHelper(this, size, elements, simulableElements);
+        double[] x = new double[X.length]; //initial x in the X point.
+        double[] dx = new double[X.length];// initial dx with max double value.
+        double[] fx;
+        int inter = 0, totalSubInter = 0;
+
+        //initiate x and dx.
+        for (int i = 0; i < X.length; i++) {
+            x[i] = X[i][0];
+            dx[i] = Double.MAX_VALUE;
+        }
+
+        fx = nl.f(x); //compute the initial fx
+
+        for (; inter < 500; inter++){
+            //if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)
+            if (Tools.norm(dx) < 1e-6)//check for convergence.
+                break;
+
+            injectValuesInX(x);//update pointer values to the components compute using x
+            dx = LU.decompose(nl.jacobian()).solve(fx);//get the jacobian and find a dx that solves J(u)*u=f(u).
+
+            double[] t = Tools.subtract(x, dx); //calculate t the new x
+
+            injectValuesInX(t);//update again now using t, the new x
+            double[] ft = nl.f(t);//calculate the f(t)
+            double a = 1;
+            int subinter = 0;
+
+            while (Tools.norm(ft) >= Tools.norm(fx) && subinter < 50){//check the system is converging to 0, the new point f(t) < f(x)
+                a /= 2.0;//if it isn't converging, reduce the step by half.
+                t = Tools.subtract(x, Tools.multiply(dx,a));//compute the new subT, t = x - a*dx
+                injectValuesInX(t);//update values in component to subT.
+                ft = nl.f(t);//re compute f(t) now using the subT
+
+                subinter++;
+                totalSubInter++;
+            }
+
+            dx = Tools.subtract(x,t);//recompute the dx. if the initial t isn't converging, the t was updated inside the loop, and we need to calculate dx again using the new t.
+            x = t;//the new guess is t.
+            fx = ft;//how t is the new guess, update f(guess) to f(t).
+        }
+
+        System.out.println("Converge in " + inter + " steps with " + totalSubInter + " sub inter steps.");
     }
 
     public void tick(double dt) {

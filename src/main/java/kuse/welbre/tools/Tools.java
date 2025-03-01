@@ -4,7 +4,25 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class Tools {
-    public static double[] multiply(double[][] a, int n, double[] b){
+    public static double norm(double[] a){
+        double sum = 0.0;
+        for (double x : a)
+            sum += x * x;
+
+        return Math.sqrt(sum);
+    }
+
+    public static double[] multiply(double[] a, double b){
+        double[] c = new double[a.length];
+
+        for (int i = 0; i < a.length; i++)
+            c[i] = a[i] * b;
+
+        return c;
+    }
+
+    public static double[] multiply(double[][] a, double[] b){
+        final int n = a.length;
         double[] c = new double[n];
         double sum;
 
@@ -17,6 +35,27 @@ public class Tools {
         }
 
         return c;
+    }
+
+    public static double[] add(double[] a,double b){
+        double[] result = new double[a.length];
+        for (int i = 0; i < a.length; i++)
+            result[i] = a[i] + b;
+        return  result;
+    }
+
+    public static double[] subtract(double[] a,double b){
+        double[] result = new double[a.length];
+        for (int i = 0; i < a.length; i++)
+            result[i] = a[i] - b;
+        return  result;
+    }
+
+    public static double[] subtract(double[] a, double[] b){
+        double[] result = new double[a.length];
+        for (int i = 0; i < a.length; i++)
+            result[i] = a[i] - b[i];
+        return  result;
     }
 
     /**

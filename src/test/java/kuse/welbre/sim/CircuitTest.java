@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.ACVoltageSource;
+import kuse.welbre.sim.electrical.elements.Diode;
+import kuse.welbre.sim.electrical.elements.Resistor;
+import kuse.welbre.sim.electrical.elements.VoltageSource;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 import kuse.welbre.tools.Tools;
 import org.junit.jupiter.api.Assumptions;
@@ -313,6 +317,64 @@ class CircuitTest {
             circuit.preCompile();
 
             testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+    }
+
+    @Nested
+    @Order(2)
+    class Diodes{
+        @Test
+        @Order(1)
+        void testDiodeResistence(){
+            double[][] answers = new double[][]{{10,-9.58441,95.8441},{9.58441,9.58441,9.58441*9.58441},{0.41559,9.58441,0.41559*9.58441}};
+            Circuit circuit = Circuits.Diodes.getDiodeResistence();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+        @Test
+        @Order(2)
+        void testReverseBiasDiode(){
+            final double sat = 1e-6;
+            double[][] answers = new double[][]{{-10,-sat,10*sat},{0,sat,0},{-10,sat,-sat*10}};
+            Circuit circuit = Circuits.Diodes.getDiodeReverseBias();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+        @Test
+        @Order(3)
+        void testDiodeFromModel(){
+            final double sat = 1e-3;//1mA
+            final double fwd = 0.7;//700mV
+            final double openI = 0.080;//80mv
+            double[][] answers0 = new double[][]{{0,0,0},{0,0,0},{0,0,0}};
+            double[][] answers1 = new double[][]{{-10,-sat,10*9.22823},{9.22823,9.22823,9.22823*9.22823},{0.77177,9.22823,0.77177*9.22823}};
+            Circuit circuit = new Circuit();
+
+            VoltageSource v = new ACVoltageSource(-10, 1);
+            Resistor r = new Resistor(0.5);
+            Diode d = new Diode(fwd, openI, sat);
+            circuit.addElement(v,r,d);
+            v.connect(r.getPinA(), null);
+            d.connect(r.getPinB(), null);
+
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers0, getIfFails(circuit));
+
+            //Simulate 1 second.
+            for (int i = 0; i < Math.floor(1.0 / circuit.getTickRate()); i++)
+                circuit.tick(circuit.getTickRate());
+
+            //todo test after 1 second if the diode is open.
+            //testElements(circuit.getElements(), answers1, getIfFails(circuit));
 
             Main.printAllElements(circuit);
         }

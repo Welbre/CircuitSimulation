@@ -33,6 +33,10 @@ public class VoltageSource extends Element implements RHSElement {
         return voltage;
     }
 
+    public void setSourceVoltage(double voltage) {
+        this.voltage = voltage;
+    }
+
     @Override
     public double getCurrent() {
         if (current == null)

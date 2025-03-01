@@ -95,13 +95,21 @@ public final class MatrixBuilder {
     public double[] getResult(){
         if (!isClosed)
             throw new IllegalStateException("Try get result in a non closed matrix builder!");
-        return Tools.multiply(inverse, inverse.length, Z);
+        return Tools.multiply(inverse, Z);
     }
 
     public double[][] getInverse() {
         if (!isClosed)
             throw new IllegalStateException("Try get inverse in a non closed matrix builder!");
         return inverse;
+    }
+
+    public double[][] getG() {
+        return G;
+    }
+
+    public double[] getZ() {
+        return Z;
     }
 
     public double[][] getCopyOfG() {

@@ -2,6 +2,8 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.ACVoltageSource;
+import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.Tools;
 
@@ -12,6 +14,9 @@ import java.util.function.Function;
 import static java.lang.Math.*;
 
 public class Main {
+
+    //Non linear
+    /*
     ////x^3 - 3x*y^2 = 1
     ////3yx^2 - y^3 = 0
 
@@ -99,6 +104,7 @@ public class Main {
         }
         System.out.println("Solution: " + Arrays.toString(x));
     }
+     */
 
     //Lu solve
     /*

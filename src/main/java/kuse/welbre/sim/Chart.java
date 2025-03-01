@@ -2,6 +2,8 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.ACVoltageSource;
+import kuse.welbre.sim.electrical.elements.Diode;
 import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
 import kuse.welbre.sim.electrical.exemples.Circuits;
@@ -15,13 +17,21 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.RLC.getSeries();
+        Circuit c = new Circuit();
+        ACVoltageSource v = new ACVoltageSource(10,4);
+        Resistor r = new Resistor(1);
+        Diode d = new Diode();
+
+        v.connect(r.getPinA(), null);
+        d.connect(r.getPinB(), null);
+
+        c.addElement(v,r,d);
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
-                .see(0, false, true, false, "v")
-                .see(2, false, true, false, "c")
-                .see(3, false, true, false, "l")
+                .see(0, true, true, false, "v")
+                .see(1, true, true, false, "r")
+                .see(2, true, true, false, "d")
         );
         c.exportToSpiceNetlist(System.out);
 

@@ -2,11 +2,13 @@ package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
+import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 
 import java.util.*;
 
 public final class CircuitAnalyser {
+    public final boolean nonLinear;
     public final int nodes;
     public final int matrixSize;
     public final Set<Element.Pin> pins;
@@ -20,11 +22,13 @@ public final class CircuitAnalyser {
             return (List<T>) elements;
     }
 
+    //todo create a way to the same circuit create in the same way have the same nodes id.
     /**
      * Find all nodes in the circuit.
      * A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
      */
     public CircuitAnalyser(Circuit circuit) {
+        boolean isLinear = true;
         int matrixSize = 0;
         pins = new HashSet<>();
 
@@ -34,6 +38,9 @@ public final class CircuitAnalyser {
 
             map.putIfAbsent(element.getClass(), new ArrayList<>());
             map.get(element.getClass()).add(element);
+
+            if (element instanceof NonLinear)
+                isLinear = false;
 
             //Each of these terms contributes to matrix size
             //The node with an unknown voltage, and voltage sources with unknown currents.
@@ -48,5 +55,6 @@ public final class CircuitAnalyser {
 
         this.nodes = pins.size();
         this.matrixSize = matrixSize + this.nodes;
+        this.nonLinear = !isLinear;
     }
 }

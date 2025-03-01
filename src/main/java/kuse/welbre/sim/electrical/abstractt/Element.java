@@ -107,7 +107,7 @@ public abstract class Element {
      * The voltage difference.
      * Assuming that voltage in K is bigger than L. Therefore, current flows from K to L.
      */
-    public static double GET_VOLTAGE_DIFF(Pin k, Pin l){
+    protected static double GET_VOLTAGE_DIFF(Pin k, Pin l){
         double K = 0, L = 0;
         if (k != null)
             if (k.P_voltage == null)

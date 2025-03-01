@@ -395,4 +395,25 @@ public final class Circuits {
             return circuit;
         }
     }
+    public static final class Diodes{
+        public static Circuit getDiodeResistence(){
+            Circuit circuit = new Circuit();
+            VoltageSource v = new VoltageSource(10);
+            Resistor r = new Resistor(1);
+            Diode d = new Diode();
+
+            v.connect(r.getPinA(), null);
+            d.connect(r.getPinB(), null);
+
+            circuit.addElement(v,r,d);
+
+            return circuit;
+        }
+        public static Circuit getDiodeReverseBias(){
+            Circuit circuit = getDiodeResistence();
+            ((VoltageSource) circuit.getElements()[0]).setSourceVoltage(-10);
+
+            return circuit;
+        }
+    }
 }
