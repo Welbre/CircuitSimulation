@@ -42,6 +42,7 @@ public class ACVoltageSource extends VoltageSource implements Simulable {
     public void initiate(Circuit circuit) {
         outputVoltage = 0;
         omega_tick = frequency * 2.0 * Math.PI * circuit.getTickRate();
+        theta = omega_tick;
     }
 
     @Override
