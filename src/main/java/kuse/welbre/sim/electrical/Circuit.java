@@ -187,8 +187,6 @@ public class Circuit {
         //--------------------------------------------------------------
         //This entire block is to linearize the non-linear components.
         //--------------------------------------------------------------
-        if (!analyseResult.nonLinear)
-            return;
 
         NonLinearHelper nl = new NonLinearHelper(this, size, elements, simulableElements);
         double[] x = new double[X.length]; //initial x in the X point.
@@ -205,8 +203,8 @@ public class Circuit {
         fx = nl.f(x); //compute the initial fx
 
         for (; inter < 500; inter++){
-            //if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)
-            if (Tools.norm(dx) < 1e-6)//check for convergence.
+            if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)//check for convergence.
+            //if (Tools.norm(dx) < 1e-6)//check for convergence.
                 break;
 
             injectValuesInX(x);//update pointer values to the components compute using x
@@ -248,14 +246,17 @@ public class Circuit {
                 matrixBuilder.stampZMatrixVoltageSource(vs.getAddress(), vs.getVoltageDifference());
             for (var cs : analyseResult.get(CurrentSource.class))
                 cs.stamp(matrixBuilder);
+            for (var d : analyseResult.get(Diode.class))
+                d.stamp(matrixBuilder);
 
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Simulable element : simulableElements)
                 element.preEvaluation(matrixBuilder);
 
-            //above is t
-            injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
-            //below is t + 1
+            if (analyseResult.nonLinear)
+                solveNonLinear(analyseResult.matrixSize);
+            else
+                injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
 
             //Pos ticking to calculate values in t + 1
             for (var sim : simulableElements)

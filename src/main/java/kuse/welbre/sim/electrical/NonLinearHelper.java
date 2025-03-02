@@ -29,6 +29,8 @@ public class NonLinearHelper {
 
         for (Simulable simulable : simulableElements)
             simulable.initiate(circuit);
+        for (Simulable element : simulableElements)
+            element.preEvaluation(nonBuilder);
         for (Element e : elements) {
             if (e instanceof Diode diode){
                 nonBuilder.stampResistor(diode.getPinA(), diode.getPinB(), Math.max(diode.plane_dI_dV(diode.getVoltageDifference()),1e-12));
@@ -45,6 +47,8 @@ public class NonLinearHelper {
 
         for (Simulable simulable : simulableElements)
             simulable.initiate(circuit);
+        for (Simulable element : simulableElements)
+            element.preEvaluation(nonBuilder);
         for (Element e : elements) {
             if (e instanceof Diode diode){
                 nonBuilder.stampCurrentSource(diode.getPinA(), diode.getPinB(), -diode.plane_I_V(diode.getVoltageDifference()));
