@@ -147,7 +147,8 @@ public class Circuit {
     private void solveInitialConditions(){
         final int size = analyseResult.matrixSize;
 
-        solveNonLinear(size);
+        if (analyseResult.nonLinear)
+            solveNonLinear(size);
 
         //Solve initial conditions
         final double originalTickRate = getTickRate();
