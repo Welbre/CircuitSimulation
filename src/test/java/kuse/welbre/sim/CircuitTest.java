@@ -354,8 +354,9 @@ class CircuitTest {
             final double sat = 1e-3;//1mA
             final double fwd = 0.7;//700mV
             final double openI = 0.080;//80mv
-            double[][] answers0 = new double[][]{{0,0,0},{0,0,0},{0,0,0}};
-            double[][] answers1 = new double[][]{{-10,-sat,10*9.22823},{9.22823,9.22823,9.22823*9.22823},{0.77177,9.22823,0.77177*9.22823}};
+            double[][] answersZero = new double[][]{{0,0,0},{0,0,0},{0,0,0}};
+            double[][] answersRev = new double[][]{{-10,sat,10*sat},{500*1e-6,sat,sat*500*1e-6},{-10,sat,-10*sat}};
+            double[][] answersFwd = new double[][]{{10,16.899,10*16.899},{8.449,16.899,8.449*16.899},{-1.551,16.899,-1.551*16.899}};
             Circuit circuit = new Circuit();
 
             VoltageSource v = new ACVoltageSource(-10, 1);
@@ -367,14 +368,27 @@ class CircuitTest {
 
             circuit.preCompile();
 
-            testElements(circuit.getElements(), answers0, getIfFails(circuit));
+            testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 0ms
 
-            //Simulate 1 second.
-            for (int i = 0; i < Math.floor(1.0 / circuit.getTickRate()); i++)
+            //Simulate 250 ms.
+            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
                 circuit.tick(circuit.getTickRate());
+            testElements(circuit.getElements(), answersRev, getIfFails(circuit));//check in 250ms
 
-            //todo test after 1 second if the diode is open.
-            //testElements(circuit.getElements(), answers1, getIfFails(circuit));
+            //Simulate 250 ms.
+            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
+                circuit.tick(circuit.getTickRate());
+            testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 500ms
+
+            //Simulate 250 ms.
+            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
+                circuit.tick(circuit.getTickRate());
+            testElements(circuit.getElements(), answersFwd, getIfFails(circuit));//check in 750ms
+
+            //Simulate 250 ms.
+            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
+                circuit.tick(circuit.getTickRate());
+            testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 1000ms
 
             Main.printAllElements(circuit);
         }

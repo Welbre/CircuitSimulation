@@ -27,8 +27,6 @@ public class NonLinearHelper {
     public double[][] jacobian(){
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
 
-        for (Simulable simulable : simulableElements)
-            simulable.initiate(circuit);
         for (Simulable element : simulableElements)
             element.preEvaluation(nonBuilder);
         for (Element e : elements) {
@@ -45,8 +43,6 @@ public class NonLinearHelper {
     public double[] f(double[] x){
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
 
-        for (Simulable simulable : simulableElements)
-            simulable.initiate(circuit);
         for (Simulable element : simulableElements)
             element.preEvaluation(nonBuilder);
         for (Element e : elements) {

@@ -415,5 +415,21 @@ public final class Circuits {
 
             return circuit;
         }
+        public static Circuit getHalfWaveRectifier(){
+            Circuit circuit = new Circuit();
+
+            ACVoltageSource vc = new ACVoltageSource(12,5);
+            Diode d = new Diode();
+            Capacitor c = new Capacitor(0.005);
+            Resistor r = new Resistor(2);
+
+            vc.connect(d.getPinA(), null);
+            Pin b = d.getPinB();
+            c.connect(b,null);
+            r.connect(b, null);
+
+            circuit.addElement(vc,d,c,r);
+            return circuit;
+        }
     }
 }

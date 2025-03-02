@@ -22,7 +22,6 @@ public final class CircuitAnalyser {
             return (List<T>) elements;
     }
 
-    //todo create a way to the same circuit create in the same way have the same nodes id.
     /**
      * Find all nodes in the circuit.
      * A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
