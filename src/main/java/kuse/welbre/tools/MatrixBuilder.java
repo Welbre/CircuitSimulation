@@ -62,16 +62,6 @@ public final class MatrixBuilder {
             Z[b.address] -= current;
     }
 
-    public void stampCapacitor(Element.Pin a, Element.Pin b, double capacitance_per_tick, double current){
-        stampResistor(a, b, capacitance_per_tick);
-        stampCurrentSource(a, b, current);
-    }
-
-    public void stampInductor(Element.Pin a, Element.Pin b, double time_per_inductance, double current){
-        stampResistor(a, b, time_per_inductance);
-        stampCurrentSource(a, b, current);
-    }
-
     public void stampGRaw(int row, int colum, double value){
         if (isClosed) throw new IllegalStateException("Try stamp a voltage source in a closed builder!");
         G[row][colum] = value;

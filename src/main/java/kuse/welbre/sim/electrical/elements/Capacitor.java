@@ -2,7 +2,7 @@ package kuse.welbre.sim.electrical.elements;
 
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.tools.MatrixBuilder;
 
 /**
@@ -14,7 +14,7 @@ import kuse.welbre.tools.MatrixBuilder;
  * <i>The backwards Euler is used to approximate the differential equations of this element.</i>
  */
 @SuppressWarnings("unused")
-public class Capacitor extends Element implements Simulable {
+public class Capacitor extends Element implements Dynamic {
     private double capacitance;
     private double compConductance;
     private double currentSource;
@@ -47,7 +47,7 @@ public class Capacitor extends Element implements Simulable {
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        builder.stampCapacitor(this.getPinA(), this.getPinB(), compConductance, this.getCurrent());
+        builder.stampResistor(this.getPinA(), this.getPinB(), compConductance);
     }
 
     private double capacitorCurrent = 0;

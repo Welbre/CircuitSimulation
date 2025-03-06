@@ -11,8 +11,9 @@ import kuse.welbre.tools.MatrixBuilder;
  */
 @SuppressWarnings("unused")
 public class Diode extends Element implements NonLinear {
+    public static final double DEFAULT_SATURATION = 1e-6;
     ///The saturation current, by default 1μA.
-    private double saturation = 1e-6;
+    private double saturation = DEFAULT_SATURATION;
     ///The quality factor a number bigger than 0.Typically between 0 and 2, but can be higher.
     private double n = 1;
     ///The terminal voltage at 300 K (27ºC) (80ºF)
@@ -78,6 +79,7 @@ public class Diode extends Element implements NonLinear {
     @Override
     public void stamp(MatrixBuilder builder) {
         builder.stampCurrentSource(getPinA(), getPinB(), -plane_I_V(getVoltageDifference()));
+        builder.stampResistor(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
     }
 
     ///Returns the threshold voltage of the diode, using 1mA as reference to "on" state.

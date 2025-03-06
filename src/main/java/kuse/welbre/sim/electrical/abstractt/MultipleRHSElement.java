@@ -23,5 +23,9 @@ public interface MultipleRHSElement {
      */
     void setValuePointer(double[]... pointer);
 
+    /**
+     * Used to allocate more pointers to this element.
+     * @return the number of pointers needed to this element.
+     */
     int getRHSAmount();
 }

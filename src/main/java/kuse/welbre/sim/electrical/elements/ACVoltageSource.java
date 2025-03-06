@@ -1,7 +1,7 @@
 package kuse.welbre.sim.electrical.elements;
 
 import kuse.welbre.sim.electrical.Circuit;
-import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.tools.MatrixBuilder;
 
 /**
@@ -12,7 +12,7 @@ import kuse.welbre.tools.MatrixBuilder;
  * The {@link ACVoltageSource#frequency frequency} is how many cycles per second the {@link Math#sin(double)} will do.
  */
 @SuppressWarnings("unused")
-public class ACVoltageSource extends VoltageSource implements Simulable {
+public class ACVoltageSource extends VoltageSource implements Dynamic {
     private double frequency;
     //How much angle oscillates per tick.
     private double omega_tick;

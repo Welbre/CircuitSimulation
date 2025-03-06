@@ -2,10 +2,6 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.*;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.ACVoltageSource;
-import kuse.welbre.sim.electrical.elements.Diode;
-import kuse.welbre.sim.electrical.elements.Resistor;
-import kuse.welbre.sim.electrical.elements.VoltageSource;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.*;
@@ -18,6 +14,8 @@ public class Chart {
 
     public static void main(String[] args) throws Exception {
         Circuit c = Circuits.Diodes.getHalfWaveRectifier();
+        //Circuit c = Circuits.Capacitors.getRcCircuit();
+        //Circuit c = Circuits.Diodes.getSeriesDiode();
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
@@ -25,6 +23,7 @@ public class Chart {
                 .see(1, true, true, false, "d")
                 .see(2, true, true, false, "c")
                 .see(3, true, true, false, "r")
+                //.see(3, true, true, false, "r")
         );
         c.exportToSpiceNetlist(System.out);
 
@@ -34,6 +33,7 @@ public class Chart {
         writer.write(csv);
         writer.close();
 
+        Thread.sleep(200);
         Process process = Runtime.getRuntime().exec(new String[]{"py", "C:/Users/welbre/Desktop/mcm/ElectricalSim/Charts/Main.py"});
         process.waitFor();
     }

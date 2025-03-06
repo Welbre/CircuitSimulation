@@ -350,6 +350,17 @@ class CircuitTest {
         }
         @Test
         @Order(3)
+        void testSeriesDiode(){
+            double[][] answers = new double[][]{{10,0.928914,9.28914},{0.355431,0.928914,0.330},{0.355431,0.928914,0.330},{9.289,0.9289,8.629}};
+            Circuit circuit = Circuits.Diodes.getSeriesDiode();
+            circuit.preCompile();
+
+            testElements(circuit.getElements(), answers, getIfFails(circuit));
+
+            Main.printAllElements(circuit);
+        }
+        @Test
+        @Order(3)
         void testDiodeFromModel(){
             final double sat = 1e-3;//1mA
             final double fwd = 0.7;//700mV

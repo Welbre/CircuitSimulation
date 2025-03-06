@@ -415,12 +415,27 @@ public final class Circuits {
 
             return circuit;
         }
+        public static Circuit getSeriesDiode(){
+            Circuit circuit = new Circuit();
+            VoltageSource v = new VoltageSource(10);
+            Diode d0 = new Diode();
+            Diode d1 = new Diode();
+            Resistor r = new Resistor(10);
+
+            v.connect(d0.getPinA(), null);
+            d1.connect(d0.getPinB(), r.getPinA());
+            r.connectB(null);
+
+            circuit.addElement(v,d0,d1,r);
+
+            return circuit;
+        }
         public static Circuit getHalfWaveRectifier(){
             Circuit circuit = new Circuit();
 
             ACVoltageSource vc = new ACVoltageSource(12,5);
             Diode d = new Diode();
-            Capacitor c = new Capacitor(0.005);
+            Capacitor c = new Capacitor(0.05);
             Resistor r = new Resistor(2);
 
             vc.connect(d.getPinA(), null);

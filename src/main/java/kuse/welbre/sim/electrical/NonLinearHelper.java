@@ -1,7 +1,7 @@
 package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.abstractt.Simulable;
+import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.elements.Diode;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
@@ -15,19 +15,19 @@ public class NonLinearHelper {
     private final Circuit circuit;
     private final int size;
     private final List<Element> elements;
-    private final List<Simulable> simulableElements;
+    private final List<Dynamic> dynamics;
 
-    public NonLinearHelper(Circuit circuit, int size, List<Element> elements, List<Simulable> simulableElements) {
+    public NonLinearHelper(Circuit circuit, int size, List<Element> elements, List<Dynamic> dynamics) {
         this.circuit = circuit;
         this.size = size;
         this.elements = elements;
-        this.simulableElements = simulableElements;
+        this.dynamics = dynamics;
     }
 
     public double[][] jacobian(){
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
 
-        for (Simulable element : simulableElements)
+        for (Dynamic element : dynamics)
             element.preEvaluation(nonBuilder);
         for (Element e : elements) {
             if (e instanceof Diode diode){
@@ -43,7 +43,7 @@ public class NonLinearHelper {
     public double[] f(double[] x){
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
 
-        for (Simulable element : simulableElements)
+        for (Dynamic element : dynamics)
             element.preEvaluation(nonBuilder);
         for (Element e : elements) {
             if (e instanceof Diode diode){
