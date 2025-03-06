@@ -21,10 +21,4 @@ public interface NonLinear {
      * @return the correspondent conductance at point voltage.
      */
     double plane_dI_dV(double voltage);
-
-    /**
-     * Stamp the matrix with the small signal model,
-     * this will be used with <a href="https://en.wikipedia.org/wiki/Newton%27s_method"> Newton–Raphson method.
-     */
-    void smallSignalStamp(MatrixBuilder builder);
 }

@@ -433,7 +433,7 @@ public final class Circuits {
         public static Circuit getHalfWaveRectifier(){
             Circuit circuit = new Circuit();
 
-            ACVoltageSource vc = new ACVoltageSource(12,5);
+            ACVoltageSource vc = new ACVoltageSource(12,5);//temporary change
             Diode d = new Diode();
             Capacitor c = new Capacitor(0.05);
             Resistor r = new Resistor(2);

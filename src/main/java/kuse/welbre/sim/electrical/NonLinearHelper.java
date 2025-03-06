@@ -2,6 +2,7 @@ package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Dynamic;
+import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.sim.electrical.elements.Diode;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
@@ -29,13 +30,11 @@ public class NonLinearHelper {
 
         for (Dynamic element : dynamics)
             element.preEvaluation(nonBuilder);
-        for (Element e : elements) {
-            if (e instanceof Diode diode){
-                nonBuilder.stampResistor(diode.getPinA(), diode.getPinB(), Math.max(diode.plane_dI_dV(diode.getVoltageDifference()),1e-12));
-            }
+        for (Element e : elements)
+            if (e instanceof NonLinear nonLinear)
+                nonBuilder.stampResistor(e.getPinA(), e.getPinB(), Math.max(nonLinear.plane_dI_dV(e.getVoltageDifference()),1e-12));
             else
                 e.stamp(nonBuilder);
-        }
 
         return nonBuilder.getG();
     }
@@ -45,13 +44,11 @@ public class NonLinearHelper {
 
         for (Dynamic element : dynamics)
             element.preEvaluation(nonBuilder);
-        for (Element e : elements) {
-            if (e instanceof Diode diode){
-                nonBuilder.stampCurrentSource(diode.getPinA(), diode.getPinB(), -diode.plane_I_V(diode.getVoltageDifference()));
-            }
+        for (Element e : elements)
+            if (e instanceof NonLinear nonLinear)
+                nonBuilder.stampCurrentSource(e.getPinA(), e.getPinB(), -nonLinear.plane_I_V(e.getVoltageDifference()));
             else
                 e.stamp(nonBuilder);
-        }
 
         return Tools.subtract(Tools.multiply(nonBuilder.getG(),x),nonBuilder.getZ());
     }

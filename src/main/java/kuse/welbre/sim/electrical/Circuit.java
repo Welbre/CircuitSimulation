@@ -146,32 +146,27 @@ public class Circuit {
      */
     private void solveInitialConditions(){
         final int size = analyseResult.matrixSize;
+        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
+
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
-
-        for (Dynamic dynamic : dynamics)
-            dynamic.initiate(this);
-
-        if (analyseResult.nonLinear)
-            solveNonLinear(size);
-
-        //Solve initial conditions
-
-        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
 
         //initial the elements to solve initial conditions.
         for (Dynamic dynamic : dynamics)
             dynamic.initiate(this);
+
+        //preTick in t
+        for (var sim : dynamics)
+            sim.preEvaluation(matrixBuilder);
+
+        if (analyseResult.nonLinear)
+            solveNonLinear(size);
 
         //Stamp
         for (Element e : elements)
             e.stamp(builder);
 
         builder.close();
-
-        //preTick in t
-        for (var sim : dynamics)
-            sim.preEvaluation(matrixBuilder);
 
         //Calculate the values and inject in pointers.
         if (analyseResult.nonLinear)

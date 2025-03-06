@@ -72,11 +72,6 @@ public class Diode extends Element implements NonLinear {
     }
 
     @Override
-    public void smallSignalStamp(MatrixBuilder builder) {
-        builder.stampResistor(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
-    }
-
-    @Override
     public void stamp(MatrixBuilder builder) {
         builder.stampCurrentSource(getPinA(), getPinB(), -plane_I_V(getVoltageDifference()));
         builder.stampResistor(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
