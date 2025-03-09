@@ -195,9 +195,9 @@ public class Circuit {
         double[] fx;
         int inter = 0, totalSubInter = 0;
 
-        Element.Pin ap = this.elements.get(2).getPinA();
-        Element.Pin bp = this.elements.get(2).getPinB();
-        double value = ((Capacitor) this.elements.get(2)).compConductance * this.elements.get(2).getVoltageDifference();
+        Element.Pin ap = this.elements.get(5).getPinA();
+        Element.Pin bp = this.elements.get(5).getPinB();
+        double value = ((Capacitor) this.elements.get(5)).compConductance * this.elements.get(5).getVoltageDifference();
 
         //initiate x and dx.
         for (int i = 0; i < X.length; i++) {

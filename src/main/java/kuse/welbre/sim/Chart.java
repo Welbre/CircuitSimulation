@@ -14,16 +14,18 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        //Circuit c = Circuits.Diodes.getHalfWaveRectifier();
-        //Circuit c = Circuits.Diodes.getDiodeResistence();
-        Circuit c = Circuits.Inductors.getRlCircuit();
-        //Circuit c = Circuits.Diodes.getHalfWaveRectifier();
+        Circuit c = Circuits.Diodes.getFullHaveRectifier();
+
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
-                .see(1, true, true, false, "r")
-                .see(2, true, true, false, "l")
+                .see(1, true, true, false, "d00")
+                .see(2, true, true, false, "d01")
+                .see(3, true, true, false, "d10")
+                .see(4, true, true, false, "d11")
+                .see(5, true, true, false, "c")
+                .see(6, true, true, false, "r")
                 //.see(1,true,true,false,"r")
                 //.see(2,true,true,false,"c")
         );

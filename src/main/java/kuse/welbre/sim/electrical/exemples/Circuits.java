@@ -1,6 +1,7 @@
 package kuse.welbre.sim.electrical.exemples;
 
 import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
 
@@ -445,6 +446,33 @@ public final class Circuits {
 
             circuit.addElement(vc,d,c,r);
             return circuit;
+        }
+        public static Circuit getFullHaveRectifier(){
+            Circuit c = new Circuit();
+            ACVoltageSource v = new ACVoltageSource(12,2);
+            Diode d00 = new Diode();
+            Diode d01 = new Diode();
+            Diode d10 = new Diode();
+            Diode d11 = new Diode();
+            Capacitor ka = new Capacitor(0.5);
+            Resistor r = new Resistor(2);
+
+            c.addElement(v,d00,d01,d10,d11,ka,r);
+
+            ka.connectB(null);
+
+            Element.Pin inA = v.getPinA();
+            Element.Pin inB = v.getPinB();
+            Element.Pin outA = ka.getPinA();
+            Element.Pin outB = ka.getPinB();
+
+            d00.connect(inA,outA);
+            d01.connect(outB,inA);
+            d10.connect(inB,outA);
+            d11.connect(outB, inB);
+            r.connect(outA,outB);
+
+            return c;
         }
     }
 }
