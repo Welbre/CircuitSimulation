@@ -46,14 +46,14 @@ public class Chart {
         );
         c.exportToSpiceNetlist(System.out);
 
-        File file = new File("./ggggkkkkkk.csv");
+        File file = new File("./circuitplot.csv");
 
         FileWriter writer = new FileWriter(file);
         writer.write(csv);
         writer.close();
 
         Thread.sleep(200);
-        Process process = Runtime.getRuntime().exec(new String[]{"py", "C:/Users/welbre/Desktop/mcm/ElectricalSim/Charts/Main.py"});
+        Process process = Runtime.getRuntime().exec(new String[]{"python3", "./Charts/Main.py", "./circuitplot.csv"});
         process.waitFor();
     }
 
