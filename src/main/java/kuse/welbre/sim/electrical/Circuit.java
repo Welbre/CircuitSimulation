@@ -247,7 +247,7 @@ public class Circuit {
             //todo ,create a more efficient way to handle the changes in lhs matrix. to avoid useless changes.
             matrixBuilder = new MatrixBuilder(new double[analyseResult.matrixSize][analyseResult.matrixSize], new double[analyseResult.matrixSize]);
             for (Element e : elements)
-                e.stamp(matrixBuilder);
+                    e.stamp(matrixBuilder);
             matrixBuilder.close();
 
             //we are in t, so use actual values to prepare evaluation to t+1

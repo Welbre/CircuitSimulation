@@ -63,12 +63,12 @@ public class Capacitor extends Element implements Dynamic {
 
     @Override
     public void preEvaluation(MatrixBuilder builder) {
-        currentSource = compConductance * getVoltageDifference();
+        currentSource = compConductance * getVoltageDifference();//voltage at t
         builder.stampCurrentSource(getPinA(), getPinB(), currentSource);
     }
 
     @Override
     public void posEvaluation(MatrixBuilder builder) {
-        capacitorCurrent = compConductance * getVoltageDifference() - currentSource;
+        capacitorCurrent = -compConductance * getVoltageDifference() + currentSource;//voltage at t+1
     }
 }

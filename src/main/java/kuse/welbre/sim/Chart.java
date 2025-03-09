@@ -15,26 +15,8 @@ public class Chart {
 
     public static void main(String[] args) throws Exception {
         //Circuit c = Circuits.Diodes.getHalfWaveRectifier();
-        //Circuit c = Circuits.Capacitors.getRcCircuit();
         //Circuit c = Circuits.Diodes.getDiodeResistence();
         Circuit c = Circuits.Diodes.getHalfWaveRectifier();
-
-        /*
-        Circuit c = new Circuit();
-
-        VoltageSource vc = new VoltageSource(12);//temporary change
-        Diode d = new Diode();
-        Capacitor ca = new Capacitor(0.05);
-        Resistor r = new Resistor(2);
-
-        vc.connect(d.getPinA(), null);
-        Element.Pin b = d.getPinB();
-        ca.connect(b,null);
-        r.connect(b, null);
-
-        c.addElement(vc,d,ca,r);
-
-         */
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
@@ -42,10 +24,12 @@ public class Chart {
                 .see(1, true, true, false, "d")
                 .see(2, true, true, false, "c")
                 .see(3, true, true, false, "r")
-                //.see(3, true, true, false, "r")
-                //.see(3, true, true, false, "r")
+                //.see(1,true,true,false,"r")
+                //.see(2,true,true,false,"c")
         );
         c.exportToSpiceNetlist(System.out);
+
+        Main.printAllElements(c);
 
         File file = new File("./circuitplot.csv");
 

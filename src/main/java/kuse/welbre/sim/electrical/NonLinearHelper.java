@@ -30,7 +30,8 @@ public class NonLinearHelper {
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
 
         for (Dynamic element : dynamics)
-            element.preEvaluation(nonBuilder);
+            if (!(element instanceof Capacitor))
+                element.preEvaluation(nonBuilder);
         for (Element e : elements)
             if (e instanceof NonLinear nonLinear)
                 nonBuilder.stampResistor(e.getPinA(), e.getPinB(), Math.max(nonLinear.plane_dI_dV(e.getVoltageDifference()),1e-12));
