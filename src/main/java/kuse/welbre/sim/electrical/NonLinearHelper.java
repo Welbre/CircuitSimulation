@@ -3,6 +3,7 @@ package kuse.welbre.sim.electrical;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.abstractt.NonLinear;
+import kuse.welbre.sim.electrical.elements.Capacitor;
 import kuse.welbre.sim.electrical.elements.Diode;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
@@ -39,11 +40,13 @@ public class NonLinearHelper {
         return nonBuilder.getG();
     }
 
-    public double[] f(double[] x){
+    public double[] f(double[] x, Element.Pin a, Element.Pin b, double value){
         MatrixBuilder nonBuilder = new MatrixBuilder(new double[size][size],new double[size]);
+        nonBuilder.stampCurrentSource(a,b,value);
 
         for (Dynamic element : dynamics)
-            element.preEvaluation(nonBuilder);
+            if (!(element instanceof Capacitor))
+                element.preEvaluation(nonBuilder);
         for (Element e : elements)
             if (e instanceof NonLinear nonLinear)
                 nonBuilder.stampCurrentSource(e.getPinA(), e.getPinB(), -nonLinear.plane_I_V(e.getVoltageDifference()));

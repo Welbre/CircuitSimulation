@@ -195,13 +195,17 @@ public class Circuit {
         double[] fx;
         int inter = 0, totalSubInter = 0;
 
+        Element.Pin ap = this.elements.get(2).getPinA();
+        Element.Pin bp = this.elements.get(2).getPinB();
+        double value = ((Capacitor) this.elements.get(2)).compConductance * this.elements.get(2).getVoltageDifference();
+
         //initiate x and dx.
         for (int i = 0; i < X.length; i++) {
             x[i] = X[i][0];
             dx[i] = Double.MAX_VALUE;
         }
 
-        fx = nl.f(x); //compute the initial fx
+        fx = nl.f(x,ap,bp,value); //compute the initial fx
 
         for (; inter < 500; inter++){
             if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)//check for convergence.
@@ -214,7 +218,7 @@ public class Circuit {
             double[] t = Tools.subtract(x, dx); //calculate t the new x
 
             injectValuesInX(t);//update again now using t, the new x
-            double[] ft = nl.f(t);//calculate the f(t)
+            double[] ft = nl.f(t,ap,bp,value);//calculate the f(t)
             double a = 1;
             int subinter = 0;
 
@@ -222,7 +226,7 @@ public class Circuit {
                 a /= 2.0;//if it isn't converging, reduce the step by half.
                 t = Tools.subtract(x, Tools.multiply(dx,a));//compute the new subT, t = x - a*dx
                 injectValuesInX(t);//update values in component to subT.
-                ft = nl.f(t);//re compute f(t) now using the subT
+                ft = nl.f(t,ap,bp,value);//re compute f(t) now using the subT
 
                 subinter++;
                 totalSubInter++;

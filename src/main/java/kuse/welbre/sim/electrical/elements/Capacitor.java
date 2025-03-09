@@ -16,7 +16,7 @@ import kuse.welbre.tools.MatrixBuilder;
 @SuppressWarnings("unused")
 public class Capacitor extends Element implements Dynamic {
     private double capacitance;
-    private double compConductance;
+    public double compConductance;
     private double currentSource;
 
     public Capacitor() {

@@ -40,7 +40,8 @@ public class Chart {
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "d")
-                .see(2, true, true, false, "r")
+                .see(2, true, true, false, "c")
+                .see(3, true, true, false, "r")
                 //.see(3, true, true, false, "r")
                 //.see(3, true, true, false, "r")
         );
