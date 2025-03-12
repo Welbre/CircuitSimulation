@@ -1,9 +1,6 @@
 package kuse.welbre.sim;
 
-import static java.lang.Math.abs;
-import static org.junit.jupiter.api.Assertions.*;
-
-import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.ACVoltageSource;
 import kuse.welbre.sim.electrical.elements.Diode;
@@ -21,6 +18,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static java.lang.Math.abs;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CircuitTest {
 

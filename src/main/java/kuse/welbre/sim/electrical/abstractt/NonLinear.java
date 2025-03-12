@@ -1,7 +1,5 @@
 package kuse.welbre.sim.electrical.abstractt;
 
-import kuse.welbre.tools.MatrixBuilder;
-
 /**
  * Any element that the LFS matrix or RHS depends on X.
  * Used to simulate diodes, variable resistence, switch, or non-linear resistence.

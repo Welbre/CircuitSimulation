@@ -1,6 +1,6 @@
 package kuse.welbre.sim.electrical.exemples;
 
-import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;

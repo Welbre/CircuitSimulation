@@ -1,14 +1,14 @@
 package kuse.welbre.sim.electrical;
 
-import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
-import kuse.welbre.sim.electrical.abstractt.NonLinear;
-import kuse.welbre.sim.electrical.abstractt.RHSElement;
+import kuse.welbre.sim.electrical.abstractt.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public final class CircuitAnalyser {
-    public final boolean nonLinear;
+    public final boolean isNonLinear;
+    public final boolean isDynamic;
     public final int nodes;
     public final int matrixSize;
     public final List<Element.Pin> pins;
@@ -27,7 +27,7 @@ public final class CircuitAnalyser {
      * A 2-length array that, the 0 addresses is the count of nodes in the circuit, the 1 is the number of independent voltage sources.
      */
     public CircuitAnalyser(Circuit circuit) {
-        boolean isLinear = true;
+        boolean isNonLinear = false, isDynamic = false;
         int matrixSize = 0;
         pins = new ArrayList<>();
 
@@ -39,7 +39,9 @@ public final class CircuitAnalyser {
             map.get(element.getClass()).add(element);
 
             if (element instanceof NonLinear)
-                isLinear = false;
+                isNonLinear = true;
+            else if (element instanceof Dynamic)
+                isDynamic = true;
 
             //Each of these terms contributes to matrix size
             //The node with an unknown voltage, and voltage sources with unknown currents.
@@ -51,7 +53,8 @@ public final class CircuitAnalyser {
 
         this.nodes = pins.size();
         this.matrixSize = matrixSize + this.nodes;
-        this.nonLinear = !isLinear;
+        this.isNonLinear = isNonLinear;
+        this.isDynamic = isDynamic;
     }
     //add only if non-contains and isn't null.
     private void addPin(List<Element.Pin> pins, Element.Pin pin){

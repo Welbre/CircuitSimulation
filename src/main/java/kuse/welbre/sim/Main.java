@@ -1,16 +1,12 @@
 package kuse.welbre.sim;
 
-import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.*;
-import kuse.welbre.tools.LU;
-import kuse.welbre.tools.Tools;
+import kuse.welbre.sim.electrical.elements.Capacitor;
+import kuse.welbre.sim.electrical.elements.Resistor;
+import kuse.welbre.sim.electrical.elements.VoltageSource;
 
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.function.Function;
-
-import static java.lang.Math.*;
 
 public class Main {
 

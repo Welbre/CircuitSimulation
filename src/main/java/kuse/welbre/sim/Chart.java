@@ -1,11 +1,11 @@
 package kuse.welbre.sim;
 
-import kuse.welbre.sim.electrical.*;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,11 +14,14 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
+        //Circuit c = Circuits.Diodes.getDiodeResistence();
         Circuit c = Circuits.Diodes.getFullHaveRectifier();
-
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
+                        //.see(0,true,true,false,"v")
+                        //.see(1,true,true,false,"d")
+                        //.see(2,true,true,false,"r")
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "d00")
                 .see(2, true, true, false, "d01")
@@ -26,8 +29,6 @@ public class Chart {
                 .see(4, true, true, false, "d11")
                 .see(5, true, true, false, "c")
                 .see(6, true, true, false, "r")
-                //.see(1,true,true,false,"r")
-                //.see(2,true,true,false,"c")
         );
         c.exportToSpiceNetlist(System.out);
 
@@ -40,7 +41,7 @@ public class Chart {
         writer.close();
 
         Thread.sleep(200);
-        Process process = Runtime.getRuntime().exec(new String[]{"python3", "./Charts/Main.py", "./circuitplot.csv"});
+        Process process = Runtime.getRuntime().exec(new String[]{"py", "./Charts/Main.py", "./circuitplot.csv"});
         process.waitFor();
     }
 

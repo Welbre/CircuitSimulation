@@ -48,7 +48,7 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     @Override
     public void preEvaluation(MatrixBuilder builder) {
         outputVoltage = super.getVoltageDifference() * Math.sin(theta);
-        builder.stampZMatrixVoltageSource(getAddress(), outputVoltage);
+        builder.stampRHS(getAddress(), outputVoltage);
     }
 
     @Override

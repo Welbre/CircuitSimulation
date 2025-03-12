@@ -3,7 +3,7 @@ package kuse.welbre.sim.electrical.tools;
 import kuse.welbre.tools.Tools;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 class ToolsTest {
     @Test
     void proprietyToSi(){

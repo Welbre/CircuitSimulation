@@ -48,9 +48,9 @@ public class CCCS extends Element4Pin implements RHSElement {
     public void stamp(MatrixBuilder builder) {
         builder.stampVoltageSource(getPinC(), getPinD(), address, 0);//A perfect ammeter.
         if (getPinA() != null)
-            builder.stampGRaw(getPinA().address, address, alpha);
+            builder.stampLHS(getPinA().address, address, alpha);
         if (getPinB() != null)
-            builder.stampGRaw(getPinB().address, address, -alpha);
+            builder.stampLHS(getPinB().address, address, -alpha);
     }
 
     @Override

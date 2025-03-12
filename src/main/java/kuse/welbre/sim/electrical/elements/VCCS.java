@@ -54,15 +54,15 @@ public class VCCS extends Element4Pin {
     public void stamp(MatrixBuilder builder) {
         if (getPinA() != null) {
             if (getPinC() != null)
-                builder.stampGRaw(getPinA().address, getPinC().address, g);
+                builder.stampLHS(getPinA().address, getPinC().address, g);
             if (getPinD() != null)
-                builder.stampGRaw(getPinA().address, getPinD().address, -g);
+                builder.stampLHS(getPinA().address, getPinD().address, -g);
         }
         if (getPinB() != null) {
             if (getPinC() != null)
-                builder.stampGRaw(getPinB().address, getPinC().address, -g);
+                builder.stampLHS(getPinB().address, getPinC().address, -g);
             if (getPinD() != null)
-                builder.stampGRaw(getPinB().address, getPinD().address, g);
+                builder.stampLHS(getPinB().address, getPinD().address, g);
         }
     }
 

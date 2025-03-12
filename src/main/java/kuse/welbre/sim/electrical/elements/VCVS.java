@@ -60,9 +60,9 @@ public class VCVS extends Element4Pin implements RHSElement {
         builder.stampVoltageSource(getPinA(), getPinB(), address, 0);
         builder.stampCurrentSource(getPinC(), getPinD(), 0);
         if (getPinC() != null)
-            builder.stampGRaw(address, getPinC().address, -micro);
+            builder.stampLHS(address, getPinC().address, -micro);
         if (getPinD() != null)
-            builder.stampGRaw(address, getPinD().address, micro);
+            builder.stampLHS(address, getPinD().address, micro);
     }
 
     @Override

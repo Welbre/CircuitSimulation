@@ -1,17 +1,18 @@
 package kuse.welbre.sim.electrical;
 
-import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.*;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
-import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
-import kuse.welbre.sim.electrical.abstractt.RHSElement;
-import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.NonLinearMatrixBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Circuit {
     /// 50ms time step
@@ -118,13 +119,10 @@ public class Circuit {
             throw new IllegalStateException("Build matrix called before circuit analysis!");
 
         final int size = analyseResult.matrixSize;
-
-        final double[][] G = new double[size][size];
-        final double[] Z = new double[size];
         X = new double[size][1];
         preparePinsAndSources(analyseResult, X);
 
-        matrixBuilder = new MatrixBuilder(G, Z);
+        matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
 
         //Init simulable
         for (Dynamic s : dynamics)
@@ -145,38 +143,41 @@ public class Circuit {
      * thus, defining the initial conditions at t = 0.
      */
     private void solveInitialConditions(){
-        final int size = analyseResult.matrixSize;
-        MatrixBuilder builder = new MatrixBuilder(new double[size][size],new double[size]);
-
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
+        MatrixBuilder builder;
 
         //initial the elements to solve initial conditions.
         for (Dynamic dynamic : dynamics)
             dynamic.initiate(this);
 
-        //preTick in t
-        for (var sim : dynamics)
-            sim.preEvaluation(matrixBuilder);
+        //tick in t
+        if (analyseResult.isNonLinear) {
+            builder = new NonLinearMatrixBuilder(analyseResult);
+            for (var sim : dynamics)//preTick in t
+                sim.preEvaluation(builder);
 
-        if (analyseResult.nonLinear)
-            solveNonLinear(size);
+            for (Element e : elements)//stamp
+                if (!(e instanceof NonLinear))
+                    e.stamp(builder);
 
-        //Stamp
-        for (Element e : elements)
-            e.stamp(builder);
+            solveNonLinear(builder);
+        } else {
+            builder = new MatrixBuilder(analyseResult);
 
-        builder.close();
+            for (var sim : dynamics)//preTick in t
+                sim.preEvaluation(builder);
 
-        //Calculate the values and inject in pointers.
-        if (analyseResult.nonLinear)
-            solveNonLinear(analyseResult.matrixSize);
-        else
+            for (Element e : elements)//stamp
+                e.stamp(builder);
+            builder.close();
+
             injectValuesInX(builder.getResult());
+        }
 
         //Pos tick
         for (var sim : dynamics)
-            sim.posEvaluation(matrixBuilder);
+            sim.posEvaluation(builder);
 
         this.tickRate = originalTickRate;
         //Start simulable elements with original tick rate.
@@ -184,20 +185,16 @@ public class Circuit {
             dynamic.initiate(this);
     }
 
-    private void solveNonLinear(int size){
+    private void solveNonLinear(MatrixBuilder original){
         //--------------------------------------------------------------
         //This entire block is to linearize the non-linear components.
         //--------------------------------------------------------------
 
-        NonLinearHelper nl = new NonLinearHelper(this, size, elements, dynamics);
+        NonLinearHelper nl = new NonLinearHelper(original, elements);
         double[] x = new double[X.length]; //initial x in the X point.
         double[] dx = new double[X.length];// initial dx with max double value.
         double[] fx;
         int inter = 0, totalSubInter = 0;
-
-        Element.Pin ap = this.elements.get(5).getPinA();
-        Element.Pin bp = this.elements.get(5).getPinB();
-        double value = ((Capacitor) this.elements.get(5)).compConductance * this.elements.get(5).getVoltageDifference();
 
         //initiate x and dx.
         for (int i = 0; i < X.length; i++) {
@@ -205,7 +202,7 @@ public class Circuit {
             dx[i] = Double.MAX_VALUE;
         }
 
-        fx = nl.f(x,ap,bp,value); //compute the initial fx
+        fx = nl.f(x); //compute the initial fx
 
         for (; inter < 500; inter++){
             if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)//check for convergence.
@@ -218,7 +215,7 @@ public class Circuit {
             double[] t = Tools.subtract(x, dx); //calculate t the new x
 
             injectValuesInX(t);//update again now using t, the new x
-            double[] ft = nl.f(t,ap,bp,value);//calculate the f(t)
+            double[] ft = nl.f(t);//calculate the f(t)
             double a = 1;
             int subinter = 0;
 
@@ -226,7 +223,7 @@ public class Circuit {
                 a /= 2.0;//if it isn't converging, reduce the step by half.
                 t = Tools.subtract(x, Tools.multiply(dx,a));//compute the new subT, t = x - a*dx
                 injectValuesInX(t);//update values in component to subT.
-                ft = nl.f(t,ap,bp,value);//re compute f(t) now using the subT
+                ft = nl.f(t);//re compute f(t) now using the subT
 
                 subinter++;
                 totalSubInter++;
@@ -245,19 +242,22 @@ public class Circuit {
             clean();
         else {
             //todo ,create a more efficient way to handle the changes in lhs matrix. to avoid useless changes.
-            matrixBuilder = new MatrixBuilder(new double[analyseResult.matrixSize][analyseResult.matrixSize], new double[analyseResult.matrixSize]);
+            matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
             for (Element e : elements)
+                if (!(e instanceof NonLinear))
                     e.stamp(matrixBuilder);
-            matrixBuilder.close();
+            //matrixBuilder.close();
 
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Dynamic element : dynamics)
                 element.preEvaluation(matrixBuilder);
 
-            if (analyseResult.nonLinear)
-                solveNonLinear(analyseResult.matrixSize);
-            else
+            if (analyseResult.isNonLinear)
+                solveNonLinear(matrixBuilder);
+            else {
+                matrixBuilder.close();
                 injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
+            }
 
             //Pos ticking to calculate values in t + 1
             for (var sim : dynamics)
@@ -319,14 +319,14 @@ public class Circuit {
      * Get a clone of Z matrix.
      */
     public double[] getZ() {
-        return matrixBuilder.getCopyOfZ();
+        return matrixBuilder.getCopyOfRHS();
     }
 
     /**
      * Get a clone of G matrix.
      */
     public double[][] getG() {
-        return matrixBuilder.getCopyOfG();
+        return matrixBuilder.getLHS();
     }
 
     public void setTickRate(double tickRate) {

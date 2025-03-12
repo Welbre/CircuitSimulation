@@ -60,7 +60,7 @@ public class CCVS extends Element4Pin implements MultipleRHSElement {
     public void stamp(MatrixBuilder builder) {
         builder.stampVoltageSource(getPinC(), getPinD(), addressInput, 0);
         builder.stampVoltageSource(getPinA(), getPinB(), addressOutput, 0);
-        builder.stampGRaw(addressOutput, addressInput, -r);
+        builder.stampLHS(addressOutput, addressInput, -r);
     }
 
     @Override
