@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.abstractt;
 
+import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
@@ -30,11 +31,17 @@ public abstract class Element {
     public Element() {
         pinA = new Pin();
         pinB = new Pin();
+
+        if (CircuitBuilder.BUILDER != null)
+            CircuitBuilder.BUILDER.elements.add(this);
     }
 
     public Element(Pin pinA, Pin pinB) {
         this.pinA = pinA;
         this.pinB = pinB;
+
+        if (CircuitBuilder.BUILDER != null)
+            CircuitBuilder.BUILDER.elements.add(this);
     }
 
     public Pin getPinA() {

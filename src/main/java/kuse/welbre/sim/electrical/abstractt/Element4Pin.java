@@ -8,6 +8,7 @@ public abstract class Element4Pin extends Element {
     private Pin pinD;
 
     public Element4Pin() {
+        super();
     }
 
     public Element4Pin(Pin pinA, Pin pinB, Pin pinC, Pin pinD) {
