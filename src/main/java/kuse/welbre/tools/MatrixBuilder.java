@@ -33,9 +33,13 @@ public class MatrixBuilder {
         this.isClosed = false;
     }
 
-    public void stampResistor(Element.Pin a, Element.Pin b, double conductance) {
+    public void stampResistence(Element.Pin a, Element.Pin b, double resistence){
+        stampConductance(a,b, 1.0 / resistence);
+    }
+
+    public void stampConductance(Element.Pin a, Element.Pin b, double conductance) {
         if (isClosed)
-            throw new IllegalStateException("Try stamp a resistor in a closed builder!");
+            throw new IllegalStateException("Try stamp a conductance in a closed builder!");
         if (a != null) {
             LHS[a.address][a.address] += conductance;
             if (b != null) {

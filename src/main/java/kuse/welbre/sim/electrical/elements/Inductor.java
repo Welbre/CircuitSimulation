@@ -52,7 +52,7 @@ public class Inductor extends Element implements Dynamic {
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        builder.stampResistor(this.getPinA(), this.getPinB(), compConductance);
+        builder.stampConductance(this.getPinA(), this.getPinB(), compConductance);
     }
 
     @Override

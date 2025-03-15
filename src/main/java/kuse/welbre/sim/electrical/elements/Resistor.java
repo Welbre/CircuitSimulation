@@ -48,7 +48,7 @@ public class Resistor extends Element {
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        builder.stampResistor(this.getPinA(), this.getPinB(), this.getConductance());
+        builder.stampConductance(this.getPinA(), this.getPinB(), this.getConductance());
     }
 
     @Override

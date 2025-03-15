@@ -74,7 +74,7 @@ public class Diode extends Element implements NonLinear {
     @Override
     public void stamp(MatrixBuilder builder) {
         builder.stampCurrentSource(getPinA(), getPinB(), -plane_I_V(getVoltageDifference()));
-        builder.stampResistor(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
+        builder.stampConductance(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
     }
 
     ///Returns the threshold voltage of the diode, using 1mA as reference to "on" state.

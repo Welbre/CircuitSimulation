@@ -47,7 +47,7 @@ public class Capacitor extends Element implements Dynamic {
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        builder.stampResistor(this.getPinA(), this.getPinB(), compConductance);
+        builder.stampConductance(this.getPinA(), this.getPinB(), compConductance);
     }
 
     private double capacitorCurrent = 0;

@@ -23,7 +23,7 @@ public class NonLinearHelper {
         MatrixBuilder builder = new MatrixBuilder(original_builder);
         for (Element e : elements)
             if (e instanceof NonLinear nonLinear)
-                builder.stampResistor(e.getPinA(), e.getPinB(), Math.max(nonLinear.plane_dI_dV(e.getVoltageDifference()),1e-12));
+                builder.stampConductance(e.getPinA(), e.getPinB(), Math.max(nonLinear.plane_dI_dV(e.getVoltageDifference()),1e-12));
 
         return builder.getLHS();
     }

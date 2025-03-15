@@ -434,7 +434,7 @@ public final class Circuits {
         public static Circuit getHalfWaveRectifier(){
             Circuit circuit = new Circuit();
 
-            ACVoltageSource vc = new ACVoltageSource(12,5);//temporary change
+            ACVoltageSource vc = new ACVoltageSource(12,5);
             Diode d = new Diode();
             Capacitor c = new Capacitor(0.05);
             Resistor r = new Resistor(2);
@@ -449,7 +449,7 @@ public final class Circuits {
         }
         public static Circuit getFullHaveRectifier(){
             Circuit c = new Circuit();
-            ACVoltageSource v = new ACVoltageSource(12,2);
+            ACVoltageSource v = new ACVoltageSource(12,5);
             Diode d00 = new Diode();
             Diode d01 = new Diode();
             Diode d10 = new Diode();
@@ -473,6 +473,10 @@ public final class Circuits {
             r.connect(outA,outB);
 
             return c;
+        }
+        public static Circuit getCapacitorRelayCurrentLimiter(){
+            Circuit circuit = new Circuit();
+
         }
     }
 }

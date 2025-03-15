@@ -360,8 +360,8 @@ class CircuitTest {
             Main.printAllElements(circuit);
         }
         @Test
-        @Order(3)
-        void testDiodeFromModel(){
+        @Order(4)
+        void testHalfWaveRectifier(){
             final double sat = 1e-3;//1mA
             final double fwd = 0.7;//700mV
             final double openI = 0.080;//80mv
@@ -402,6 +402,12 @@ class CircuitTest {
             testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 1000ms
 
             Main.printAllElements(circuit);
+        }
+
+        void testHalfRectifier(){
+
+            Circuit c = Circuits.Diodes.getHalfWaveRectifier();
+            c.preCompile();
         }
     }
 }

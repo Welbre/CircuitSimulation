@@ -35,7 +35,7 @@ public final class NonLinearMatrixBuilder extends MatrixBuilder {
         this.isClosed = false;
     }
 
-    public void stampResistor(Element.Pin a, Element.Pin b, double conductance) {
+    public void stampConductance(Element.Pin a, Element.Pin b, double conductance) {
         if (isClosed)
             throw new IllegalStateException("Try stamp a resistor in a closed builder!");
         if (a != null) {
