@@ -1,11 +1,9 @@
 package kuse.welbre.sim;
 
+import kuse.welbre.sim.Tools.ElementOMeter;
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.ACVoltageSource;
-import kuse.welbre.sim.electrical.elements.Diode;
-import kuse.welbre.sim.electrical.elements.Resistor;
-import kuse.welbre.sim.electrical.elements.VoltageSource;
+import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 import kuse.welbre.tools.Tools;
 import org.junit.jupiter.api.Assumptions;
@@ -20,6 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static java.lang.Math.abs;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CircuitTest {
@@ -404,10 +403,43 @@ class CircuitTest {
             Main.printAllElements(circuit);
         }
 
-        void testHalfRectifier(){
-
-            Circuit c = Circuits.Diodes.getHalfWaveRectifier();
+        @Test
+        @Order(5)
+        void testFullWaveRectifier(){
+            Circuit c = Circuits.Diodes.getFullHaveRectifier();
+            c.setTickRate(0.005);
             c.preCompile();
+
+            ElementOMeter meter = new ElementOMeter(c.getElements()[6]);
+            ElementOMeter vmeter = new ElementOMeter(c.getElements()[0]);
+
+            for (int i = 0; i < Math.floor(0.5 / c.getTickRate()); i++) {
+                c.tick(0);
+                meter.tick(c.getTickRate());
+                vmeter.tick(c.getTickRate());
+            }
+
+            assertTrue(CircuitTest.equals(10.363796438309693, meter.getVoltage(ElementOMeter.method.average, null)));//voltage average
+            assertTrue(CircuitTest.equals(10.473919519838212,meter.getVoltage(ElementOMeter.method.rms, c.getTickRate())));//voltage rms
+            assertTrue(CircuitTest.equals(12.0 / Math.sqrt(2), vmeter.getVoltage(ElementOMeter.method.rms, c.getTickRate())));//rms of current source.
+        }
+    }
+
+    @Nested
+    @Order(3)
+    class Switches{
+        @Test
+        @Order(1)
+        void testResistenceSwitch(){
+            double[][] openAnswers = {{800,8e-4,0.64},{800,8e-4,0.64},{0.08,8e-4,0}};
+            double[][] closedAnswers = {{800,7.1428,5714.2857},{85.7136,7.1428,612.2351},{714.28,7.1428,5101.9591}};
+            Circuit c = Circuits.Switches.getSwitchResistence();
+            c.preCompile();
+
+            testElements(c.getElements(), openAnswers, getIfFails(c));//test open
+            for (Element element : c.getElements()) if (element instanceof Switch sw) sw.setOpen(false);
+            c.tick(0);
+            testElements(c.getElements(), closedAnswers, getIfFails(c));//test closed
         }
     }
 }

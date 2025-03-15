@@ -476,7 +476,20 @@ public final class Circuits {
         }
     }
     public static final class Switches {
-        public static Circuit getRelayCurrentLimiter(){
+        public static Circuit getSwitchResistence(){
+            Circuit c = new Circuit();
+            VoltageSource v = new VoltageSource(800);
+            Switch sw = new Switch(12);
+            Resistor r = new Resistor(100);
+
+            c.addElement(v,sw,r);
+            v.connect(sw.getPinA(), null);
+            r.connect(sw.getPinB(), null);
+
+            return c;
+        }
+
+        public static Circuit getSwitchCurrentLimiter(){
             CircuitBuilder builder = new CircuitBuilder();
             Pin p0 = builder.pin();
             Pin p1 = builder.pin();

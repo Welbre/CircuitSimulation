@@ -18,6 +18,12 @@ public class Switch extends Element implements Operational {
 
     public Switch(double closedResistence) {
         this.closedResistence = closedResistence;
+        this.openResistence = 1e6;
+    }
+
+    public Switch(double closedResistence, double openResistence) {
+        this.closedResistence = closedResistence;
+        this.openResistence = openResistence;
     }
 
     public Switch(double closedResistence, boolean isOpen) {
