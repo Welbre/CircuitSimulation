@@ -9,10 +9,7 @@ import kuse.welbre.tools.NonLinearMatrixBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Circuit {
     /// 50ms time step
@@ -37,19 +34,28 @@ public class Circuit {
 
     private boolean isDirt = true;
 
+    public final <T extends Element> void addElement(Element element){
+        if (!this.elements.contains(element)) {
+            this.elements.add(element);
+
+            if (element instanceof Dynamic sim)
+                dynamics.add(sim);
+            if (element instanceof NonLinear non)
+                nonLiners.add(non);
+            if (element instanceof Operational op)
+                operationals.add(op);
+        }
+    }
+
     @SafeVarargs
     public final <T extends Element> void addElement(T... elements) {
         for (T element : elements)
-            if (!this.elements.contains(element)) {
-                this.elements.add(element);
+            addElement(element);
+    }
 
-                if (element instanceof Dynamic sim)
-                    dynamics.add(sim);
-                if (element instanceof NonLinear non)
-                    nonLiners.add(non);
-                if (element instanceof Operational op)
-                    operationals.add(op);
-            }
+    public final <T extends Element> void addElement(Collection<T> elements){
+        for (T element : elements)
+            addElement(element);
     }
 
     /**
