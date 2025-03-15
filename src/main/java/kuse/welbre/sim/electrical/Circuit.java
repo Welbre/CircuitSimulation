@@ -23,6 +23,8 @@ public class Circuit {
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Dynamic> dynamics = new ArrayList<>();
+    private final List<NonLinear> nonLiners = new ArrayList<>();
+    private final List<Operational> operationals = new ArrayList<>();
 
     private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
@@ -40,8 +42,13 @@ public class Circuit {
         for (T element : elements)
             if (!this.elements.contains(element)) {
                 this.elements.add(element);
+
                 if (element instanceof Dynamic sim)
                     dynamics.add(sim);
+                if (element instanceof NonLinear non)
+                    nonLiners.add(non);
+                if (element instanceof Operational op)
+                    operationals.add(op);
             }
     }
 
@@ -151,6 +158,10 @@ public class Circuit {
         for (Dynamic dynamic : dynamics)
             dynamic.initiate(this);
 
+        //dirt all operational to re-stamp.
+        for (Operational op : operationals)
+            op.dirt();
+
         //tick in t
         if (analyseResult.isNonLinear) {
             builder = new NonLinearMatrixBuilder(analyseResult);
@@ -243,10 +254,10 @@ public class Circuit {
         else {
             //todo ,create a more efficient way to handle the changes in lhs matrix. to avoid useless changes.
             matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
+
             for (Element e : elements)
                 if (!(e instanceof NonLinear))
                     e.stamp(matrixBuilder);
-            //matrixBuilder.close();
 
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Dynamic element : dynamics)
