@@ -25,9 +25,16 @@ public class Switch extends Element implements Operational {
         this.isOpen = isOpen;
     }
 
+    public Switch(Pin pinA, Pin pinB) {
+        super(pinA, pinB);
+        openResistence = 1e-3;
+        closedResistence = 1e6;
+    }
+
     public Switch(Pin pinA, Pin pinB, double openResistence, boolean isOpen) {
         super(pinA, pinB);
         this.openResistence = openResistence;
+        this.closedResistence = 1e6;
         this.isOpen = isOpen;
     }
 

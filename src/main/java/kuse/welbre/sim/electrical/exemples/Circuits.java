@@ -1,6 +1,7 @@
 package kuse.welbre.sim.electrical.exemples;
 
 import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
@@ -461,10 +462,10 @@ public final class Circuits {
 
             ka.connectB(null);
 
-            Element.Pin inA = v.getPinA();
-            Element.Pin inB = v.getPinB();
-            Element.Pin outA = ka.getPinA();
-            Element.Pin outB = ka.getPinB();
+            Pin inA = v.getPinA();
+            Pin inB = v.getPinB();
+            Pin outA = ka.getPinA();
+            Pin outB = ka.getPinB();
 
             d00.connect(inA,outA);
             d01.connect(outB,inA);
@@ -475,8 +476,16 @@ public final class Circuits {
             return c;
         }
         public static Circuit getCapacitorRelayCurrentLimiter(){
-            Circuit circuit = new Circuit();
+            CircuitBuilder builder = new CircuitBuilder();
+            Pin p0 = builder.pin();
+            Pin p1 = builder.pin();
+            Pin p2 = builder.pin();
+            new VoltageSource(p0, null, 800);
+            new Switch(p0,p1);
+            new Inductor(p1,p2,0.5);
+            new Capacitor(p2,null, 10);
 
+            return builder.close();
         }
     }
 }
