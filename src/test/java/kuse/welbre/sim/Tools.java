@@ -17,7 +17,7 @@ public class Tools {
         double sum = 0;
         for (Double v : doubles)
             sum += Math.pow(v,2);
-        return Math.sqrt(sum);
+        return Math.sqrt(sum / doubles.size());
     }
 
     private static double integral(List<Double> doubles, double dx){
@@ -27,12 +27,12 @@ public class Tools {
         return sum;
     }
 
-    public static class ElementStatusOMeter {
+    public static class ElementOMeter {
         private final List<Double> voltage = new ArrayList<>();
         private final List<Double> current = new ArrayList<>();
         private final Element element;
 
-        public ElementStatusOMeter(Element element) {
+        public ElementOMeter(Element element) {
             this.element = element;
         }
 
@@ -50,7 +50,9 @@ public class Tools {
                 case rms -> {
                     return rms(voltage);
                 }
-                case integral -> integral(voltage, (Double) meta);
+                case integral -> {
+                    return integral(voltage, (Double) meta);
+                }
             }
             throw new IllegalArgumentException("Method can't be null!");
         }
@@ -62,7 +64,9 @@ public class Tools {
                 case rms -> {
                     return rms(current);
                 }
-                case integral -> integral(current, (Double) meta);
+                case integral -> {
+                    return integral(current, (Double) meta);
+                }
             }
             throw new IllegalArgumentException("Method can't be null!");
         }
