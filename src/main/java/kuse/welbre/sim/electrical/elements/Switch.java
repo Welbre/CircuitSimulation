@@ -8,39 +8,39 @@ import kuse.welbre.tools.MatrixBuilder;
 public class Switch extends Element implements Operational {
     private boolean isOpen = true;
     private boolean dirt = true;
-    private double openResistence;//1mΩ default
-    private double closedResistence;//1MΩ default
+    private double closedResistence;//1mΩ default
+    private double openResistence;//1MΩ default
 
     public Switch() {
-        openResistence = 1e-3;
-        closedResistence = 1e6;
+        closedResistence = 1e-3;
+        openResistence = 1e6;
     }
 
-    public Switch(double openResistence) {
-        this.openResistence = openResistence;
+    public Switch(double closedResistence) {
+        this.closedResistence = closedResistence;
     }
 
-    public Switch(double openResistence, boolean isOpen) {
-        this.openResistence = openResistence;
+    public Switch(double closedResistence, boolean isOpen) {
+        this.closedResistence = closedResistence;
         this.isOpen = isOpen;
     }
 
     public Switch(Pin pinA, Pin pinB) {
         super(pinA, pinB);
-        openResistence = 1e-3;
-        closedResistence = 1e6;
+        closedResistence = 1e-3;
+        openResistence = 1e6;
     }
 
-    public Switch(Pin pinA, Pin pinB, double openResistence, boolean isOpen) {
+    public Switch(Pin pinA, Pin pinB, double closedResistence, boolean isOpen) {
         super(pinA, pinB);
-        this.openResistence = openResistence;
-        this.closedResistence = 1e6;
+        this.closedResistence = closedResistence;
+        this.openResistence = 1e6;
         this.isOpen = isOpen;
     }
 
     @Override
     public double getQuantity() {
-        return openResistence;
+        return closedResistence;
     }
 
     @Override
@@ -83,8 +83,8 @@ public class Switch extends Element implements Operational {
         dirt();
     }
 
-    public void setClosedResistence(double closedResistence) {
-        this.closedResistence = closedResistence;
+    public void setCloseResistence(double closeResistence) {
+        this.closedResistence = closeResistence;
         dirt();
     }
 

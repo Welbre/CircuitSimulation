@@ -1,10 +1,12 @@
 package kuse.welbre.sim.electrical.abstractt;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.util.Random;
+import java.util.function.Consumer;
 
 public abstract class Element {
     public static final class Pin {
@@ -63,6 +65,16 @@ public abstract class Element {
     public void connect(Pin pinA, Pin pinB) {
         this.pinA = pinA;
         this.pinB = pinB;
+    }
+
+    /**
+     * A simple way to attach a watcher in an element, this watch has access to voltage,
+     * current, and others parameters, and can modify him.<br>
+     * This watcher runs only in the last stap of {@link Circuit#tick(double)} function.
+     */
+    public Element watch(Circuit c, Consumer<Element> consumer){
+        c.addWatcher(new Watcher(this, consumer));
+        return this;
     }
 
     public Pin[] getPins(){

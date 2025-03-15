@@ -10,6 +10,7 @@ import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Circuit {
     /// 50ms time step
@@ -22,6 +23,7 @@ public class Circuit {
     private final List<Dynamic> dynamics = new ArrayList<>();
     private final List<NonLinear> nonLiners = new ArrayList<>();
     private final List<Operational> operationals = new ArrayList<>();
+    private final List<Watcher> watchers = new ArrayList<>();
 
     private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
@@ -56,6 +58,10 @@ public class Circuit {
     public final <T extends Element> void addElement(Collection<T> elements){
         for (T element : elements)
             addElement(element);
+    }
+
+    public void addWatcher(Watcher watcher) {
+        watchers.add(watcher);
     }
 
     /**
@@ -279,6 +285,10 @@ public class Circuit {
             //Pos ticking to calculate values in t + 1
             for (var sim : dynamics)
                 sim.posEvaluation(matrixBuilder);
+
+            //run watchers
+            for (Watcher watcher : watchers)
+                watcher.run();
         }
     }
 

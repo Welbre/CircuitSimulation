@@ -36,6 +36,10 @@ public class Diode extends Element implements NonLinear {
         setSaturation(saturation);
     }
 
+    public Diode(Pin pinA, Pin pinB) {
+        super(pinA, pinB);
+    }
+
     public Diode(double n, double saturation) {
         this.n = n;
         this.saturation = saturation;

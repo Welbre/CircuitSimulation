@@ -10,6 +10,7 @@ public class CircuitBuilder {
     public static CircuitBuilder BUILDER = null;
 
     public List<Element> elements = new ArrayList<>();
+    public Circuit c = new Circuit();
 
     public CircuitBuilder() {
         BUILDER = this;
@@ -21,7 +22,6 @@ public class CircuitBuilder {
 
     public Circuit close(){
         BUILDER = null;
-        Circuit c = new Circuit();
         c.addElement(elements);
 
         return c;
