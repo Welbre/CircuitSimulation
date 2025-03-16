@@ -255,8 +255,6 @@ public class Circuit {
             x = t;//the new guess is t.
             fx = ft;//how t is the new guess, update f(guess) to f(t).
         }
-
-        System.out.println("Converge in " + inter + " steps with " + totalSubInter + " sub inter steps.");
     }
 
     public void tick(double dt) {

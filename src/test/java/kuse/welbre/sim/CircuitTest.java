@@ -66,6 +66,7 @@ class CircuitTest {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
+    @Benchmark.benchmark
     void testCircuit0(){
         double[][] answers = {{32, -4, -128}, {20,1, 20}, {8, 4, 32}, {4, 1, 4}, {24, 3, 72}};
         Circuit circuit = Circuits.Resistors.getCircuit0();
@@ -77,6 +78,7 @@ class CircuitTest {
     }
 
     @Test
+    @Benchmark.benchmark
     void testCircuit1(){
         double[][] answers = {{32, -10.6, -339.2}, {11.2, -3, -33.6}, {11.2, 5.6, 62.72}, {32, 8, 256}, {20.8, 2.6, 54.08}};
         Circuit circuit = Circuits.Resistors.getCircuit1();
@@ -87,6 +89,7 @@ class CircuitTest {
         Main.printAllElements(circuit);
     }
     @Test
+    @Benchmark.benchmark
     void testCircuit2(){
         double[][] answers = {{40, -5, -200}, {20, -1, -20}, {10, 5, 50}, {18, 2, 36}, {8, 1, 8}, {30, 3, 90}, {12, 3, 36}};
         Circuit circuit = Circuits.Resistors.getCircuit2();
@@ -97,6 +100,7 @@ class CircuitTest {
         Main.printAllElements(circuit);
     }
     @Test
+    @Benchmark.benchmark
     void testCircuit3(){
         double[][] answers = {{30, -3.474, -104.211}, {12.632, -2, -25.263}, {17.368, 3.474, 60.332}, {12.632, 4.211, 53.186}, {12.632, 1.263, 15.956}};
         Circuit circuit = Circuits.Resistors.getCircuit3();
@@ -107,6 +111,7 @@ class CircuitTest {
         Main.printAllElements(circuit);
     }
     @Test
+    @Benchmark.benchmark
     void testCircuit4(){
         double[][] answers = {{10, -4.071, -40.714}, {15, -2.607, -39.107}, {-4.143, -2, 8.286}, {4.143, 2.071, 8.582}, {5.857, 1.464, 8.577}, {20.857, 2.607, 54.378}};
         Circuit circuit = Circuits.Resistors.getCircuit4();
@@ -118,6 +123,7 @@ class CircuitTest {
     }
 
     @Test
+    @Benchmark.benchmark
     void testCircuit5(){
         double[][] answers = {{10, -0.01, -0.1}, {10, -0.01, -0.1}, {10, 0.02, 0.2}};
         Circuit circuit = Circuits.Resistors.getCircuit5();
@@ -133,6 +139,7 @@ class CircuitTest {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Nested
+    @Benchmark.benchmark
     @Order(1)
     class DynamicTest {
         private static final class DynamicData {
@@ -202,6 +209,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(1)
         void testRcCircuit(){
             final double[][] initialState = {{10, -10, -100}, {10, 10, 100}, {0, 10 ,0}};
@@ -210,6 +218,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(1)
         void testCapacitorAssociationCircuit(){
             var expectInitial = new double[][]{{36,-3, -108}, {36,-3,-108}, {0,0,0}, {0,3,0}, {0,3,0}, {0,3,0}, {0,0,0}, {0,0,0}, {0,0,0}};
@@ -218,6 +227,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(2)
         void testMultiplesCapacitorsCircuit(){
             var expectInitial = new double[][]{{12,-0.345,-4.1379}, {-16,-32,-512}, {1.655, 0.13759, 0.228}, {1.655,0.207367,0.34401},{10.349,0.344958, 3.57},{15.992,31.984,512}, {0,0.3448,0}, {0,-31.789,0}, {0,0.137,0}};
@@ -226,6 +236,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(3)
         void testRLCircuit(){
             var expectInitial = new double[][]{{10,0,0}, {0,0,0}, {10,0,0}};
@@ -234,6 +245,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(4)
         void testInductorAssociationCircuit(){
             var expectInitial = new double[][]{{36,0,0}, {0,0,0}, {0,0,0}, {0.12,0,0}, {0.12,0,0}, {35.76,0,0}, {0.24,0,0}, {0.24,0,0}, {0.24,0,0}};
@@ -242,6 +254,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(5)
         void testSeriesRCLCircuit(){
             var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
@@ -250,6 +263,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(6)
         void testSeriesRCLOscillationFreeCircuit(){
             var expectInitial = new double[][]{{12,0,0},{0,0,0},{0,0,0},{12,0,0}};
@@ -258,6 +272,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(7)
         void testParallelRCLCircuit(){
             var expectInitial = new double[][]{{12,-12,-144},{12,12,144},{0,0,0},{0,12,0},{0,0,0}};
@@ -271,6 +286,7 @@ class CircuitTest {
     }
 
     @Nested
+    @Benchmark.benchmark
     @Order(2)
     class DependentSources {
         @Test
@@ -322,9 +338,11 @@ class CircuitTest {
     }
 
     @Nested
+    @Benchmark.benchmark
     @Order(2)
     class Diodes{
         @Test
+        @Benchmark.benchmark
         @Order(1)
         void testDiodeResistence(){
             double[][] answers = new double[][]{{10,-9.58441,95.8441},{9.58441,9.58441,9.58441*9.58441},{0.41559,9.58441,0.41559*9.58441}};
@@ -336,6 +354,7 @@ class CircuitTest {
             Main.printAllElements(circuit);
         }
         @Test
+        @Benchmark.benchmark
         @Order(2)
         void testReverseBiasDiode(){
             final double sat = 1e-6;
@@ -348,6 +367,7 @@ class CircuitTest {
             Main.printAllElements(circuit);
         }
         @Test
+        @Benchmark.benchmark
         @Order(3)
         void testSeriesDiode(){
             double[][] answers = new double[][]{{10,0.928914,9.28914},{0.355431,0.928914,0.330},{0.355431,0.928914,0.330},{9.289,0.9289,8.629}};
@@ -359,6 +379,7 @@ class CircuitTest {
             Main.printAllElements(circuit);
         }
         @Test
+        @Benchmark.benchmark
         @Order(4)
         void testHalfWaveRectifier(){
             final double sat = 1e-3;//1mA
@@ -404,6 +425,7 @@ class CircuitTest {
         }
 
         @Test
+        @Benchmark.benchmark
         @Order(5)
         void testFullWaveRectifier(){
             Circuit c = Circuits.Diodes.getFullHaveRectifier();
@@ -426,9 +448,11 @@ class CircuitTest {
     }
 
     @Nested
+    @Benchmark.benchmark
     @Order(3)
     class Switches{
         @Test
+        @Benchmark.benchmark
         @Order(1)
         void testResistenceSwitch(){
             double[][] openAnswers = {{800,8e-4,0.64},{800,8e-4,0.64},{0.08,8e-4,0}};
