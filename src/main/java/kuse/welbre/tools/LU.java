@@ -1,5 +1,7 @@
 package kuse.welbre.tools;
 
+import java.util.Arrays;
+
 public final class LU {
     public final double[][] l;
     public final double[][] u;
@@ -10,13 +12,9 @@ public final class LU {
     }
 
     public static LU decompose(double[][] A){
-        final double[][] l = new double[A.length][A.length];
+        final double[][] l = identity(A.length);
         final double[][] u = Tools.deepCopy(A);
         LU lu = new LU(l,u);
-
-        //start L with identity Matrix.
-        for (int i = 0; i < l.length; i++)
-            l[i][i] = 1;
 
         for (int row = 1; row < u.length; row++) {
             for (int colum = 0; colum < row; colum++) {
@@ -25,7 +23,11 @@ public final class LU {
                     l[row][colum] = 0;
                     continue;
                 }
-                final double mult = - d / u[colum][colum];
+                int pivot = -1;
+                { //try swap
+
+                }
+                final double mult = - d / u[colum][colum];//diagonal as pivot.
                 l[row][colum] = -mult;
 
                 u[row][colum] = 0;
@@ -97,5 +99,50 @@ public final class LU {
             id[i][i] = 1;
 
         return id;
+    }
+    public String stringOfL(){
+        return stringOf(l);
+    }
+
+    public String stringOfU(){
+        return stringOf(u);
+    }
+
+    private String stringOf(double[][] matrix){
+        int[] aliment = new int[matrix.length];
+        for (int column = 0; column < matrix.length; column++) {
+            int size = 0;
+            for (double[] doubles : matrix) {
+                int length = String.valueOf(doubles[column]).length();
+                if (length > size)
+                    size = length;
+            }
+            aliment[column] = size;
+        }
+
+        String leftAlignFormat;
+        String line;
+        {
+            StringBuilder alimentBuilder = new StringBuilder();
+            StringBuilder lineBuilder = new StringBuilder();
+
+            for (int i = 0; i < matrix.length; i++) {
+                alimentBuilder.append("| %-").append(aliment[i]).append("s ");
+                lineBuilder.append("+").append("-".repeat(aliment[i]+2));
+            }
+            alimentBuilder.append("|\n");
+            lineBuilder.append("+\n");
+            leftAlignFormat = alimentBuilder.toString();
+            line = lineBuilder.toString();
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(line);
+        for (double[] row : matrix) {
+            builder.append(String.format(leftAlignFormat, Arrays.stream(row).boxed().toArray()));
+            builder.append(line);
+        }
+
+        return builder.toString();
     }
 }
