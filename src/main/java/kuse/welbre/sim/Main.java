@@ -24,7 +24,7 @@ public class Main {
         c.preCompile();
         System.out.println(l);
         for (int i = 0; i < 50; i++) {
-            c.tick(0);
+            c.tick();
             printAllElements(c);
         }
     }

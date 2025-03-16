@@ -6,7 +6,7 @@ import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
 
 public class CircuitBenchmark {
-    private static final int size = 80;
+    private static final int size = 800;
     private Circuit circuit;
 
     @Benchmark.preBenchmark
@@ -38,8 +38,7 @@ public class CircuitBenchmark {
 
     @Benchmark.benchmark
     void mark(){
-        for (int i = 0; i < (int) Math.floor(1.0 / circuit.getTickRate() + 0.5); i++)
-            circuit.tick(0);
+        circuit.tick(1);
     }
 
     public static void main(String[] args) {

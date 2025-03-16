@@ -188,13 +188,8 @@ class CircuitTest {
                     printStream.print("\n------------------------------------------------------\n");
                 }
 
-                //Simulate
-                while (time < this.total_time) {
-                    circuit.tick(modified_tick_rate);
-
-                    this.tick++;
-                    time += modified_tick_rate;
-                }
+                //simulate
+                circuit.tick(total_time);
                 testElements(elements, finalResultExpected, getDynamicFails(circuit, modified_tick_rate));
                 System.out.printf("Tick(%d)\t TickRate(%s)\t %s initial result:\n", 0,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(0, "s"));
                 System.out.println(stream);
@@ -402,23 +397,19 @@ class CircuitTest {
             testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 0ms
 
             //Simulate 250 ms.
-            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
-                circuit.tick(circuit.getTickRate());
+            circuit.tick(0.25);
             testElements(circuit.getElements(), answersRev, getIfFails(circuit));//check in 250ms
 
             //Simulate 250 ms.
-            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
-                circuit.tick(circuit.getTickRate());
+            circuit.tick(0.25);
             testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 500ms
 
             //Simulate 250 ms.
-            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
-                circuit.tick(circuit.getTickRate());
+            circuit.tick(0.25);
             testElements(circuit.getElements(), answersFwd, getIfFails(circuit));//check in 750ms
 
             //Simulate 250 ms.
-            for (int i = 0; i < Math.floor(0.25 / circuit.getTickRate()); i++)
-                circuit.tick(circuit.getTickRate());
+            circuit.tick(0.25);
             testElements(circuit.getElements(), answersZero, getIfFails(circuit));//check in 1000ms
 
             Main.printAllElements(circuit);
@@ -436,7 +427,7 @@ class CircuitTest {
             ElementOMeter vmeter = new ElementOMeter(c.getElements()[0]);
 
             for (int i = 0; i < Math.floor(0.5 / c.getTickRate()); i++) {
-                c.tick(0);
+                c.tick();
                 meter.tick(c.getTickRate());
                 vmeter.tick(c.getTickRate());
             }
@@ -462,7 +453,7 @@ class CircuitTest {
 
             testElements(c.getElements(), openAnswers, getIfFails(c));//test open
             for (Element element : c.getElements()) if (element instanceof Switch sw) sw.setOpen(false);
-            c.tick(0);
+            c.tick();
             testElements(c.getElements(), closedAnswers, getIfFails(c));//test closed
         }
     }

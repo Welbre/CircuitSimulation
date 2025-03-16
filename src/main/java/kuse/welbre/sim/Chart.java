@@ -219,7 +219,7 @@ public class Chart {
 
         double i = 0;
         while (i < time) {
-            circuit.tick(Circuit.DEFAULT_TIME_STEP);
+            circuit.tick();
             data.generateAndAddData(circuit);
             i += circuit.getTickRate();
         }

@@ -257,7 +257,8 @@ public class Circuit {
         }
     }
 
-    public void tick(double dt) {
+    ///Tick one time step
+    public void tick(){
         if (isDirt)
             clean();
         else {
@@ -286,6 +287,19 @@ public class Circuit {
             //run watchers
             for (Watcher watcher : watchers)
                 watcher.run();
+        }
+    }
+
+
+    /**
+     * Simulate 'time' seconds.
+     * @param time total time to simulate.
+     */
+    public void tick(double time) {
+        double t = 0;
+        while (time > t){
+            tick();
+            t += tickRate;
         }
     }
 
