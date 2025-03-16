@@ -63,22 +63,20 @@ public class Diode extends Element implements NonLinear {
         denominator = n * tempVoltage;
     }
 
-    ///Shockley diode equation.
-    ///@see <a href="https://en.wikipedia.org/wiki/Shockley_diode_equation">Shockley diode equation</a>
     @Override
-    public double plane_I_V(double voltage) {
-        return saturation * (Math.exp(voltage/denominator) - 1);
+    public void stamp_I_V(MatrixBuilder builder) {
+        builder.stampCurrentSource(getPinA(), getPinB(), getCurrent());
     }
 
-    ///The derivative of Shockley diode equation in respect of voltage.
-    public double plane_dI_dV(double voltage) {
-        return (saturation / denominator) * Math.exp(voltage/denominator);
+    @Override
+    public void stamp_dI_dV(MatrixBuilder builder) {
+        builder.stampConductance(getPinA(), getPinB(), Math.max(conductance(),1e-12));
     }
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        builder.stampCurrentSource(getPinA(), getPinB(), -plane_I_V(getVoltageDifference()));
-        builder.stampConductance(getPinA(), getPinB(), plane_dI_dV(getVoltageDifference()));
+        builder.stampCurrentSource(getPinA(), getPinB(), getCurrent());
+        builder.stampConductance(getPinA(), getPinB(), conductance());
     }
 
     ///Returns the threshold voltage of the diode, using 1mA as reference to "on" state.
@@ -92,9 +90,16 @@ public class Diode extends Element implements NonLinear {
         return "V";
     }
 
+    ///Shockley diode equation.
+    ///@see <a href="https://en.wikipedia.org/wiki/Shockley_diode_equation">Shockley diode equation</a>
     @Override
     public double getCurrent() {
-        return plane_I_V(getVoltageDifference());
+        return -(saturation * (Math.exp(getVoltageDifference()/denominator) - 1));
+    }
+
+    ///The derivative of Shockley diode equation in respect of voltage.
+    private double conductance() {
+        return (saturation / denominator) * Math.exp(getVoltageDifference()/denominator);
     }
 
     public void setSaturation(double saturation) {

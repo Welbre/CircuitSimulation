@@ -213,7 +213,7 @@ public class Circuit {
         //This entire block is to linearize the non-linear components.
         //--------------------------------------------------------------
 
-        NonLinearHelper nl = new NonLinearHelper(original, elements);
+        NonLinearHelper nl = new NonLinearHelper(original, nonLiners);
         double[] x = new double[X.length]; //initial x in the X point.
         double[] dx = new double[X.length];// initial dx with max double value.
         double[] fx;
@@ -229,7 +229,6 @@ public class Circuit {
 
         for (; inter < 500; inter++){
             if (Tools.norm(fx) < 1e-6 || Tools.norm(dx) < 1e-6)//check for convergence.
-            //if (Tools.norm(dx) < 1e-6)//check for convergence.
                 break;
 
             injectValuesInX(x);//update pointer values to the components compute using x

@@ -12,27 +12,26 @@ import java.util.List;
  */
 public class NonLinearHelper {
     private final MatrixBuilder original_builder;
-    private final List<Element> elements;
+    private final List<NonLinear> nonLinear;
 
-    public NonLinearHelper(MatrixBuilder builder, List<Element> elements) {
+    public NonLinearHelper(MatrixBuilder builder, List<NonLinear> nonLinear) {
         this.original_builder = builder;
-        this.elements = elements;
+        this.nonLinear = nonLinear;
     }
 
     public double[][] jacobian(){
         MatrixBuilder builder = new MatrixBuilder(original_builder);
-        for (Element e : elements)
-            if (e instanceof NonLinear nonLinear)
-                builder.stampConductance(e.getPinA(), e.getPinB(), Math.max(nonLinear.plane_dI_dV(e.getVoltageDifference()),1e-12));
+        for (NonLinear e : nonLinear)
+            e.stamp_dI_dV(builder);
 
         return builder.getLHS();
     }
 
     public double[] f(double[] x){
         MatrixBuilder builder = new MatrixBuilder(original_builder);
-        for (Element e : elements)
-            if (e instanceof NonLinear nonLinear)
-                builder.stampCurrentSource(e.getPinA(), e.getPinB(), -nonLinear.plane_I_V(e.getVoltageDifference()));//parei aqui
+
+        for (NonLinear e : nonLinear)
+            e.stamp_I_V(builder);
 
         return Tools.subtract(Tools.multiply(builder.getLHS(),x), builder.getRHS());
     }
