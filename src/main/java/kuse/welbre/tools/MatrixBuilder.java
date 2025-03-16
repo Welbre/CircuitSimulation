@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class MatrixBuilder {
     protected final double[][] LHS;
     protected final double[] RHS;
-    protected double[][] inverse = null;
+    protected LU lu;
 
     private boolean isClosed = false;
 
@@ -29,7 +29,7 @@ public class MatrixBuilder {
     public MatrixBuilder(MatrixBuilder builder) {
         this.LHS = Tools.deepCopy(builder.LHS);
         this.RHS = Tools.deepCopy(builder.RHS);
-        this.inverse = builder.inverse;
+        this.lu = builder.lu;
         this.isClosed = false;
     }
 
@@ -90,24 +90,17 @@ public class MatrixBuilder {
     public void close(){
         if (isClosed) return;
         //todo implement a better solver
-        //inverse = Tools.invert(Tools.deepCopy(G));
-        inverse =  MatrixUtils.inverse(MatrixUtils.createRealMatrix(Tools.deepCopy(LHS))).getData();
+        lu = LU.decompose(LHS);
         isClosed = true;
     }
 
     /**
-     * @return The result of multiplication between {@link NonLinearMatrixBuilder#inverse} and {@link NonLinearMatrixBuilder#RHS}, casual named X matrix.
+     * @return The equation system result, using {@link LU} and {@link NonLinearMatrixBuilder#RHS}
      */
     public double[] getResult(){
         if (!isClosed)
             throw new IllegalStateException("Try get result in a non closed matrix builder!");
-        return Tools.multiply(inverse, RHS);
-    }
-
-    public double[][] getInverse() {
-        if (!isClosed)
-            throw new IllegalStateException("Try get inverse in a non closed matrix builder!");
-        return inverse;
+        return lu.solve(RHS);
     }
 
     public double[][] getLHS() {
