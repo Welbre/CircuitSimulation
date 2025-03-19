@@ -1,48 +1,85 @@
 package kuse.welbre.tools;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class LU {
     public final double[][] l;
     public final double[][] u;
+    public final int[][] swaps;
 
-    public LU(double[][] l, double[][] u) {
+    private LU(double[][] l, double[][] u, List<int[]> swaps) {
         this.l = l;
         this.u = u;
+        this.swaps = new int[swaps.size()][2];
+        for (int i = 0; i < swaps.size(); i++)
+            this.swaps[i] = swaps.get(i);
     }
 
+    //todo https://youtu.be/E3cCRcdFGmE
     public static LU decompose(double[][] A){
-        final double[][] l = identity(A.length);
+        final int length = A.length;
+        final double[][] l = new double[length][length];
         final double[][] u = Tools.deepCopy(A);
-        LU lu = new LU(l,u);
+        final List<int[]> swaps = new ArrayList<>();
 
-        for (int row = 1; row < u.length; row++) {
-            for (int colum = 0; colum < row; colum++) {
-                final double d = u[row][colum];
-                if (d == 0) {
-                    l[row][colum] = 0;
-                    continue;
+        for (int k = 0; k < length; k++) {//row
+            {//pivot
+                double b_pivot = Math.abs(u[k][k]);
+                int biggest_row = k;
+                for (int j = k; j < length; j++) {
+                    final double abs = Math.abs(u[j][k]);
+                    if (abs > b_pivot) {
+                        b_pivot = abs;
+                        biggest_row = j;
+                    }
                 }
-                int pivot = -1;
-                { //try swap
-
+                if (b_pivot == 0)
+                    throw new IllegalStateException("Matrix is singular, can be decomposed!");
+                if (biggest_row != k) { //needs swap
+                    swap(u,k,biggest_row);
+                    swap(l,k,biggest_row);
+                    swaps.add(new int[]{k,biggest_row});
                 }
-                final double mult = - d / u[colum][colum];//diagonal as pivot.
-                l[row][colum] = -mult;
+            }
 
-                u[row][colum] = 0;
-                for (int _colum = colum+1; _colum < u.length; _colum++)
-                    u[row][_colum] += mult * u[colum][_colum];
+            final double p = u[k][k];
+            for (int j = k+1; j < length; j++) {//column factor calculation.
+                final double factor = u[j][k] / p;
+                if (factor == 0) continue;
+
+                l[j][k] = factor;
+                for (int i = k; i < length; i++) {//apply the factor to row.
+                    u[j][i] -= u[k][i] * factor;
+                }
             }
         }
 
-        return lu;
+        for (int k = 0; k < length; k++) {
+            l[k][k] = 1;
+        }
+
+        return new LU(l, u, swaps);
+    }
+
+    private static void swap(double[][] a, int row0, int row1){
+        double[] swap = a[row0];
+        a[row0] = a[row1];
+        a[row1] = swap;
     }
 
     public double[] solve(double[] rhs){
         int size = this.l.length;
         double[] y = new double[size];
         double[] x = new double[size];
+
+        //apply swap to rhs
+        for (int[] swap : swaps) {
+            final double temp = rhs[swap[1]];
+            rhs[swap[1]] = rhs[swap[0]];
+            rhs[swap[0]] = temp;
+        }
 
         //Solve LY = rhs to find y
         for (int row = 0; row < size; row++) {
@@ -59,6 +96,7 @@ public final class LU {
                 summation += this.u[row][colum] * x[colum];
             x[row] = (y[row] - summation) / this.u[row][row];
         }
+
         return x;
     }
 
@@ -144,5 +182,13 @@ public final class LU {
         }
 
         return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        double[][] matrix = new double[][]{{7,5,3},{2,1,6},{1,2,3}};
+        LU decompose = LU.decompose(matrix);
+        System.out.println(decompose.stringOfU());
+        System.out.println(decompose.stringOfL());
+        System.out.println(Arrays.toString(decompose.solve(new double[]{1,2,3})));
     }
 }

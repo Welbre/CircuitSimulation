@@ -6,7 +6,7 @@ import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
 
 public class CircuitBenchmark {
-    private static final int size = 800;
+    private static final int size = 1200;
     private Circuit circuit;
 
     @Benchmark.preBenchmark
