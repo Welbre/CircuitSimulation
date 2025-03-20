@@ -5,31 +5,27 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class LU {
-    public final double[][] l;
-    public final double[][] u;
+    public final double[][] lu;//storage the lower triangle and the up triangle in one matrix.
     public final int[][] swaps;
 
-    private LU(double[][] l, double[][] u, List<int[]> swaps) {
-        this.l = l;
-        this.u = u;
+    private LU(double[][] lu, List<int[]> swaps) {
+        this.lu = lu;
         this.swaps = new int[swaps.size()][2];
         for (int i = 0; i < swaps.size(); i++)
             this.swaps[i] = swaps.get(i);
     }
 
     //todo https://youtu.be/E3cCRcdFGmE
-    public static LU decompose(double[][] A){
-        final int length = A.length;
-        final double[][] l = new double[length][length];
-        final double[][] u = Tools.deepCopy(A);
+    public static LU decompose(double[][] lu){
+        final int length = lu.length;
         final List<int[]> swaps = new ArrayList<>();
 
         for (int k = 0; k < length; k++) {//row
             {//pivot
-                double b_pivot = Math.abs(u[k][k]);
+                double b_pivot = Math.abs(lu[k][k]);
                 int biggest_row = k;
                 for (int j = k; j < length; j++) {
-                    final double abs = Math.abs(u[j][k]);
+                    final double abs = Math.abs(lu[j][k]);
                     if (abs > b_pivot) {
                         b_pivot = abs;
                         biggest_row = j;
@@ -38,54 +34,53 @@ public final class LU {
                 if (b_pivot == 0)
                     throw new IllegalStateException("Matrix is singular, can be decomposed!");
                 if (biggest_row != k) { //needs swap
-                    swap(u,k,biggest_row);
-                    swap(l,k,biggest_row);
+                    swap(lu,k,biggest_row);
                     swaps.add(new int[]{k,biggest_row});
                 }
             }
 
-            final double p = u[k][k];
+            final double p = lu[k][k];
             for (int j = k+1; j < length; j++) {//column factor calculation.
-                final double factor = u[j][k] / p;
+                final double factor = lu[j][k] / p;
                 if (factor == 0) continue;
 
-                l[j][k] = factor;
-                for (int i = k; i < length; i++) {//apply the factor to row.
-                    u[j][i] -= u[k][i] * factor;
+                lu[j][k] = factor;
+                for (int i = k+1; i < length; i++) {//apply the factor to row.
+                    lu[j][i] -= lu[k][i] * factor;
                 }
             }
         }
 
-        for (int k = 0; k < length; k++) {
-            l[k][k] = 1;
-        }
-
-        return new LU(l, u, swaps);
+        return new LU(lu, swaps);
     }
 
-    private static void swap(double[][] a, int row0, int row1){
-        double[] swap = a[row0];
+    private static void swap(double[] a, int row0, int row1){
+        double swap = a[row0];
+        a[row0] = a[row1];
+        a[row1] = swap;
+    }
+
+    private static <T> void swap(T[] a, int row0, int row1){
+        T swap = a[row0];
         a[row0] = a[row1];
         a[row1] = swap;
     }
 
     public double[] solve(double[] rhs){
-        int size = this.l.length;
+        int size = this.lu.length;
+
         double[] y = new double[size];
         double[] x = new double[size];
 
         //apply swap to rhs
-        for (int[] swap : swaps) {
-            final double temp = rhs[swap[1]];
-            rhs[swap[1]] = rhs[swap[0]];
-            rhs[swap[0]] = temp;
-        }
+        for (int[] swap : swaps)
+            swap(rhs,swap[0],swap[1]);
 
         //Solve LY = rhs to find y
         for (int row = 0; row < size; row++) {
             double summation = 0;
             for (int colum = 0; colum < row; colum++)
-                summation += this.l[row][colum] * y[colum];
+                summation += this.lu[row][colum] * y[colum];
             y[row] = (rhs[row] - summation);
         }
 
@@ -93,15 +88,15 @@ public final class LU {
         for (int row = size-1; row >= 0; row--) {
             double summation = 0;
             for (int colum = size-1; colum > row; colum--)
-                summation += this.u[row][colum] * x[colum];
-            x[row] = (y[row] - summation) / this.u[row][row];
+                summation += this.lu[row][colum] * x[colum];
+            x[row] = (y[row] - summation) / this.lu[row][row];
         }
 
         return x;
     }
 
     public double[][] solve(double[][] rhs){
-        int size = this.l.length;
+        int size = this.lu.length;
         double[][] y = new double[size][size];
         double[][] x = new double[size][size];
 
@@ -109,7 +104,7 @@ public final class LU {
             for (int colum = 0; colum < size; colum++) {
                 double summation = 0;
                 for (int i = 0; i < row; i++)
-                    summation += this.l[row][i] * y[i][colum];
+                    summation += this.lu[row][i] * y[i][colum];
                 y[row][colum] = (rhs[row][colum] - summation);
             }
         }
@@ -118,8 +113,8 @@ public final class LU {
             for (int colum = size - 1; colum >= 0; colum--) {
                 double summation = 0;
                 for (int i = size-1; i > row; i--)
-                    summation += this.u[row][i] * x[i][colum];
-                x[row][colum] = (y[row][colum] - summation) / u[row][row];
+                    summation += this.lu[row][i] * x[i][colum];
+                x[row][colum] = (y[row][colum] - summation) / lu[row][row];
             }
         }
 
@@ -127,7 +122,7 @@ public final class LU {
     }
 
     public double[][] inverse(){
-        return solve(identity(l.length));
+        return solve(identity(lu.length));
     }
 
     public static double[][] identity(int size){
@@ -138,12 +133,10 @@ public final class LU {
 
         return id;
     }
-    public String stringOfL(){
-        return stringOf(l);
-    }
 
-    public String stringOfU(){
-        return stringOf(u);
+    @Override
+    public String toString() {
+        return stringOf(lu);
     }
 
     private String stringOf(double[][] matrix){
@@ -187,8 +180,7 @@ public final class LU {
     public static void main(String[] args) {
         double[][] matrix = new double[][]{{7,5,3},{2,1,6},{1,2,3}};
         LU decompose = LU.decompose(matrix);
-        System.out.println(decompose.stringOfU());
-        System.out.println(decompose.stringOfL());
+        System.out.println(decompose);
         System.out.println(Arrays.toString(decompose.solve(new double[]{1,2,3})));
     }
 }
