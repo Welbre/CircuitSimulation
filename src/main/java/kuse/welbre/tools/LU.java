@@ -1,7 +1,5 @@
 package kuse.welbre.tools;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,31 +38,45 @@ public final class LU {
             return null;
         }
     }
+    private record row_multiplication(int start, int end, int p_idx, double pivot, double[][] lu) implements Callable<Void> {
+        @Override
+        public Void call(){
+            for (int i = start; i < end; i++) {//block index
+                final double[] i_row = lu[i];
+                final double[] p_row = lu[p_idx];
+                final double factor = i_row[p_idx] / pivot;
+                lu[i][p_idx] = factor;//add the factor to lu matrix.
+                for (int j = p_idx+1; j < lu.length; j++)//multiplication factor in row.
+                    i_row[j] -= p_row[j]*factor;
+            }
+            return null;
+        }
+    }
 
-    public static LU decomposeMultithread(double[][] lu) throws InterruptedException {
-        final int th_amount = 6;
-        ExecutorService executor = Executors.newFixedThreadPool(th_amount);
+    public static LU decomposeMultithread(ExecutorService executor,int th_amount, double[][] lu) throws InterruptedException {
+        List<Callable<Void>> tasks = new ArrayList<>();
         final int length = lu.length;
         final List<int[]> swaps = new ArrayList<>();
 
-        for (int k = 0; k < length; k++) {//row
+        for (int k = 0; k < length; k++) {//p_idx
             {//pivot
                 int blockLen = (length - k) / th_amount;
                 int th_used = blockLen == 0 ? 1 : th_amount;
                 double[][] p_pivot = new double[th_used][1];
                 int[][] p_idx = new int[th_used][1];
-                List<Callable<Void>> tasks = new ArrayList<>(th_used);
 
                 for (int i = 0; i < th_used; i++)
                     tasks.add(new pivot_executor(
                             k,
-                            blockLen * i + k, i == th_used-1 ? length : ((i+1) * blockLen) + k,
+                            blockLen * i + k,
+                            i == th_used-1 ? length : ((i+1) * blockLen) + k,
                             lu,
                             p_idx[i],
                             p_pivot[i])
                     );
 
                 executor.invokeAll(tasks);
+                tasks.clear();
 
                 double pivot = p_pivot[0][0];
                 int pivot_idx = p_idx[0][0];
@@ -81,21 +93,23 @@ public final class LU {
                     swaps.add(new int[]{k,pivot_idx});
                 }
             }
+            if (length-k-1 > 0) {//check if need's multiplication.
+                //multiplication a p_idx by a factor.
+                int blockLen = (length - k - 1) / th_amount;
+                int th_used = blockLen == 0 ? 1 : th_amount;
 
-            final double p = lu[k][k];
-            for (int j = k+1; j < length; j++) {//column factor calculation.
-                final double factor = lu[j][k] / p;
-                if (factor == 0) continue;
-
-                lu[j][k] = factor;
-                for (int i = k+1; i < length; i++) {//apply the factor to row.
-                    lu[j][i] -= lu[k][i] * factor;
+                final double p = lu[k][k];
+                for (int i = 0; i < th_used; i++) {
+                    tasks.add(new row_multiplication(
+                            i * blockLen + k + 1,
+                            (th_used - 1) == i ? length : (i + 1) * blockLen + k + 1,
+                            k, p, lu
+                    ));
                 }
+                executor.invokeAll(tasks);
+                tasks.clear();
             }
         }
-
-        executor.shutdown();
-
         return new LU(lu, swaps);
     }
 
@@ -103,7 +117,7 @@ public final class LU {
         final int length = lu.length;
         final List<int[]> swaps = new ArrayList<>();
 
-        for (int k = 0; k < length; k++) {//row
+        for (int k = 0; k < length; k++) {//p_idx
             {//pivot
                 double b_pivot = Math.abs(lu[k][k]);
                 int biggest_row = k;
@@ -123,12 +137,12 @@ public final class LU {
             }
 
             final double p = lu[k][k];
-            for (int j = k+1; j < length; j++) {//column factor calculation.
+            for (int j = k+1; j < length; j++) {//p_idx factor calculation.
                 final double factor = lu[j][k] / p;
                 if (factor == 0) continue;
 
                 lu[j][k] = factor;
-                for (int i = k+1; i < length; i++) {//apply the factor to row.
+                for (int i = k+1; i < length; i++) {//apply the factor to p_idx.
                     lu[j][i] -= lu[k][i] * factor;
                 }
             }
@@ -139,7 +153,7 @@ public final class LU {
 
     public static LU decompose(double[][] lu){
         try {
-            return decomposeMultithread(lu);
+            return decomposeMultithread(Executors.newFixedThreadPool(6),6,lu);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -268,86 +282,61 @@ public final class LU {
         return builder.toString();
     }
 
+    public static double[][] getMatrix(int size){
+        double[][] matrix = new double[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                matrix[i][j] = Math.random() % 10;
+            }
+        }
+        return matrix;
+    }
+
+    public static double average(double[] times){
+        double sum = 0;
+        for (double time : times) {
+            sum += time;
+        }
+        return sum / times.length;
+    }
+
     public static void main(String[] args) throws InterruptedException {
-        int size = 1_000;
-        Random r = new Random();
-        double[][] data = new double[size][size];
-        final int th_amount = 2;
-        ExecutorService pool = Executors.newFixedThreadPool(th_amount);
-
-        int blockLen = (size) / th_amount;
-        int th_used = blockLen == 0 ? 1 : th_amount;
-
-        List<Callable<Void>> tasks = new ArrayList<>(th_used);
-
-        for (int i = 0; i < th_used; i++) {
-            int start = i;
-            int ends = (i == th_used-1) ? (i+1)*blockLen : size;
-            tasks.add(() -> {
-                for (int j = start; j < ends; j++) {
-                    for (int k = start; k < ends; k++) {
-                        data[j][k] = r.nextDouble();
-                    }
+        {
+            int size = 2000;
+            int avg = 50;
+            double[][] original = getMatrix(size);
+            {
+                double[] times = new double[avg];
+                for (int i = 0; i < avg; i++) {
+                    double[][] matrix = Tools.deepCopy(original);
+                    final long t0 = System.nanoTime();
+                    LU lu_single = LU.decomposeSingleThread(matrix);
+                    final long t1 = System.nanoTime();
+                    times[i] = (t1 - t0) * 1e-6;
                 }
-                return null;
-            });
-        }
-
-        pool.invokeAll(tasks);
-
-        long mult_start_time = System.nanoTime();
-        tasks = new ArrayList<>();
-        final int k = 0;
-        int[][] p_idx = new int[th_used][1];
-        double[][] p_pivot = new double[th_used][1];
-        for (int i = 0; i < th_used; i++)
-            tasks.add(new pivot_executor(
-                    k,
-                    blockLen * i + k,
-                    i == th_used-1 ? size : ((i+1) * blockLen) + k,
-                    data,
-                    p_idx[i],
-                    p_pivot[i])
-            );
-
-        pool.invokeAll(tasks);
-
-
-        double pivot = p_pivot[0][0];
-        int pivot_idx = p_idx[0][0];
-        for (int i = 1; i < th_used; i++)
-            if (p_pivot[i][0] > pivot) {
-                pivot = p_pivot[i][0];
-                pivot_idx = p_idx[i][0];
+                System.out.println("Time single thread %f ms".formatted(average(times)));
             }
-        long mult_stop_time = System.nanoTime();
+            for (int i = 1; i <= 6; i++) {
+                ExecutorService service = Executors.newFixedThreadPool(i);
+                double[] times = new double[avg];
 
-        System.out.println("pivot multi thread %f".formatted(pivot));
-        System.out.println("pivot idx multi thread %d".formatted(pivot_idx));
-        System.out.println("multithread time %f ms\n".formatted((mult_stop_time - mult_start_time)*1e-6));
+                for (int j = 0; j < avg; j++) {
+                    double[][] matrix = Tools.deepCopy(original);
 
+                    long t0 = System.nanoTime();
+                    LU lu_multi = LU.decomposeMultithread(service,i,matrix);
+                    long t1 = System.nanoTime();
 
-        long single_start_time = System.nanoTime();
-        double single_pivot = data[0][0];
-        int single_pivot_dix = 0;
-        for (int i = 1; i < size; i++) {
-            if (data[i][0] > single_pivot) {
-                single_pivot = data[i][0];
-                single_pivot_dix = i;
+                    times[j] = (t1 - t0) * 1e-6;
+                }
+                System.out.println("Time multiThread(%d) %f ms".formatted(i,average(times)));
+
+                service.shutdown();
             }
+
+            //System.out.println("Single thread \n" + lu_single);
+            System.out.println("/".repeat(50).concat("\n").repeat(3));
+            //System.out.println("Multi thread \n" + lu_multi);
         }
-        long single_stop_time = System.nanoTime();
-
-        System.out.println("pivot single thread %f".formatted(single_pivot));
-        System.out.println("pivot idx single thread %d".formatted(single_pivot_dix));
-        System.out.println("single thread time %f ms\n".formatted((single_stop_time - single_start_time)*1e-6));
-
-        pool.shutdown();
-
-        double[][] matrix = new double[][]{{7,5,3},{2,1,6},{1,2,3}};
-
-        System.out.println("Single thread \n" + LU.decomposeSingleThread(Tools.deepCopy(matrix)));
-        System.out.println("/".repeat(50).concat("\n").repeat(3));
-        System.out.println("Multi thread \n" + LU.decomposeMultithread(Tools.deepCopy(matrix)));
     }
 }
