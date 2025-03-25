@@ -4,14 +4,15 @@ import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
+import kuse.welbre.tools.LU;
 
 public class CircuitBenchmark {
-    private static final int size = 1200;
+    private static final int size = 1500;
     private Circuit circuit;
 
     @Benchmark.preBenchmark
     @Benchmark.Order(1)
-    void pre(){
+    void model(){
         circuit = new Circuit();
         VoltageSource v = new VoltageSource(800);
         circuit.addElement(v);
@@ -32,7 +33,7 @@ public class CircuitBenchmark {
 
     @Benchmark.preBenchmark
     @Benchmark.Order(2)
-    void compile(){
+    void preCompile(){
         circuit.preCompile();
     }
 
@@ -42,6 +43,8 @@ public class CircuitBenchmark {
     }
 
     public static void main(String[] args) {
+        LU.threads = 6;
         new Benchmark(CircuitBenchmark.class).benchmark();
+        LU.executor.shutdown();
     }
 }
