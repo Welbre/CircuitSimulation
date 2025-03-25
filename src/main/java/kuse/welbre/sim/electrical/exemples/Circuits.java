@@ -431,22 +431,6 @@ public final class Circuits {
 
             return circuit;
         }
-        public static Circuit getHalfWaveRectifier(){
-            Circuit circuit = new Circuit();
-
-            ACVoltageSource vc = new ACVoltageSource(12,5);
-            Diode d = new Diode();
-            Capacitor c = new Capacitor(0.05);
-            Resistor r = new Resistor(2);
-
-            vc.connect(d.getPinA(), null);
-            Pin b = d.getPinB();
-            c.connect(b,null);
-            r.connect(b, null);
-
-            circuit.addElement(vc,d,c,r);
-            return circuit;
-        }
         public static Circuit getFullHaveRectifier(){
             Circuit c = new Circuit();
             ACVoltageSource v = new ACVoltageSource(12,5);
@@ -473,6 +457,35 @@ public final class Circuits {
             r.connect(outA,outB);
 
             return c;
+        }
+
+        public static Circuit getVoltageMultiplayer(){
+            final double c = 10e-6;
+            CircuitBuilder builder = new CircuitBuilder();
+            Pin fp = builder.pin();
+            Pin p0 = builder.pin();
+            Pin p1 = builder.pin();
+            Pin p2 = builder.pin();
+            Pin p3 = builder.pin();
+            Pin p4 = builder.pin();
+            Pin p5 = builder.pin();
+
+            new ACVoltageSource(fp, null, 12, 80);
+            new Capacitor(fp,p0, c);
+            new Capacitor(null, p1, c);
+            new Capacitor(p0, p2, c);
+            new Capacitor(p1, p3, c);
+            new Capacitor(p2, p4, c);
+            new Capacitor(p3, p5, c);
+            new Diode(null, p0);
+            new Diode(p0, p1);
+            new Diode(p1, p2);
+            new Diode(p2, p3);
+            new Diode(p3, p4);
+            new Diode(p4, p5);
+            new CurrentSource(p5, null, 0);
+
+            return builder.close();
         }
     }
     public static final class Switches {

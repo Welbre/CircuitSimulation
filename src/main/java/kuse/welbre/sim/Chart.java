@@ -1,7 +1,10 @@
 package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.ACVoltageSource;
+import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.File;
@@ -14,17 +17,12 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.Diodes.getFullHaveRectifier();
+        Circuit c = Circuits.Diodes.getVoltageMultiplayer();
+        ((ACVoltageSource) c.getElements()[0]).setFrequency(40);
 
-        c.setTickRate(0.005);
-        String csv = createCsvFromCircuit(c, 0.5, new PlotConfigs(c)
-                .see(0, true, true, false, "v")
-                .see(1, true, true, false, "d00")
-                .see(2, true, true, false, "d01")
-                .see(3, true, true, false, "d10")
-                .see(4, true, true, false, "d11")
-                .see(5, true, true, false, "c")
-                .see(6, true, true, false, "r")
+        String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
+                .see(0, true, false, false, "v")
+                .see(13, true, true, false, "meter")
         );
         c.exportToSpiceNetlist(System.out);
 

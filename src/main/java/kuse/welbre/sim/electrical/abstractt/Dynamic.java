@@ -24,4 +24,12 @@ public interface Dynamic {
      * Therefore, only in {@link ACVoltageSource#preEvaluation(MatrixBuilder) ACVoltageSource#preEvaluation} the voltage is stamped in RHS matrix.
      */
     void posEvaluation(MatrixBuilder builder);
+
+    /**
+     * Defines the minimal time step to this component operate correctly.
+     * @return the stime step
+     */
+    default double getMinTickRate(){
+        return Double.MAX_VALUE;
+    }
 }

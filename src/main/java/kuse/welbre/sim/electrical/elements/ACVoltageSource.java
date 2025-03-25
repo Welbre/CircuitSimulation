@@ -13,6 +13,8 @@ import kuse.welbre.tools.MatrixBuilder;
  */
 @SuppressWarnings("unused")
 public class ACVoltageSource extends VoltageSource implements Dynamic {
+    private static final int CYCLE_RESOLUTION = 2;
+
     private double frequency;
     //How much angle oscillates per tick.
     private double omega_tick;
@@ -62,5 +64,10 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
 
     public double getFrequency() {
         return frequency;
+    }
+
+    @Override
+    public double getMinTickRate() {
+        return 1.0 / (frequency * 4 * CYCLE_RESOLUTION);
     }
 }

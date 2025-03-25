@@ -435,6 +435,30 @@ class CircuitTest {
             assertTrue(CircuitTest.equals(10.363796438309693, meter.getVoltage(ElementOMeter.method.average, null)));//voltage average
             assertTrue(CircuitTest.equals(10.473919519838212,meter.getVoltage(ElementOMeter.method.rms, c.getTickRate())));//voltage rms
             assertTrue(CircuitTest.equals(12.0 / Math.sqrt(2), vmeter.getVoltage(ElementOMeter.method.rms, c.getTickRate())));//rms of current source.
+
+            Main.printAllElements(c);
+        }
+
+        @Test
+        @Benchmark.benchmark
+        @Order(6)
+        void testVoltagePump(){
+            Circuit c = Circuits.Diodes.getVoltageMultiplayer();
+            c.preCompile();
+
+            c.tick(2);
+            CurrentSource voltageMeter = null;
+            for (Element element : c.getElements()) {
+                if (element instanceof CurrentSource source) {
+                    voltageMeter = source;
+                    break;
+                }
+            }
+            if (voltageMeter == null)
+                throw new IllegalStateException("The circuit haven't a CurrentSource");
+            testElement(voltageMeter, new double[]{71.51,0,0});
+
+            Main.printAllElements(c);
         }
     }
 
@@ -455,6 +479,8 @@ class CircuitTest {
             for (Element element : c.getElements()) if (element instanceof Switch sw) sw.setOpen(false);
             c.tick();
             testElements(c.getElements(), closedAnswers, getIfFails(c));//test closed
+
+            Main.printAllElements(c);
         }
     }
 }

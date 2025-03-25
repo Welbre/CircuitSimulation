@@ -10,7 +10,6 @@ import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class Circuit {
     /// 50ms time step
@@ -18,6 +17,7 @@ public class Circuit {
     public static final double DEFAULT_TIME_STEP = 0.05;
 
     private double tickRate = DEFAULT_TIME_STEP;
+    private double minimal_time_step = Double.MAX_VALUE;
 
     private final List<Element> elements = new ArrayList<>();
     private final List<Dynamic> dynamics = new ArrayList<>();
@@ -36,7 +36,7 @@ public class Circuit {
 
     private boolean isDirt = true;
 
-    public final <T extends Element> void addElement(Element element){
+    public final void addElement(Element element){
         if (!this.elements.contains(element)) {
             this.elements.add(element);
 
@@ -102,9 +102,10 @@ public class Circuit {
 
     /**
      * Convert the random pins address to a workable value, the address is some short number between 0 and {@link Short#MAX_VALUE}.<br>
+     * Defines the minimal time step in the circuit.<br>
      * Set the pointers in the {@link Pin pin}, and set the voltageSource current pointer.
      */
-    private void preparePinsAndSources(CircuitAnalyser result, double[][] X){
+    private void prepareToBuild(CircuitAnalyser result, double[][] X){
         short next = 0;
         for (Pin pin : result.pins) {
             //Set to useful index in a matrix.
@@ -131,6 +132,15 @@ public class Circuit {
                 mRHS.setAddress(address);
             }
         }
+
+        //Search in dynamics elements list for the smallest time.
+        for (Dynamic dynamic : dynamics) {
+            double rate = dynamic.getMinTickRate();
+            if (rate < minimal_time_step)
+                minimal_time_step = rate;
+        }
+        if (minimal_time_step < tickRate)
+            tickRate = minimal_time_step;
     }
 
     public void buildMatrix() {
@@ -139,7 +149,7 @@ public class Circuit {
 
         final int size = analyseResult.matrixSize;
         X = new double[size][1];
-        preparePinsAndSources(analyseResult, X);
+        prepareToBuild(analyseResult, X);
 
         matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
 
@@ -293,11 +303,11 @@ public class Circuit {
 
     /**
      * Simulate 'time' seconds.
-     * @param time total time to simulate.
+     * @param t_sec total time in seconds to simulate.
      */
-    public void tick(double time) {
+    public void tick(double t_sec) {
         double t = 0;
-        while (time > t){
+        while (t_sec > t){
             tick();
             t += tickRate;
         }
@@ -368,7 +378,10 @@ public class Circuit {
     }
 
     public void setTickRate(double tickRate) {
-        if (tickRate <= 0) throw new IllegalArgumentException("Tick rate must be bigger that 0!");
+        if (tickRate <= 0)
+            throw new IllegalArgumentException("Tick rate must be bigger that 0!");
+        if (tickRate > minimal_time_step)
+            throw new IllegalStateException("Tick rate must be less that (%s) duo some Dynamic element requirement.".formatted(Tools.proprietyToSi(minimal_time_step, "s")));
         this.tickRate = tickRate;
         dirt();
     }
