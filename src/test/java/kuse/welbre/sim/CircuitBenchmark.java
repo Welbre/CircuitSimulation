@@ -7,7 +7,7 @@ import kuse.welbre.sim.electrical.elements.VoltageSource;
 import kuse.welbre.tools.LU;
 
 public class CircuitBenchmark {
-    private static final int size = 1500;
+    private static final int size = 800;
     private Circuit circuit;
 
     @Benchmark.preBenchmark
@@ -43,8 +43,6 @@ public class CircuitBenchmark {
     }
 
     public static void main(String[] args) {
-        LU.threads = 6;
         new Benchmark(CircuitBenchmark.class).benchmark();
-        LU.executor.shutdown();
     }
 }
