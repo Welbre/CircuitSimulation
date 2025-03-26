@@ -482,5 +482,14 @@ class CircuitTest {
 
             Main.printAllElements(c);
         }
+
+        @Test
+        @Benchmark.benchmark
+        @Order(2)
+        void testSwitchPWM() {
+            double[][] answersInitial = {{50,0,0},{50,0,0},{0,0,0},{0,0,0}};
+            double[][] answersFinal = {{50,0,0},{0,0,0},{50,0,0},{0,0,0}};
+            new DynamicTest.DynamicData(Circuits.Switches::getPWM_switch, answersInitial, answersFinal, 2).setTickRate(0.005).test();
+        }
     }
 }
