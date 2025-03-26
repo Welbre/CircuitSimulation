@@ -43,6 +43,6 @@ public class CircuitBenchmark {
     }
 
     public static void main(String[] args) {
-        new Benchmark(CircuitBenchmark.class).benchmark();
+        new Benchmark(CircuitBenchmark.class).benchmark(500);
     }
 }

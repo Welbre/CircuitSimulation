@@ -19,16 +19,18 @@ public class NonLinearHelper {
     }
 
     public double[][] jacobian(){
+        builder.clearLhs();
         for (NonLinear e : nonLinear)
             e.stamp_dI_dV(builder);
 
-        return builder.getLHS();
+        return builder.getLhs();
     }
 
     public double[] f(double[] x){
+        builder.clear();
         for (NonLinear e : nonLinear)
             e.stamp_I_V(builder);
 
-        return Tools.subtract(Tools.multiply(builder.getLHS(),x), builder.getRHS());
+        return Tools.subtract(Tools.multiply(builder.getLhs(),x), builder.getRhs());
     }
 }

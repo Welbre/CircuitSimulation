@@ -158,7 +158,8 @@ public class Circuit {
 
         //Stamp and init all elements
         for (Element e : elements)
-            e.stamp(matrixBuilder);//todo check if and why i need to skip the stamp of the NonLinear elements.
+            if (!(e instanceof NonLinear))
+                e.stamp(matrixBuilder);//todo check if and why i need to skip the stamp of the NonLinear elements.
 
         matrixBuilder.close();
     }
@@ -194,6 +195,7 @@ public class Circuit {
             for (Element e : elements)//stamp
                 if (!(e instanceof NonLinear))
                     e.stamp(builder);
+            builder.close();
 
             solveNonLinear(builder);
         } else {
@@ -218,7 +220,7 @@ public class Circuit {
         //--------------------------------------------------------------
         //This entire block is to linearize the non-linear components.
         //--------------------------------------------------------------
-
+        original.lock();
         NonLinearHelper nl = new NonLinearHelper(original, nonLiners);
         double[] x = new double[X.length]; //initial x in the X point.
         double[] dx = new double[X.length];// initial dx with max double value.
@@ -238,7 +240,7 @@ public class Circuit {
                 break;
 
             injectValuesInX(x);//update pointer values to the components compute using x
-            dx = LU.decompose(nl.jacobian()).solve(fx);//get the jacobian and find a dx that solves J(u)*u=f(u).
+            dx = LU.decompose(Tools.deepCopy(nl.jacobian())).solve(Tools.deepCopy(fx));//get the jacobian and find a dx that solves J(u)*u=f(u).
 
             double[] t = Tools.subtract(x, dx); //calculate t the new x
 
@@ -260,6 +262,11 @@ public class Circuit {
             x = t;//the new guess is t.
             fx = ft;//how t is the new guess, update f(guess) to f(t).
         }
+        if (inter == 499)
+            throw new IllegalStateException("The circuit can't converge!");
+
+        original.unlock();
+        original.clear();
     }
 
     ///Tick one time step
@@ -267,15 +274,22 @@ public class Circuit {
         if (isDirt)
             clean();
         else {
+            for (var op : operationals) {
+                if (op.isDirt()) {
+                    clean();
+                    break;
+                }
+            }
+
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Dynamic element : dynamics)
                 element.preEvaluation(matrixBuilder);
 
-            if (analyseResult.isNonLinear)
+            if (analyseResult.isNonLinear) {
                 solveNonLinear(matrixBuilder);
-            else {
-                injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
             }
+            else
+                injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
 
             //Pos ticking to calculate values in t + 1
             for (var sim : dynamics)
@@ -361,7 +375,7 @@ public class Circuit {
      * Get a clone of G matrix.
      */
     public double[][] getG() {
-        return matrixBuilder.getLHS();
+        return matrixBuilder.getLhs();
     }
 
     public void setTickRate(double tickRate) {

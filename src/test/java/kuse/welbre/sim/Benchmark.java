@@ -29,14 +29,18 @@ public class Benchmark {
     private final Stack<String> classPath = new Stack<>();
     private final Queue<String[]> results = new ArrayDeque<>();
 
-    private static final int TEST_AMOUNT = 50;
+    private static final int DEFAULT_TEST_AMOUNT = 50;
 
     public Benchmark(Class<?> mainClass) {
         this.mainClass = mainClass;
     }
 
     public void benchmark(){
-        prepare_test(mainClass);
+        benchmark(DEFAULT_TEST_AMOUNT);
+    }
+
+    public void benchmark(int sample){
+        prepare_test(mainClass, sample);
 
         System.out.println("#".repeat(50) + "\n".repeat(3));
         int name_Aliment = 0;
@@ -76,7 +80,7 @@ public class Benchmark {
                 + "\n";
     }
 
-    private void prepare_test(Class<?> aclass){
+    private void prepare_test(Class<?> aclass, int sample){
         Unsafe unsafe;
         List<Method> methods = new ArrayList<>();
         List<Method> preMethods = new ArrayList<>();
@@ -129,7 +133,7 @@ public class Benchmark {
 
         System.out.println("Starting warmup!");
 
-        for (int i = 0; i < TEST_AMOUNT; i++) {//warm up
+        for (int i = 0; i < sample; i++) {//warm up
             try {
                 Object instance = unsafe.allocateInstance(aclass);
                 Map<Method, Long> test_result = run_test(instance, preMethods, methods);
@@ -138,13 +142,13 @@ public class Benchmark {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            System.out.printf("\rWarmup [%d/%d]!", i+1, TEST_AMOUNT);
+            System.out.printf("\rWarmup [%d/%d]!", i+1, sample);
         }
 
         System.out.println("\nFinished warmup!");
         System.out.println("Start test!");
 
-        for (int i = 0; i < TEST_AMOUNT; i++) {
+        for (int i = 0; i < sample; i++) {
             try {
                 Object instance = unsafe.allocateInstance(aclass);
                 Map<Method, Long> test_result = run_test(instance, preMethods, methods);
@@ -153,7 +157,7 @@ public class Benchmark {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            System.out.printf("\rTesting [%d/%d]!", i+1, TEST_AMOUNT);
+            System.out.printf("\rTesting [%d/%d]!", i+1, sample);
         }
 
         System.out.println("\nTest finished!");
@@ -193,7 +197,7 @@ public class Benchmark {
 
         for (Class<?> bclass : aclass.getDeclaredClasses())
             if (bclass.isAnnotationPresent(benchmark.class))
-                prepare_test(bclass);
+                prepare_test(bclass, sample);
 
         classPath.pop();
     }

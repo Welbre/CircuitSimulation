@@ -17,12 +17,17 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.Diodes.getVoltageMultiplayer();
-        ((ACVoltageSource) c.getElements()[0]).setFrequency(40);
+        Circuit c = Circuits.Diodes.getFullHaveRectifier();
 
+        c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
-                .see(0, true, false, false, "v")
-                .see(13, true, true, false, "meter")
+                .see(0, true, true, false, "v")
+                .see(1, true, true, false, "d00")
+                .see(2, true, true, false, "d01")
+                .see(3, true, true, false, "d10")
+                .see(4, true, true, false, "d11")
+                .see(5, true, true, false, "c")
+                .see(6, true, true, false, "r")
         );
         c.exportToSpiceNetlist(System.out);
 

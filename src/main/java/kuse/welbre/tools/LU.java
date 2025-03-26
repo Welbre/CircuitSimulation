@@ -15,6 +15,7 @@ public final class LU {
             this.swaps[i] = swaps.get(i);
     }
 
+    ///Decompose lu matrix to a lu instance, the matrix lu at first param is lost in the process.
     public static LU decompose(double[][] lu){
         final int length = lu.length;
         final List<int[]> swaps = new ArrayList<>();
@@ -65,7 +66,7 @@ public final class LU {
         a[row1] = swap;
     }
 
-    public double[] solve(double[] rhs){
+    public double[] solve(double[] rhs){//todo implement a swap that don't modify rhs
         int size = this.lu.length;
 
         double[] y = new double[size];
