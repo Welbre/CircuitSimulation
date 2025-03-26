@@ -56,7 +56,8 @@ public class Switch extends Element implements Operational {
 
     @Override
     public double getCurrent() {
-        return getVoltageDifference() / (isOpen ? openResistence : closedResistence);
+        //only use isOpen start if isn't dirt
+        return getVoltageDifference() / (isOpen ^ dirt ? openResistence : closedResistence);
     }
 
     @Override
