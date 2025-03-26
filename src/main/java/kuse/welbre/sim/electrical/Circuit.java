@@ -22,7 +22,7 @@ public class Circuit {
     private final List<Dynamic> dynamics = new ArrayList<>();
     private final List<NonLinear> nonLiners = new ArrayList<>();
     private final List<Operational> operationals = new ArrayList<>();
-    private final List<Watcher> watchers = new ArrayList<>();
+    private final List<Watcher<?>> watchers = new ArrayList<>();
 
     private CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
@@ -59,8 +59,9 @@ public class Circuit {
             addElement(element);
     }
 
-    public void addWatcher(Watcher watcher) {
-        watchers.add(watcher);
+    @SafeVarargs
+    public final <T extends Element> void addWatcher(Watcher<T>... watchers) {
+        this.watchers.addAll(Arrays.asList(watchers));
     }
 
     /**
@@ -142,14 +143,7 @@ public class Circuit {
             tickRate = minimal_time_step;
     }
 
-    public void buildMatrix() {
-        if (analyseResult == null)
-            throw new IllegalStateException("Build matrix called before circuit analysis!");
-
-        final int size = analyseResult.matrixSize;
-        X = new double[size][1];
-        prepareToBuild(analyseResult, X);
-
+    private void buildMatrix() {
         matrixBuilder = new MatrixBuilder(analyseResult);
 
         //Init simulable
@@ -276,7 +270,7 @@ public class Circuit {
         else {
             for (var op : operationals) {
                 if (op.isDirt()) {
-                    clean();
+                    buildMatrix();
                     break;
                 }
             }
@@ -296,7 +290,7 @@ public class Circuit {
                 sim.posEvaluation(matrixBuilder);
 
             //run watchers
-            for (Watcher watcher : watchers)
+            for (Watcher<?> watcher : watchers)
                 watcher.run();
         }
     }
@@ -327,8 +321,11 @@ public class Circuit {
             throw new RuntimeException("Circuit with inconsistencies!");
         }
 
+        final int size = analyseResult.matrixSize;
+        X = new double[size][1];
+        prepareToBuild(analyseResult, X);
+
         buildMatrix();
-        solveInitialConditions();
 
         isDirt = false;
     }
@@ -347,6 +344,7 @@ public class Circuit {
 
     public void preCompile(){
         clean();
+        solveInitialConditions();
     }
 
     public Element[] getElements() {

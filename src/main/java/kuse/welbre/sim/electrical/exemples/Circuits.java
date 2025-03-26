@@ -502,6 +502,21 @@ public final class Circuits {
             return c;
         }
 
+        public static Circuit getPWM_switch(){
+            CircuitBuilder builder = new CircuitBuilder();
+            Pin a = builder.pin();
+            Pin b = builder.pin();
+            Pin c = builder.pin();
+            new VoltageSource(a,null,50);
+            var sw = new Switch(a,b);
+            new Capacitor(b,c,5e-3);
+            new Resistor(c,null, 10);
+
+            builder.addWatcher(sw, e -> e.setOpen(!e.isOpen()));
+
+            return builder.close();
+        }
+
         public static Circuit getSwitchCurrentLimiter(){
             CircuitBuilder builder = new CircuitBuilder();
             Pin p0 = builder.pin();
