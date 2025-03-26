@@ -2,120 +2,106 @@ package kuse.welbre.tools;
 
 import kuse.welbre.sim.electrical.CircuitAnalyser;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import org.apache.commons.math4.legacy.linear.MatrixUtils;
+import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class MatrixBuilder {
-    protected final double[][] LHS;
-    protected final double[] RHS;
+public class MatrixBuilder extends StaticBuilder {
+    private final List<int[]> pairs = new ArrayList<>();
+    private double[][] overload;
+    private double[] RHS;
     protected LU lu;
 
-    private boolean isClosed = false;
+    private boolean isDirt = true;
 
     public MatrixBuilder(CircuitAnalyser analyser) {
-        this(
-                new double[analyser.matrixSize][analyser.matrixSize],
-                new double[analyser.matrixSize]
-        );
+        super(analyser);
+        RHS = new double[analyser.matrixSize];
     }
 
-    public MatrixBuilder(double[][] LHS, double[] RHS) {
-        this.LHS = LHS;
-        this.RHS = RHS;
-    }
-
-    ///Returns a copy of builder. Do a deep copy of all matrices, and return an opening matrix builder.
-    public MatrixBuilder(MatrixBuilder builder) {
-        this.LHS = Tools.deepCopy(builder.LHS);
-        this.RHS = Tools.deepCopy(builder.RHS);
-        this.lu = builder.lu;
-        this.isClosed = false;
-    }
-
-    public void stampResistence(Element.Pin a, Element.Pin b, double resistence){
-        stampConductance(a,b, 1.0 / resistence);
-    }
-
-    public void stampConductance(Element.Pin a, Element.Pin b, double conductance) {
-        if (isClosed)
-            throw new IllegalStateException("Try stamp a conductance in a closed builder!");
-        if (a != null) {
-            LHS[a.address][a.address] += conductance;
-            if (b != null) {
-                LHS[a.address][b.address] -= conductance;
-                LHS[b.address][a.address] -= conductance;
-            }
-        }
-        if (b != null) {
-            LHS[b.address][b.address] += conductance;
-        }
-    }
-
-    public void stampVoltageSource(Element.Pin a, Element.Pin b, int nodes_length, double voltage){
-        if (isClosed) throw new IllegalStateException("Try stamp a voltage source in a closed builder!");
-        if (a != null) {
-            LHS[a.address][nodes_length] = 1;
-            LHS[nodes_length][a.address] = 1;
-        }
-        if (b != null) {
-            LHS[b.address][nodes_length] = -1;
-            LHS[nodes_length][b.address] = -1;
-        }
-        RHS[nodes_length] = voltage;
+    public void stampVoltageSource(Pin a, Pin b, int sor_idx, double voltage) {
+        stampVoltageSource(a,b,sor_idx);
+        RHS[sor_idx] = voltage;
     }
 
     public void stampCurrentSource(Element.Pin a, Element.Pin b, double current){
-        if (isClosed) throw new IllegalStateException("Try stamp right hand side in a closed builder!");
-
         if (a != null)
             RHS[a.address] += current;
         if (b != null)
             RHS[b.address] -= current;
     }
 
-    public void stampLHS(int row, int colum, double value){
+    @Override
+    public void stampConductance(Pin a, Pin b, double conductance) {
+        if (isClosed)
+        {
+            if (a != null) {
+                overload[a.address][a.address] += conductance;
+                pairs.add(new int[]{a.address, a.address});
+                if (b != null) {
+                    overload[a.address][b.address] -= conductance;
+                    overload[b.address][a.address] -= conductance;
+                    pairs.add(new int[]{a.address, b.address});
+                    pairs.add(new int[]{b.address, a.address});
+                }
+            }
+            if (b != null) {
+                overload[b.address][b.address] += conductance;
+                pairs.add(new int[]{b.address, b.address});
+            }
+            dirt();
+        }
+        else
+            super.stampConductance(a, b, conductance);
+    }
+
+    public void stampRHS(int idx, double value){
         if (isClosed) throw new IllegalStateException("Try stamp left hand side in a closed builder!");
-        LHS[row][colum] = value;
+        RHS[idx] = value;
     }
 
-    public void stampRHS(int row, double value){
-        RHS[row] = value;
-    }
-
-    public void clearZMatrix(){
-        Arrays.fill(RHS, 0);
-    }
-
-    public void close(){
-        if (isClosed) return;
-        //todo implement a better solver
-        lu = LU.decompose(LHS);
-        isClosed = true;
+    @Override
+    public void close() {
+        super.close();
+        overload = Tools.deepCopy(LHS);
+        clear();
     }
 
     /**
-     * @return The equation system result, using {@link LU} and {@link NonLinearMatrixBuilder#RHS}
+     * @return The equation system result, using {@link LU}.
      */
     public double[] getResult(){
         if (!isClosed)
             throw new IllegalStateException("Try get result in a non closed matrix builder!");
+        if (isDirt)
+            clear();
         return lu.solve(RHS);
-    }
-
-    public double[][] getLHS() {
-        return LHS;
     }
 
     public double[] getRHS() {
         return RHS;
     }
 
-    public double[][] getCopyOfLHS() {
-        return Tools.deepCopy(LHS);
-    }
-
     public double[] getCopyOfRHS() {
         return Tools.deepCopy(RHS);
+    }
+
+    public void clearZMatrix(){
+        Arrays.fill(RHS, 0);
+    }
+
+
+    private void dirt(){
+        isDirt = true;
+    }
+
+    private void clear(){
+        lu = LU.decompose(overload);
+        for (int[] pair : pairs)
+            overload[pair[0]][pair[1]] = LHS[pair[0]][pair[1]];
+
+        isDirt = false;
     }
 }

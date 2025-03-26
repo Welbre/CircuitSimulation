@@ -5,7 +5,6 @@ import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
-import kuse.welbre.tools.NonLinearMatrixBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
@@ -151,7 +150,7 @@ public class Circuit {
         X = new double[size][1];
         prepareToBuild(analyseResult, X);
 
-        matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
+        matrixBuilder = new MatrixBuilder(analyseResult);
 
         //Init simulable
         for (Dynamic s : dynamics)
@@ -159,7 +158,7 @@ public class Circuit {
 
         //Stamp and init all elements
         for (Element e : elements)
-            e.stamp(matrixBuilder);
+            e.stamp(matrixBuilder);//todo check if and why i need to skip the stamp of the NonLinear elements.
 
         matrixBuilder.close();
     }
@@ -174,7 +173,10 @@ public class Circuit {
     private void solveInitialConditions(){
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
-        MatrixBuilder builder;
+        MatrixBuilder builder = new MatrixBuilder(analyseResult);
+        //todo check if this can be changed to the matrix builder of the instance.
+        //todo maybe mark the capacitor and inductors as a volatile element, therefore will be stamped
+        //todo in the overload instead of original LHS.
 
         //initial the elements to solve initial conditions.
         for (Dynamic dynamic : dynamics)
@@ -184,23 +186,17 @@ public class Circuit {
         for (Operational op : operationals)
             op.dirt();
 
+        for (var sim : dynamics)//preTick in t
+            sim.preEvaluation(builder);
+
         //tick in t
         if (analyseResult.isNonLinear) {
-            builder = new NonLinearMatrixBuilder(analyseResult);
-            for (var sim : dynamics)//preTick in t
-                sim.preEvaluation(builder);
-
             for (Element e : elements)//stamp
                 if (!(e instanceof NonLinear))
                     e.stamp(builder);
 
             solveNonLinear(builder);
         } else {
-            builder = new MatrixBuilder(analyseResult);
-
-            for (var sim : dynamics)//preTick in t
-                sim.preEvaluation(builder);
-
             for (Element e : elements)//stamp
                 e.stamp(builder);
             builder.close();
@@ -227,7 +223,7 @@ public class Circuit {
         double[] x = new double[X.length]; //initial x in the X point.
         double[] dx = new double[X.length];// initial dx with max double value.
         double[] fx;
-        int inter = 0, totalSubInter = 0;
+        int inter = 0;
 
         //initiate x and dx.
         for (int i = 0; i < X.length; i++) {
@@ -258,7 +254,6 @@ public class Circuit {
                 ft = nl.f(t);//re compute f(t) now using the subT
 
                 subinter++;
-                totalSubInter++;
             }
 
             dx = Tools.subtract(x,t);//recompute the dx. if the initial t isn't converging, the t was updated inside the loop, and we need to calculate dx again using the new t.
@@ -272,13 +267,6 @@ public class Circuit {
         if (isDirt)
             clean();
         else {
-            //todo ,create a more efficient way to handle the changes in lhs matrix. to avoid useless changes.
-            matrixBuilder = new NonLinearMatrixBuilder(analyseResult);
-
-            for (Element e : elements)
-                if (!(e instanceof NonLinear))
-                    e.stamp(matrixBuilder);
-
             //we are in t, so use actual values to prepare evaluation to t+1
             for (Dynamic element : dynamics)
                 element.preEvaluation(matrixBuilder);
@@ -286,7 +274,6 @@ public class Circuit {
             if (analyseResult.isNonLinear)
                 solveNonLinear(matrixBuilder);
             else {
-                matrixBuilder.close();
                 injectValuesInX(matrixBuilder.getResult());//Evaluation from t to t + 1
             }
 

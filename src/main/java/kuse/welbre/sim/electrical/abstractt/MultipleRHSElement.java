@@ -7,7 +7,7 @@ import kuse.welbre.sim.electrical.CircuitAnalyser;
  */
 public interface MultipleRHSElement {
     /**
-     * In {@link kuse.welbre.sim.electrical.Circuit#preparePinsAndSources(CircuitAnalyser, double[][]) preparePinsAndSources} method this function will be called
+     * In {@link kuse.welbre.sim.electrical.Circuit#prepareToBuild(CircuitAnalyser, double[][]) preparePinsAndSources} method this function will be called
      * to set the internal address of each element that contributes to the RightSideMatrix (known values).<br>
      * Ex: A voltage source that contributes to RHS with a voltage.
      */
