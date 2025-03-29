@@ -3,9 +3,7 @@ package kuse.welbre.sim;
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.ACVoltageSource;
-import kuse.welbre.sim.electrical.elements.Resistor;
-import kuse.welbre.sim.electrical.exemples.Circuits;
+import kuse.welbre.sim.electrical.elements.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,14 +15,25 @@ import java.util.Map;
 public class Chart {
 
     public static void main(String[] args) throws Exception {
-        Circuit c = Circuits.Switches.getPWM_switch();
+        CircuitBuilder builder = new CircuitBuilder();
+        Element.Pin pv = builder.pin();
+        Element.Pin pr = builder.pin();
+        Element.Pin pra = builder.pin();
+        Element.Pin prb = builder.pin();
+
+        new VoltageSource(pv, null, 200);
+        new Relay(pv, pr, pra, prb);
+        new Resistor(pr, null, 20);
+        new ACVoltageSource(pra,prb, 12, 5);
+
+        var c = builder.close();
 
         c.setTickRate(0.005);
-        String csv = createCsvFromCircuit(c, 2, new PlotConfigs(c)
+        String csv = createCsvFromCircuit(c, 10, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
-                .see(1, true, true, false, "s")
-                .see(2, true, true, false, "c")
-                .see(3, true, true, false, "r")
+                .see(1, true, true, false, "rw")
+                .see(2, true, true, false, "re")
+                .see(3, true, true, false, "vSqr")
         );
         c.exportToSpiceNetlist(System.out);
 

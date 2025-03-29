@@ -72,9 +72,10 @@ public abstract class Element {
      * current, and others parameters, and can modify him.<br>
      * This watcher runs only in the last stap of {@link Circuit#tick(double)} function.
      */
-    public Element watch(Circuit c, Consumer<Element> consumer){
-        c.addWatcher(new Watcher(this, consumer));
-        return this;
+    @SuppressWarnings("unchecked")
+    public <T extends Element> T watch(Circuit c, Consumer<T> consumer){
+        c.addWatcher(new Watcher<>((T) this, consumer));
+        return (T) this;
     }
 
     public Pin[] getPins(){

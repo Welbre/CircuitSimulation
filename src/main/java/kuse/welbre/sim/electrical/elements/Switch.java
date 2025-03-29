@@ -62,10 +62,8 @@ public class Switch extends Element implements Operational {
 
     @Override
     public void stamp(MatrixBuilder builder) {
-        if (isDirt()) {
-            builder.stampResistence(getPinA(), getPinB(), isOpen ? openResistence : closedResistence);
-            dirt = false;
-        }
+        builder.stampResistence(getPinA(), getPinB(), isOpen ? openResistence : closedResistence);
+        dirt = false;
     }
 
     public boolean isOpen() {
