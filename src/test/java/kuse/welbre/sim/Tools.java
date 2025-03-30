@@ -30,6 +30,7 @@ public class Tools {
     public static class ElementOMeter {
         private final List<Double> voltage = new ArrayList<>();
         private final List<Double> current = new ArrayList<>();
+        private final List<Double> powers = new ArrayList<>();
         private final Element element;
 
         public ElementOMeter(Element element) {
@@ -39,6 +40,7 @@ public class Tools {
         public void tick(double dt){
             voltage.add(element.getVoltageDifference());
             current.add(element.getCurrent());
+            powers.add(element.getPower());
         }
 
         public enum method {average,rms,integral}
@@ -66,6 +68,21 @@ public class Tools {
                 }
                 case integral -> {
                     return integral(current, (Double) meta);
+                }
+            }
+            throw new IllegalArgumentException("Method can't be null!");
+        }
+
+        public double getPower(method m, Object meta){
+            switch (m){
+                case average -> {
+                    return average(powers);
+                }
+                case rms -> {
+                    return rms(powers);
+                }
+                case integral -> {
+                    return integral(powers, (Double) meta);
                 }
             }
             throw new IllegalArgumentException("Method can't be null!");

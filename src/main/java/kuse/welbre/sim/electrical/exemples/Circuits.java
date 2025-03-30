@@ -542,11 +542,17 @@ public final class Circuits {
             var p3 = builder.pin();
             var p4 = builder.pin();
 
+            var p5 = builder.pin();
+
             new VoltageSource(p1, null, 800);
             new Relay(p1, p2, p3, null);
+            new Capacitor(p2, p5, 0.005);
+            new Resistor(p5, null, 5);
             new Resistor(p2, null, 100);
+
             new SquareVoltageSource(p3, p4, 6, 4, 0.5).setV_off(6);
-            new Resistor(p4, null, 60);
+            new Resistor(p4, null, 100);
+
             return builder.close();
         }
     }

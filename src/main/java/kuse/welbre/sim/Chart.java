@@ -4,6 +4,7 @@ import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.*;
+import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,27 +15,46 @@ import java.util.Map;
 
 public class Chart {
 
-    public static void main(String[] args) throws Exception {
-        CircuitBuilder builder = new CircuitBuilder();
-        var p1 = builder.pin();
-        var p2 = builder.pin();
-        var p3 = builder.pin();
-        var p4 = builder.pin();
+    public static void aaaa() throws Exception {
+        var builder = new CircuitBuilder();
+        var a = builder.pin();
+        new SquareVoltageSource(a,null, 6,10,0.9).setV_off(6);
+        new Resistor(a,null, 12);
 
-        new VoltageSource(p1, null, 800);
-        new Relay(p1, p2, p3, null);
-        new Resistor(p2, null, 100);
-        new SquareVoltageSource(p3, p4, 6, 1.5, 0.5).setV_off(6);
-        new Resistor(p4, null, 10);
         var c = builder.close();
+
+        c.setTickRate(0.0001);
+        String csv = createCsvFromCircuit(c, 10, new PlotConfigs(c)
+                .see(0, true, true, false, "v")
+        );
+        c.exportToSpiceNetlist(System.out);
+
+        Main.printAllElements(c);
+
+        File file = new File("./circuitplot.csv");
+
+        FileWriter writer = new FileWriter(file);
+        writer.write(csv);
+        writer.close();
+
+        Thread.sleep(200);
+        Process process = Runtime.getRuntime().exec(new String[]{"py", "./Charts/Main.py", "./circuitplot.csv"});
+        process.waitFor();
+        System.exit(0);
+    }
+
+    public static void main(String[] args) throws Exception {
+        var c = Circuits.Relays.getPwmWithSquareWaveSource();
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 10, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "relay")
-                .see(2, true, true, false, "res")
-                .see(3, true, true, false, "square")
-                .see(4, true, true, false, "cR")
+                .see(2, true, true, false, "c")
+                .see(3, true, true, false, "rC")
+                .see(4, true, true, false, "charge")
+                .see(5, true, true, false, "comSquare")
+                .see(6, true, true, false, "comR")
         );
         c.exportToSpiceNetlist(System.out);
 

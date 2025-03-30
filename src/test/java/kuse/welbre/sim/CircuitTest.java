@@ -334,7 +334,7 @@ class CircuitTest {
 
     @Nested
     @Benchmark.benchmark
-    @Order(2)
+    @Order(3)
     class Diodes{
         @Test
         @Benchmark.benchmark
@@ -464,7 +464,7 @@ class CircuitTest {
 
     @Nested
     @Benchmark.benchmark
-    @Order(3)
+    @Order(4)
     class Switches{
         @Test
         @Benchmark.benchmark
@@ -490,6 +490,31 @@ class CircuitTest {
             double[][] answersInitial = {{50,0,0},{50,0,0},{0,0,0},{0,0,0}};
             double[][] answersFinal = {{50,0,0},{0,0,0},{50,0,0},{0,0,0}};
             new DynamicTest.DynamicData(Circuits.Switches::getPWM_switch, answersInitial, answersFinal, 2).setTickRate(0.005).test();
+        }
+    }
+
+    @Nested
+    @Benchmark.benchmark
+    @Order(5)
+    class Relay{
+        @Test
+        @Benchmark.benchmark
+        @Order(1)
+        void testPwmWithSquareWaveSource(){
+            Circuit c = Circuits.Relays.getPwmWithSquareWaveSource();
+            c.preCompile();
+
+            ElementOMeter meter = new ElementOMeter(c.getElements()[4]);
+
+            for (int i = 0; i < Math.floor(30 / c.getTickRate()); i++) {
+                c.tick();
+                meter.tick(c.getTickRate());
+            }
+
+            assertTrue(CircuitTest.equals(688.82, meter.getVoltage(ElementOMeter.method.average, null)));//voltage average
+            assertTrue(CircuitTest.equals(4852.5061, meter.getPower(ElementOMeter.method.average, null)));//power average
+
+            Main.printAllElements(c);
         }
     }
 }
