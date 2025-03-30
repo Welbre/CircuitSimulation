@@ -29,6 +29,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.frequency = frequency;
         this.dutyCycle = dutyCycle;
         this.phaseShift = phaseShift;
+        this.time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
 
     public SquareVoltageSource(Pin pinA, Pin pinB, double voltage, double frequency, double dutyCycle, double phaseShift) {
@@ -37,6 +38,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.frequency = frequency;
         this.dutyCycle = dutyCycle;
         this.phaseShift = phaseShift;
+        this.time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
 
     public SquareVoltageSource(double voltage, double frequency, double dutyCycle) {
@@ -82,15 +84,16 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     @Override
     public void initiate(Circuit circuit) {
         period = 1.0 / frequency;
-        time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.
         outputVoltage = ((time % period) < dutyCycle ? voltage : -voltage) + v_off;
         tickRate = circuit.getTickRate();
+        System.out.println("stated");
     }
 
     @Override
     public void preEvaluation(MatrixBuilder builder) {
         outputVoltage = ((time % period) < dutyCycle ? voltage : -voltage) + v_off;
         builder.stampRHS(idx, outputVoltage);
+        System.out.println("updated %f time %f".formatted(outputVoltage, time));
     }
 
     @Override
@@ -165,6 +168,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
      */
     public void setPhaseShift(double phaseShift) {
         this.phaseShift = phaseShift;
+        this.time += period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
 
     public double getV_off() {

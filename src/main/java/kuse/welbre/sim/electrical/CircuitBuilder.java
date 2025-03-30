@@ -9,7 +9,8 @@ import java.util.function.Consumer;
 
 ///A simples way to create larges circuits.
 public class CircuitBuilder {
-    public static CircuitBuilder BUILDER = null;
+    public static boolean isFieldElement = false;
+    private static CircuitBuilder BUILDER = null;
 
     public final List<Element> elements = new ArrayList<>();
     private final List<Watcher<?>> watchers = new ArrayList<>();
@@ -33,5 +34,10 @@ public class CircuitBuilder {
         c.addWatcher(watchers.toArray(Watcher[]::new));
 
         return c;
+    }
+
+    public static void HANDLE(Element e) {
+        if (CircuitBuilder.BUILDER != null && !isFieldElement)
+            CircuitBuilder.BUILDER.elements.add(e);
     }
 }

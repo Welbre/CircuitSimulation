@@ -16,24 +16,25 @@ public class Chart {
 
     public static void main(String[] args) throws Exception {
         CircuitBuilder builder = new CircuitBuilder();
-        Element.Pin pv = builder.pin();
-        Element.Pin pr = builder.pin();
-        Element.Pin pra = builder.pin();
-        Element.Pin prb = builder.pin();
+        var p1 = builder.pin();
+        var p2 = builder.pin();
+        var p3 = builder.pin();
+        var p4 = builder.pin();
 
-        new VoltageSource(pv, null, 200);
-        new Relay(pv, pr, pra, prb);
-        new Resistor(pr, null, 20);
-        new ACVoltageSource(pra,prb, 12, 5);
-
+        new VoltageSource(p1, null, 800);
+        new Relay(p1, p2, p3, null);
+        new Resistor(p2, null, 100);
+        new SquareVoltageSource(p3, p4, 6, 1.5, 0.5).setV_off(6);
+        new Resistor(p4, null, 10);
         var c = builder.close();
 
         c.setTickRate(0.005);
         String csv = createCsvFromCircuit(c, 10, new PlotConfigs(c)
                 .see(0, true, true, false, "v")
-                .see(1, true, true, false, "rw")
-                .see(2, true, true, false, "re")
-                .see(3, true, true, false, "vSqr")
+                .see(1, true, true, false, "relay")
+                .see(2, true, true, false, "res")
+                .see(3, true, true, false, "square")
+                .see(4, true, true, false, "cR")
         );
         c.exportToSpiceNetlist(System.out);
 

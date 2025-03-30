@@ -1,9 +1,7 @@
 package kuse.welbre.sim.electrical.elements;
 
 import kuse.welbre.sim.electrical.Circuit;
-import kuse.welbre.sim.electrical.abstractt.Dynamic;
-import kuse.welbre.sim.electrical.abstractt.Element4Pin;
-import kuse.welbre.sim.electrical.abstractt.Operational;
+import kuse.welbre.sim.electrical.abstractt.*;
 import kuse.welbre.tools.MatrixBuilder;
 
 @SuppressWarnings("unused")
@@ -17,7 +15,7 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     private double closedResistence = 1e-6;//1mΩ default
     private double openResistence = 1e6;//1MΩ default
     private double operationalCurrent = DEFAULT_OPERATIONAL_CURRENT;
-    private final Inductor inductor = new Inductor(getPinC(), getPinD(), DEFAULT_OPERATIONAL_VOLTAGE * DEFAULT_OPERATIONAL_TIME / DEFAULT_OPERATIONAL_CURRENT);
+    private final Inductor inductor = Element.asField(() -> new Inductor(getPinC(), getPinD(), DEFAULT_OPERATIONAL_VOLTAGE * DEFAULT_OPERATIONAL_TIME / DEFAULT_OPERATIONAL_CURRENT));
 
     public Relay() {
     }

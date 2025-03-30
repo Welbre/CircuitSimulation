@@ -3,6 +3,7 @@ package kuse.welbre.sim;
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.Capacitor;
+import kuse.welbre.sim.electrical.elements.Inductor;
 import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
 
@@ -13,13 +14,11 @@ public class Main {
     public static void main(String[] args) {
         Circuit c = new Circuit();
         VoltageSource v = new VoltageSource(10);
-        Resistor r = new Resistor(10);
-        Capacitor l = new Capacitor(0.5);
+        Inductor l = new Inductor(1);
 
 
-        c.addElement(v,r,l);
-        v.connect(r.getPinA(), null);
-        l.connect(r.getPinB(),null);
+        c.addElement(v,l);
+        v.connect(l.getPinA(), null);
 
         c.preCompile();
         System.out.println(l);

@@ -5,8 +5,10 @@ import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.security.Provider;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class Element {
     public static final class Pin {
@@ -34,16 +36,14 @@ public abstract class Element {
         pinA = new Pin();
         pinB = new Pin();
 
-        if (CircuitBuilder.BUILDER != null)
-            CircuitBuilder.BUILDER.elements.add(this);
+        CircuitBuilder.HANDLE(this);
     }
 
     public Element(Pin pinA, Pin pinB) {
         this.pinA = pinA;
         this.pinB = pinB;
 
-        if (CircuitBuilder.BUILDER != null)
-            CircuitBuilder.BUILDER.elements.add(this);
+        CircuitBuilder.HANDLE(this);
     }
 
     public Pin getPinA() {
@@ -142,5 +142,16 @@ public abstract class Element {
                 L = l.P_voltage[0];
 
         return K-L;
+    }
+
+    /**
+     * A way to create an element that contains another element as a field.<br>
+     */
+    public static <T extends Element> T asField(Supplier<T> supplier){
+        final T e;
+        CircuitBuilder.isFieldElement = true;
+        e = supplier.get();
+        CircuitBuilder.isFieldElement = false;
+        return e;
     }
 }
