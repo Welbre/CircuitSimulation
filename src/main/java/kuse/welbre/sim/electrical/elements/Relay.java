@@ -58,9 +58,9 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     @Override
     public void posEvaluation(MatrixBuilder builder) {
         inductor.posEvaluation(builder);
-        final boolean relayState = inductor.getCurrent() >= operationalCurrent;
-        if (relayState != isOpen){//check if is needed to change the state.
-            isOpen = relayState;
+        final boolean shouldOpen = inductor.getCurrent() < operationalCurrent;
+        if (isOpen != shouldOpen) {//check if is needed to change the state.
+            isOpen = shouldOpen;
             dirt();
         }
     }

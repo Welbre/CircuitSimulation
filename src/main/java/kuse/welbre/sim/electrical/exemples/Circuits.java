@@ -533,4 +533,21 @@ public final class Circuits {
             return builder.close();
         }
     }
+
+    public static class Relays {
+        public static Circuit getPwmWithSquareWaveSource(){
+            CircuitBuilder builder = new CircuitBuilder();
+            var p1 = builder.pin();
+            var p2 = builder.pin();
+            var p3 = builder.pin();
+            var p4 = builder.pin();
+
+            new VoltageSource(p1, null, 800);
+            new Relay(p1, p2, p3, null);
+            new Resistor(p2, null, 100);
+            new SquareVoltageSource(p3, p4, 6, 4, 0.5).setV_off(6);
+            new Resistor(p4, null, 60);
+            return builder.close();
+        }
+    }
 }
