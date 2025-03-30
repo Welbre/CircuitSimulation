@@ -27,7 +27,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     public SquareVoltageSource(double voltage, double frequency, double dutyCycle, double phaseShift) {
         this.voltage = voltage;
         this.frequency = frequency;
-        this.dutyCycle = dutyCycle;
+        this.dutyCycle = dutyCycle / frequency;
         this.phaseShift = phaseShift;
         this.time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
@@ -36,7 +36,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         super(pinA, pinB);
         this.voltage = voltage;
         this.frequency = frequency;
-        this.dutyCycle = dutyCycle;
+        this.dutyCycle = dutyCycle / frequency;
         this.phaseShift = phaseShift;
         this.time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
@@ -44,14 +44,14 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     public SquareVoltageSource(double voltage, double frequency, double dutyCycle) {
         this.voltage = voltage;
         this.frequency = frequency;
-        this.dutyCycle = dutyCycle;
+        this.dutyCycle = dutyCycle / frequency;
     }
 
     public SquareVoltageSource(Pin pinA, Pin pinB, double voltage, double frequency, double dutyCycle) {
         super(pinA, pinB);
         this.voltage = voltage;
         this.frequency = frequency;
-        this.dutyCycle = dutyCycle;
+        this.dutyCycle = dutyCycle / frequency;
     }
 
     public SquareVoltageSource(double voltage, double frequency) {
@@ -86,14 +86,12 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         period = 1.0 / frequency;
         outputVoltage = ((time % period) < dutyCycle ? voltage : -voltage) + v_off;
         tickRate = circuit.getTickRate();
-        System.out.println("stated");
     }
 
     @Override
     public void preEvaluation(MatrixBuilder builder) {
         outputVoltage = ((time % period) < dutyCycle ? voltage : -voltage) + v_off;
         builder.stampRHS(idx, outputVoltage);
-        System.out.println("updated %f time %f".formatted(outputVoltage, time));
     }
 
     @Override
@@ -184,6 +182,6 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     public void setDutyCycle(double dutyCycle) {
-        this.dutyCycle = dutyCycle;
+        this.dutyCycle = dutyCycle /2.0;
     }
 }
