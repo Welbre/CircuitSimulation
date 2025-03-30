@@ -2,9 +2,7 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.Capacitor;
 import kuse.welbre.sim.electrical.elements.Inductor;
-import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
 
 import java.io.PrintStream;

@@ -198,7 +198,8 @@ public class Tools {
         for (int i = 0; i < value.length; i++) {
             b.append(proprietyToSi(value[i], unity[i], precision)).append(',');
         }
-        b.deleteCharAt(b.length()-1);
+        if (!b.isEmpty())
+            b.deleteCharAt(b.length()-1);
         return b.toString();
     }
 

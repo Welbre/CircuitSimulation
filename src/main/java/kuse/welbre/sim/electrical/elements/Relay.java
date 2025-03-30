@@ -1,7 +1,10 @@
 package kuse.welbre.sim.electrical.elements;
 
 import kuse.welbre.sim.electrical.Circuit;
-import kuse.welbre.sim.electrical.abstractt.*;
+import kuse.welbre.sim.electrical.abstractt.Dynamic;
+import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.abstractt.Element4Pin;
+import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
 
 @SuppressWarnings("unused")

@@ -2,11 +2,8 @@ package kuse.welbre.sim.electrical.exemples;
 
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.CircuitBuilder;
-import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
-
-import java.util.function.Consumer;
 
 public final class Circuits {
     public static final class Resistors {
