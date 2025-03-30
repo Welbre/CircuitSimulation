@@ -100,13 +100,13 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     @Override
-    public double getQuantity() {
-        return voltage;
+    public double[] getProperties() {
+        return new double[]{voltage+v_off,-voltage+v_off, frequency, dutyCycle*frequency*100};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "V";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"V", "V", "Hz", "%"};
     }
 
     @Override

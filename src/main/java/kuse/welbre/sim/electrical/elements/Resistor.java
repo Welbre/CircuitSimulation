@@ -52,12 +52,12 @@ public class Resistor extends Element {
     }
 
     @Override
-    public double getQuantity() {
-        return resistance;
+    public double[] getProperties() {
+        return new double[]{resistance};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "Ω";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"Ω"};
     }
 }

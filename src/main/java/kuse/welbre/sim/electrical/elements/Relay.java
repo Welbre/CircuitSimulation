@@ -90,13 +90,13 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     }
 
     @Override
-    public double getQuantity() {
-        return closedResistence;
+    public double[]getProperties() {
+        return new double[]{closedResistence, openResistence};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "Ω";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"Ω","Ω"};
     }
 
     @Override

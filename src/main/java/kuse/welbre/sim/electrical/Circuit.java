@@ -397,27 +397,27 @@ public class Circuit {
         {
             int idx = 1;
             for (VoltageSource source : analyseResult.get(VoltageSource.class))
-                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
+                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
         }
         {
             int idx = 1;
             for (CurrentSource source : analyseResult.get(CurrentSource.class))
-                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
+                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
         }
         {
             int idx = 1;
             for (Resistor source : analyseResult.get(Resistor.class))
-                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
+                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
         }
         {
             int idx = 1;
             for (Capacitor source : analyseResult.get(Capacitor.class))
-                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
+                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
         }
         {
             int idx = 1;
             for (Inductor source : analyseResult.get(Inductor.class))
-                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getQuantity());
+                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
         }
         {
             int idx = 1;
@@ -428,7 +428,7 @@ public class Circuit {
                         source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1),
                         source.getPinC() == null ? 0 : "N" + (source.getPinC().address + 1),
                         source.getPinD() == null ? 0 : "N" + (source.getPinD().address + 1),
-                        source.getQuantity());
+                        source.getProperties());
         }
         stream.println(".tran 0 1 0 0.005 startup\n.backanno\n.end");
     }

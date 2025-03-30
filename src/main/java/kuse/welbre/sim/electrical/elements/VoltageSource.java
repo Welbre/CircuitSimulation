@@ -50,13 +50,13 @@ public class VoltageSource extends Element implements RHSElement {
     }
 
     @Override
-    public double getQuantity() {
-        return getVoltageDifference();
+    public double[] getProperties() {
+        return new double[]{getVoltageDifference()};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "V";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"V"};
     }
 
     @Override

@@ -41,13 +41,13 @@ public class VCVS extends Element4Pin implements RHSElement {
     }
 
     @Override
-    public double getQuantity() {
-        return micro;
+    public double[] getProperties() {
+        return new double[]{micro};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "";
+    public String[] getPropertiesSymbols() {
+        return new String[]{""};
     }
 
     @Override
@@ -85,7 +85,7 @@ public class VCVS extends Element4Pin implements RHSElement {
         return String.format(
                 "%s(%s)[%s,%s,%s,%s]: %.2fv, %.2fA, %.2fW Control: %.2fV",
                 this.getClass().getSimpleName(),
-                Tools.proprietyToSi(getQuantity(), getQuantitySymbol(), 4),
+                Tools.proprietyToSi(getProperties(), getPropertiesSymbols(), 4),
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getPinC() == null ? "gnd" : getPinC().address+1,

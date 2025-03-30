@@ -70,4 +70,14 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     public double getMinTickRate() {
         return 1.0 / (frequency * 4 * CYCLE_RESOLUTION);
     }
+
+    @Override
+    public double[] getProperties() {
+        return new double[]{super.getVoltageDifference(), frequency};
+    }
+
+    @Override
+    public String[] getPropertiesSymbols() {
+        return new String[]{"V","Hz"};
+    }
 }

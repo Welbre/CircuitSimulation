@@ -32,13 +32,13 @@ public class Inductor extends Element implements Dynamic {
     }
 
     @Override
-    public double getQuantity() {
-        return inductance;
+    public double[] getProperties() {
+        return new double[]{inductance};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "H";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"H"};
     }
 
     public double getInductance() {

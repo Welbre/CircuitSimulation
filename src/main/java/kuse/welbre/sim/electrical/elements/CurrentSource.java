@@ -33,12 +33,12 @@ public class CurrentSource extends Element {
     }
 
     @Override
-    public double getQuantity() {
-        return current;
+    public double[] getProperties() {
+        return new double[]{current};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "A";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"A"};
     }
 }

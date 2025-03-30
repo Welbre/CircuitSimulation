@@ -519,19 +519,6 @@ public final class Circuits {
 
             return builder.close();
         }
-
-        public static Circuit getSwitchCurrentLimiter(){
-            CircuitBuilder builder = new CircuitBuilder();
-            Pin p0 = builder.pin();
-            Pin p1 = builder.pin();
-            Pin p2 = builder.pin();
-            new VoltageSource(p0, null, 800);
-            new Switch(p0,p1).watch(builder.c, s -> ((Switch) s).setOpen(s.getCurrent() >= 120));
-            new Inductor(p1,p2,0.02);
-            new Capacitor(p2,null, 0.5);
-
-            return builder.close();
-        }
     }
 
     public static class Relays {
@@ -552,6 +539,19 @@ public final class Circuits {
 
             new SquareVoltageSource(p3, p4, 6, 4, 0.5).setV_off(6);
             new Resistor(p4, null, 100);
+
+            return builder.close();
+        }
+
+        public static Circuit getRelayCurrentLimiter(){
+            CircuitBuilder builder = new CircuitBuilder();
+            Pin p0 = builder.pin();
+            Pin p1 = builder.pin();
+            Pin p2 = builder.pin();
+            new VoltageSource(p0, null, 800);
+            new Switch(p0,p1).watch(builder.c, s -> ((Switch) s).setOpen(s.getCurrent() >= 120));
+            new Inductor(p1,p2,0.02);
+            new Capacitor(p2,null, 0.5);
 
             return builder.close();
         }

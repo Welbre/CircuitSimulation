@@ -49,7 +49,7 @@ public abstract class Element4Pin extends Element {
         return String.format(
                 "%s(%s)[%s,%s,%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
-                Tools.proprietyToSi(getQuantity(), getQuantitySymbol(), 4),
+                Tools.proprietyToSi(getProperties(), getPropertiesSymbols(), 4),
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getPinC() == null ? "gnd" : getPinC().address+1,

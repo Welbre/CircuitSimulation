@@ -36,13 +36,13 @@ public class Capacitor extends Element implements Dynamic {
     }
 
     @Override
-    public double getQuantity() {
-        return capacitance;
+    public double[] getProperties() {
+        return new double[]{capacitance};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "F";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"F"};
     }
 
     @Override

@@ -193,6 +193,15 @@ public class Tools {
         return proprietyToSi(value, unity, 2);
     }
 
+    public static String proprietyToSi(double[] value, final String[] unity, int precision){
+        var b = new StringBuilder();
+        for (int i = 0; i < value.length; i++) {
+            b.append(proprietyToSi(value[i], unity[i], precision)).append(',');
+        }
+        b.deleteCharAt(b.length()-1);
+        return b.toString();
+    }
+
     public static String proprietyToSi(double value, final String unity, int precision){
         var abs = Math.abs(value);
         String prefix = ""; double mult = 1;

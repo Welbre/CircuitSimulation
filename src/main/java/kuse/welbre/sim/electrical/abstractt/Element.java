@@ -5,7 +5,6 @@ import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.security.Provider;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -73,9 +72,8 @@ public abstract class Element {
      * This watcher runs only in the last stap of {@link Circuit#tick(double)} function.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Element> T watch(Circuit c, Consumer<T> consumer){
+    public <T extends Element> void watch(Circuit c, Consumer<T> consumer){
         c.addWatcher(new Watcher<>((T) this, consumer));
-        return (T) this;
     }
 
     public Pin[] getPins(){
@@ -87,9 +85,9 @@ public abstract class Element {
      * @return The value that can be edited and will be printed next to the component name in {@link Element#toString()}.<br>
      * Ex: A resistor returns the resistance, a Voltage source returns the voltage.
      */
-    public abstract double getQuantity();
+    public abstract double[] getProperties();
     ///The SI official symbol of the quantity.
-    public abstract String getQuantitySymbol();
+    public abstract String[] getPropertiesSymbols();
     /**
      * The current through the element.
      * Using the conventional current direction, so voltage in A is bigger than B, so the positive(+) current direction is from A pin to B pin.
@@ -102,7 +100,7 @@ public abstract class Element {
         return String.format(
                 "%s(%s)[%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
-                Tools.proprietyToSi(getQuantity(), getQuantitySymbol(), 2),
+                Tools.proprietyToSi(getProperties(), getPropertiesSymbols(), 2),
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getVoltageDifference(),

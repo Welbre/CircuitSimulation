@@ -81,13 +81,13 @@ public class Diode extends Element implements NonLinear {
 
     ///Returns the threshold voltage of the diode, using 1mA as reference to "on" state.
     @Override
-    public double getQuantity() {
-        return denominator * Math.log(1e-3/(saturation) + 1);
+    public double[] getProperties() {
+        return new double[]{denominator * Math.log(1e-3 / (saturation) + 1)};
     }
 
     @Override
-    public String getQuantitySymbol() {
-        return "V";
+    public String[] getPropertiesSymbols() {
+        return new String[]{"V"};
     }
 
     ///Shockley diode equation.
