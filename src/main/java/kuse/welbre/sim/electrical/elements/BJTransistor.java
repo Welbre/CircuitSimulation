@@ -13,26 +13,26 @@ import static java.lang.Math.exp;
  */
 public class BJTransistor extends Element3Pin implements NonLinear {
     public static final double DEFAULT_SATURATION = 1e-6;
-    private double beta_for = 100;
-    private double beta_rev = beta_for / 3.0;
-    //--------------------------------------Emissor-----------------------------------
-    private double current_e;
-    private double sat_e = DEFAULT_SATURATION;
-    private double n_e = 1;
-    private double temp_e = 0.025852;
-    private double den_e = n_e * temp_e;
-    //-----------------------------------Collector------------------------------------
-    private double current_c;
-    private double sat_c = DEFAULT_SATURATION;
-    private double n_c = 1;
-    private double temp_c = 0.025852;
-    private double den_c = n_c * temp_c;
+    private double beta_for = 100.0;
+    private double beta_rev = 33.0;
+    //--------------------------------------Forward-----------------------------------
+    private double current_f;
+    private double sat_f = DEFAULT_SATURATION;
+    private double n_f = 1;
+    private double temp_f = 0.025852;
+    private double den_f = n_f * temp_f;
+    //-----------------------------------Backward------------------------------------
+    private double current_r;
+    private double sat_r = DEFAULT_SATURATION;
+    private double n_r = 1;
+    private double temp_r = 0.025852;
+    private double den_r = n_r * temp_r;
 
     public BJTransistor() {
     }
 
-    public BJTransistor(Pin pinA, Pin pinB, Pin pinC) {
-        super(pinA, pinB, pinC);
+    public BJTransistor(Pin collector, Pin base, Pin emissor) {
+        super(collector, base, emissor);
     }
 
     public BJTransistor(double beta_forward) {
@@ -58,48 +58,43 @@ public class BJTransistor extends Element3Pin implements NonLinear {
     /// returns the current in the emissor pin.
     @Override
     public double getCurrent() {
-        return current_e + current_c;
+        return current_r - beta_for*current_f;
     }
 
     @Override
     public void stamp_I_V(MatrixBuilder builder) {
-        final double diode_c = Math.min(sat_c*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_c)-1),999999);
-        final double diode_e = Math.min(sat_e*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_e)-1),999999);
+        current_f = -sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA())/den_f) - 1);
+        current_r = -sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC())/den_r) - 1);
 
-        current_e = -diode_e + beta_rev*diode_c;
-        current_c = beta_for*diode_e - diode_c;
-        builder.stampCurrentSource(getPinB(), getPinA(), current_c);//from base to collector.
-        builder.stampCurrentSource(getPinB(), getPinC(), current_e);//from base to emissor.
+        builder.stampCurrentSource(getPinA(), getPinB(), current_f - beta_rev*current_r);//from base to collector.
+        builder.stampCurrentSource(getPinC(), getPinB(), current_r - beta_for*current_f);//from base to emissor.
     }
 
     @Override
-    public void stamp_dI_dV(MatrixBuilder builder) {//possivelment problema no stamp do transistor, algo parece errado.
-        final double diode_c = Math.min(sat_c*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_c))/den_c, 99999);
-        final double diode_e = Math.min(sat_e*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_e))/den_e, 99999);
-        final double gee = -(-diode_e);
-        final double gec = -(beta_rev*diode_c);
-        final double gce = -(beta_for*diode_e);
-        final double gcc = -(-diode_c);
+    public void stamp_dI_dV(MatrixBuilder builder) {
+        final double gf = -sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_f))/den_f;
+        final double gr = -sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_r))/den_r;
+
         final Pin a = getPinA();
         final Pin b = getPinB();
         final Pin c = getPinC();
         if (c != null)
-            builder.stampLHS(c.address,c.address, -gee);
+            builder.stampLHS(c.address,c.address, gr);
         if (a != null)
-            builder.stampLHS(a.address,a.address, -gcc);
+            builder.stampLHS(a.address,a.address, gf);
         if (b != null)
-            builder.stampLHS(b.address,b.address, -gee-gec-gce-gcc);
+            builder.stampLHS(b.address,b.address, gf -beta_rev*gr +gr -beta_for*gf);
         if (c != null && a != null) {
-            builder.stampLHS(c.address, a.address, -gec);
-            builder.stampLHS(a.address, c.address, -gce);
+            builder.stampLHS(c.address, a.address, -beta_for*gf);
+            builder.stampLHS(a.address, c.address, -beta_rev*gr);
         }
         if (c != null && b != null){
-            builder.stampLHS(c.address, b.address, gee+gec);
-            builder.stampLHS(b.address, c.address, gee+gce);
+            builder.stampLHS(c.address, b.address, -gr + beta_for*gf);
+            builder.stampLHS(b.address, c.address, beta_rev*gr - gr);
         }
         if (b != null && a != null) {
-            builder.stampLHS(b.address,a.address, gec+gcc);
-            builder.stampLHS(a.address,b.address, gce+gcc);
+            builder.stampLHS(b.address,a.address, -gf + beta_for*gf);
+            builder.stampLHS(a.address,b.address, -gf +beta_rev*gr);
         }
     }
 
