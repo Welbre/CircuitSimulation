@@ -62,6 +62,15 @@ public class MatrixBuilder extends StaticBuilder {
     }
 
     @Override
+    public void stampLHS(int row, int colum, double value) {
+        if (isClosed) {
+            lhs_overlap[row][colum] += value;
+            lhs_pairs.add(new int[]{row,colum});
+        } else
+            super.stampLHS(row, colum, value);
+    }
+
+    @Override
     public void stampConductance(Pin a, Pin b, double conductance) {
         if (isClosed)
         {

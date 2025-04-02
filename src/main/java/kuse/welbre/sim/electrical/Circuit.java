@@ -5,6 +5,7 @@ import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
+import kuse.welbre.tools.StaticBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.io.PrintStream;
@@ -256,7 +257,7 @@ public class Circuit {
             x = t;//the new guess is t.
             fx = ft;//how t is the new guess, update f(guess) to f(t).
         }
-        if (inter == 499)
+        if (inter == 500)
             throw new IllegalStateException("The circuit can't converge!");
 
         original.unlock();

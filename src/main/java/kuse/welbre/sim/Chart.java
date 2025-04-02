@@ -17,19 +17,30 @@ public class Chart {
 
     public static void aaaa() throws Exception {
         var builder = new CircuitBuilder();
-        var a = builder.pin();
-        new SquareVoltageSource(a,null, 6,10,0.9).setV_off(6);
-        new Resistor(a,null, 12);
+        var e = builder.pin();
+        var b = builder.pin();
+        var c = builder.pin();
+        var cm0 = builder.pin();
 
-        var c = builder.close();
+        new VoltageSource(c,null, 10);
+        new BJTransistor(e,b,c);
+        new Resistor(e,null, 10);
+        new Resistor(b,cm0,1);
+        new ACVoltageSource(cm0,e,1, 1);
 
-        c.setTickRate(0.0001);
-        String csv = createCsvFromCircuit(c, 10, new PlotConfigs(c)
-                .see(0, true, true, false, "v")
+        var circuit = builder.close();
+
+        circuit.setTickRate(0.001);
+        String csv = createCsvFromCircuit(circuit, 10, new PlotConfigs(circuit)
+                .see(0, true, true, false, "vs")
+                .see(1, true, true, false, "T")
+                .see(2, true, true, false, "charge")
+                .see(3, true, true, false, "rc")
+                .see(4, true, true, false, "vc")
         );
-        c.exportToSpiceNetlist(System.out);
+        circuit.exportToSpiceNetlist(System.out);
 
-        Main.printAllElements(c);
+        Main.printAllElements(circuit);
 
         File file = new File("./circuitplot.csv");
 
@@ -44,6 +55,7 @@ public class Chart {
     }
 
     public static void main(String[] args) throws Exception {
+        aaaa();
         var c = Circuits.Relays.getPwmWithSquareWaveSource();
 
         c.setTickRate(0.005);

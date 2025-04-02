@@ -49,7 +49,7 @@ public class StaticBuilder {
 
     public void stampLHS(int row, int colum, double value){
         if (isClosed) throw new IllegalStateException("Try stamp left hand side in a closed builder!");
-        lhs[row][colum] = value;
+        lhs[row][colum] += value;
     }
 
     public void close(){
