@@ -5,17 +5,18 @@ import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import static java.lang.Math.exp;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * A BJT, the pin A is the collector, the B is the base, and C is the emissor.<br>
  * The current is from A and B to C.
  */
 public class BJTransistor extends Element3Pin implements NonLinear {
+    public enum TYPE {NPN, PNP}
     public static final double DEFAULT_SATURATION = 1e-6;
     private double alpha_for = 0.8;
     private double alpha_rev = 0.8/20;
+    private TYPE type = TYPE.NPN;
     //--------------------------------------Forward-----------------------------------
     private double current_f;
     private double sat_f = DEFAULT_SATURATION;
@@ -36,39 +37,51 @@ public class BJTransistor extends Element3Pin implements NonLinear {
         super(collector, base, emissor);
     }
 
-    public BJTransistor(double beta_forward) {
-        setBeta(beta_forward);
+    public BJTransistor(TYPE type, double beta) {
+        this.type = type;
+        setBeta(beta);
     }
 
-    public BJTransistor(Pin pinA, Pin pinB, Pin pinC, double beta_forward) {
+    public BJTransistor(Pin pinA, Pin pinB, Pin pinC, double beta) {
         super(pinA, pinB, pinC);
-        setBeta(beta_forward);
+        setBeta(beta);
+    }
+
+    public BJTransistor(Pin pinA, Pin pinB, Pin pinC, TYPE type, double beta) {
+        super(pinA, pinB, pinC);
+        setBeta(beta);
+        this.type = type;
     }
 
 
     @Override
     public double[] getProperties() {
-        return new double[]{alpha_for, alpha_rev};
+        return new double[]{alpha_for / (1-alpha_for)};
     }
 
     @Override
     public String[] getPropertiesSymbols() {
-        return new String[]{"",""};
+        return new String[]{""};
     }
 
     /// returns the current in the emissor pin.
     @Override
     public double getCurrent() {
-        return current_r - alpha_for *current_f;
+        return -current_r + alpha_for *current_f;
+    }
+
+    @Override
+    public double getVoltageDifference() {
+        return GET_VOLTAGE_DIFF(getPinB(), getPinC());
     }
 
     @Override
     public void stamp_I_V(MatrixBuilder builder) {
-        current_r = sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA())/den_r) - 1);
-        current_f = sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC())/den_f) - 1);
+        current_r = min(sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA())/den_r) - 1), 10e6);
+        current_f = min(sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC())/den_f) - 1), 10e6);
 
-        builder.stampCurrentSource(getPinB(), getPinA(), -current_r + alpha_for *current_f);//from base to collector.
-        builder.stampCurrentSource(getPinB(), getPinC(), -current_f + alpha_rev *current_r);//from base to emissor.
+        builder.stampCurrentSource(getPinB(), getPinA(), -current_r + alpha_for*current_f);//from base to collector.
+        builder.stampCurrentSource(getPinB(), getPinC(), -current_f + alpha_rev*current_r);//from base to emissor.
     }
 
     @Override
@@ -123,6 +136,10 @@ public class BJTransistor extends Element3Pin implements NonLinear {
 
     @Override
     public String toString() {
+        double ce = GET_VOLTAGE_DIFF(getPinA(), getPinC());
+        double be = GET_VOLTAGE_DIFF(getPinB(), getPinC());
+        double ic = -current_r + alpha_for*current_f;
+        double ib = -current_f + alpha_rev*current_r +ic;
         return String.format(
                 "%s(%s)[%s,%s,%s]: BE:%.2fv, BC:%.2fv, CE:%.2fv Ic%.2fA, Ib%.2fA, Pc:%.2fW Pb:%.2fW",
                 this.getClass().getSimpleName(),
@@ -130,13 +147,9 @@ public class BJTransistor extends Element3Pin implements NonLinear {
                 getPinA() == null ? "gnd" : getPinA().address+1,
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getPinC() == null ? "gnd" : getPinC().address+1,
-                GET_VOLTAGE_DIFF(getPinB(),getPinC()),
+                be,
                 GET_VOLTAGE_DIFF(getPinB(),getPinA()),
-                GET_VOLTAGE_DIFF(getPinA(),getPinC()),
-                -current_r + alpha_for *current_f,
-                -current_f + alpha_rev *current_r,
-                (-current_r + alpha_for *current_f)*GET_VOLTAGE_DIFF(getPinA(),getPinC()),
-                (-current_f + alpha_rev *current_r)*GET_VOLTAGE_DIFF(getPinB(),getPinC())
+                ce, ic, ib, ic*ce, ib*be
         );
     }
 }

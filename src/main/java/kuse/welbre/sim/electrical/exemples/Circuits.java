@@ -553,4 +553,22 @@ public final class Circuits {
             return builder.close();
         }
     }
+
+    public static class BJT {
+        public static Circuit getNPNCircuit(){
+            CircuitBuilder builder = new CircuitBuilder();
+            var c = builder.pin();
+            var b = builder.pin();
+            var e = builder.pin();
+            var cm = builder.pin();
+
+            new VoltageSource(c, null, 50);
+            new VoltageSource(b, cm, 10);
+            new BJTransistor(c,b,e, 100);
+            new Resistor(cm, e, 100);
+            new Resistor(e, null, 5);//charge
+
+            return builder.close();
+        }
+    }
 }

@@ -43,7 +43,8 @@ class CircuitTest {
     public static void testElement(Element element, double[] expected){
         assertTrue(equals(abs(element.getVoltageDifference()), abs(expected[0])), createExpectedXReceivedMsg("Voltage", abs(expected[0]), abs(element.getVoltageDifference())));
         assertTrue(equals(abs(element.getCurrent()), abs(expected[1])), createExpectedXReceivedMsg("Current", abs(expected[1]), abs(element.getCurrent())));
-        assertTrue(equals(abs(element.getPower()), abs(expected[2])), createExpectedXReceivedMsg("Power", abs(expected[2]), abs(element.getPower())));
+        if (expected.length >= 3)
+            assertTrue(equals(abs(element.getPower()), abs(expected[2])), createExpectedXReceivedMsg("Power", abs(expected[2]), abs(element.getPower())));
     }
 
     public static void testElements(Element[] elements,double[][] answers, Consumer<Element> ifFails){
@@ -512,6 +513,64 @@ class CircuitTest {
 
             assertTrue(CircuitTest.equals(688.82, meter.getVoltage(ElementOMeter.method.average, null)));//voltage average
             assertTrue(CircuitTest.equals(4852.5061, meter.getPower(ElementOMeter.method.average, null)));//power average
+
+            Main.printAllElements(c);
+        }
+    }
+
+    @Nested
+    @Benchmark.benchmark
+    @Order(6)
+    class BJT {
+        @Test
+        @Benchmark.benchmark
+        @Order(1)
+        void testBJT_NPN_forward(){
+            double[][] answers = {{50,4.6},{5,-0.046},{0.4,4.6},{-4.6,-0.046},{23.02,4.6}};
+            var c = Circuits.BJT.getNPNCircuit();
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(5);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(2)
+        void testBJT_NPN_saturation(){
+            double[][] answers = {{50,9.58,479.21},{10,-0.095,0.96},{0.416,9.58},{-9.58,-0.095,0.92},{47.92,9.58,459.29}};
+            var c = Circuits.BJT.getNPNCircuit();
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(3)
+        void testBJT_NPN_cutoff(){
+            double[][] answers = {{50,0,0},{0,0,0},{0,0},{0,0},{0,0}};
+            var c = Circuits.BJT.getNPNCircuit();
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(0);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(4)
+        void testBJT_NPN_reverse(){
+            double[][] answers = {{-50,0.4},{-10,-0.38},{-47.68,-0.4},{-37.68,-0.38},{-1.98,-0.4}};
+            var c = Circuits.BJT.getNPNCircuit();
+            ((VoltageSource) c.getElements()[0]).setSourceVoltage(-50);
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(-10);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
 
             Main.printAllElements(c);
         }

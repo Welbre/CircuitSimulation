@@ -1,9 +1,7 @@
 package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.Circuit;
-import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.File;
@@ -16,27 +14,15 @@ import java.util.Map;
 public class Chart {
 
     public static void aaaa() throws Exception {
-        var builder = new CircuitBuilder();
-        var e = builder.pin();
-        var b = builder.pin();
-        var c = builder.pin();
-        var cm0 = builder.pin();
-
-        new VoltageSource(c,null, 10);
-        new BJTransistor(e,b,c);
-        new Resistor(e,null, 10);
-        new Resistor(b,cm0,1);
-        new ACVoltageSource(cm0,e,1, 1);
-
-        var circuit = builder.close();
+        var circuit = Circuits.BJT.getNPNCircuit();
 
         circuit.setTickRate(0.001);
         String csv = createCsvFromCircuit(circuit, 10, new PlotConfigs(circuit)
                 .see(0, true, true, false, "vs")
-                .see(1, true, true, false, "T")
-                .see(2, true, true, false, "charge")
+                .see(1, true, true, false, "vc")
+                .see(2, true, true, false, "t")
                 .see(3, true, true, false, "rc")
-                .see(4, true, true, false, "vc")
+                .see(4, true, true, false, "charge")
         );
         circuit.exportToSpiceNetlist(System.out);
 
