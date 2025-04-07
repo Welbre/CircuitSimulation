@@ -6,19 +6,20 @@ import java.util.List;
 
 public final class LU {
     public final double[][] lu;//storage the lower triangle and the up triangle in one matrix.
-    public final int[][] swaps;
+    public final int[] swaps;
 
-    private LU(double[][] lu, List<int[]> swaps) {
+    private LU(double[][] lu, int[] swaps) {
         this.lu = lu;
-        this.swaps = new int[swaps.size()][2];
-        for (int i = 0; i < swaps.size(); i++)
-            this.swaps[i] = swaps.get(i);
+        this.swaps = swaps;
     }
 
     ///Decompose lu matrix to a lu instance, the matrix lu at first param is lost in the process.
     public static LU decompose(double[][] lu){
         final int length = lu.length;
-        final List<int[]> swaps = new ArrayList<>();
+
+        final int[] swaps = new int[lu.length];//start swaps
+        for (int i = 0; i < swaps.length; i++)
+            swaps[i] = i ;
 
         for (int k = 0; k < length; k++) {//p_idx
             {//pivot
@@ -34,8 +35,7 @@ public final class LU {
                 if (b_pivot == 0)
                     throw new IllegalStateException("Matrix is singular, can be decomposed!");
                 if (biggest_row != k) { //needs swap
-                    swap(lu,k,biggest_row);
-                    swaps.add(new int[]{k,biggest_row});
+                    swap(lu,swaps, k,biggest_row);
                 }
             }
 
@@ -54,85 +54,37 @@ public final class LU {
         return new LU(lu, swaps);
     }
 
-    private static void swap(double[] a, int row0, int row1){
-        double swap = a[row0];
-        a[row0] = a[row1];
-        a[row1] = swap;
-    }
-
-    private static <T> void swap(T[] a, int row0, int row1){
+    private static <T> void swap(T[] a,int[] swaps, int row0, int row1){
         T swap = a[row0];
         a[row0] = a[row1];
         a[row1] = swap;
+        final int t = swaps[row0];
+        swaps[row0] = swaps[row1];
+        swaps[row1] = t;
     }
 
-    public double[] solve(double[] rhs){//todo implement a swap that don't modify rhs
+    public double[] solve(double[] rhs){
         int size = this.lu.length;
 
-        double[] y = new double[size];
-        double[] x = new double[size];
-
-        //apply swap to rhs
-        for (int[] swap : swaps)
-            swap(rhs,swap[0],swap[1]);
+        double[] r = new double[size];
 
         //Solve LY = rhs to find y
         for (int row = 0; row < size; row++) {
-
             double summation = 0;
             for (int colum = 0; colum < row; colum++)
-                summation += this.lu[row][colum] * y[colum];
-            y[row] = (rhs[row] - summation);
+                summation += this.lu[row][colum] * r[colum];
+            r[row] = (rhs[swaps[row]] - summation);
         }
 
-        //Solve UX=Y to find x
+        //Solve UX=Y to find r
         for (int row = size-1; row >= 0; row--) {
             double summation = 0;
             for (int colum = size-1; colum > row; colum--)
-                summation += this.lu[row][colum] * x[colum];
-            x[row] = (y[row] - summation) / this.lu[row][row];
+                summation += this.lu[row][colum] * r[colum];
+            r[row] = (r[row] - summation) / this.lu[row][row];
         }
 
-        return x;
-    }
-
-    public double[][] solve(double[][] rhs){
-        int size = this.lu.length;
-        double[][] y = new double[size][size];
-        double[][] x = new double[size][size];
-
-        for (int row = 0; row < size; row++) {
-            for (int colum = 0; colum < size; colum++) {
-                double summation = 0;
-                for (int i = 0; i < row; i++)
-                    summation += this.lu[row][i] * y[i][colum];
-                y[row][colum] = (rhs[row][colum] - summation);
-            }
-        }
-
-        for (int row = size - 1; row >= 0; row--) {
-            for (int colum = size - 1; colum >= 0; colum--) {
-                double summation = 0;
-                for (int i = size-1; i > row; i--)
-                    summation += this.lu[row][i] * x[i][colum];
-                x[row][colum] = (y[row][colum] - summation) / lu[row][row];
-            }
-        }
-
-        return x;
-    }
-
-    public double[][] inverse(){
-        return solve(identity(lu.length));
-    }
-
-    public static double[][] identity(int size){
-        double[][] id = new double[size][size];
-
-        for (int i = 0; i < size; i++)
-            id[i][i] = 1;
-
-        return id;
+        return r;
     }
 
     @Override
