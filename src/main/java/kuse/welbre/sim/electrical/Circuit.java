@@ -154,7 +154,7 @@ public class Circuit {
         //Stamp and init all elements
         for (Element e : elements)
             if (!(e instanceof NonLinear))
-                e.stamp(matrixBuilder);//todo check if and why i need to skip the stamp of the NonLinear elements.
+                e.stamp(matrixBuilder);
 
         matrixBuilder.close();
     }

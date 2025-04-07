@@ -77,26 +77,44 @@ public class BJTransistor extends Element3Pin implements NonLinear {
 
     @Override
     public void stamp_I_V(MatrixBuilder builder) {
-        current_r = min(sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA())/den_r) - 1), 10e6);
-        current_f = min(sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC())/den_f) - 1), 10e6);
+        final Pin a = getPinA(),b = getPinB(), c = getPinC();
+        if (type == TYPE.NPN) {
+            current_r = min(sat_r * (exp(GET_VOLTAGE_DIFF(b, a) / den_r) - 1), 10e6);
+            current_f = min(sat_f * (exp(GET_VOLTAGE_DIFF(b, c) / den_f) - 1), 10e6);
 
-        builder.stampCurrentSource(getPinB(), getPinA(), -current_r + alpha_for*current_f);//from base to collector.
-        builder.stampCurrentSource(getPinB(), getPinC(), -current_f + alpha_rev*current_r);//from base to emissor.
+            builder.stampCurrentSource(b, a, -current_r + alpha_for * current_f);//from base to collector.
+            builder.stampCurrentSource(b, c, -current_f + alpha_rev * current_r);//from base to emissor.
+        } else {
+            current_r = min(sat_r * (exp(GET_VOLTAGE_DIFF(a, b) / den_r) - 1), 10e6);
+            current_f = min(sat_f * (exp(GET_VOLTAGE_DIFF(c, b) / den_f) - 1), 10e6);
+
+            builder.stampCurrentSource(a, b, -current_r + alpha_for * current_f);//from collector to base.
+            builder.stampCurrentSource(c, b, -current_f + alpha_rev * current_r);//from emissor to base.
+        }
     }
 
     @Override
     public void stamp_dI_dV(MatrixBuilder builder) {
-        final double gf = sat_f*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_f))/den_f;//forward diode
-        final double gr = sat_r*(exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_r))/den_r;//reverse diode
+        final Pin a = getPinA(),b = getPinB(), c = getPinC();
+        double gee,gec,gce,gcc;
+        if (type == TYPE.NPN) {
+            final double gf = sat_f * (exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_f)) / den_f;//forward diode
+            final double gr = sat_r * (exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_r)) / den_r;//reverse diode
 
-        final double gee = -gf;
-        final double gec = alpha_rev *gr;
-        final double gce = alpha_for *gf;
-        final double gcc = -gr;
+            gee = -gf;
+            gec = alpha_rev * gr;
+            gce = alpha_for * gf;
+            gcc = -gr;
+        } else {
+            final double gf = sat_f * (exp(GET_VOLTAGE_DIFF(getPinC(), getPinB()) / den_f)) / den_f;//forward diode
+            final double gr = sat_r * (exp(GET_VOLTAGE_DIFF(getPinA(), getPinB()) / den_r)) / den_r;//reverse diode
 
-        final Pin a = getPinA();
-        final Pin b = getPinB();
-        final Pin c = getPinC();
+            gee = -gf;
+            gec = alpha_rev * gr;
+            gce = alpha_for * gf;
+            gcc = -gr;
+        }
+
         if (c != null)//emissor
             builder.stampLHS(c.address,c.address, -gee);
         if (a != null)//collector

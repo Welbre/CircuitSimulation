@@ -574,5 +574,57 @@ class CircuitTest {
 
             Main.printAllElements(c);
         }
+        @Test
+        @Benchmark.benchmark
+        @Order(5)
+        void testBJT_PNP_forward(){
+            double[][] answers = {{50,4.6},{5,-0.046},{0.4,4.6},{-4.6,-0.046},{23.02,4.6}};
+            var c = Circuits.BJT.getPNPCircuit();
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(-5);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(6)
+        void testBJT_PNP_saturation(){
+            double[][] answers = {{50,9.58,479.21},{10,-0.095,0.96},{0.416,9.58},{-9.58,-0.095,0.92},{47.92,9.58,459.29}};
+            var c = Circuits.BJT.getPNPCircuit();
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(7)
+        void testBJT_PNP_cutoff(){
+            double[][] answers = {{50,0,0},{0,0,0},{0,0},{0,0},{0,0}};
+            var c = Circuits.BJT.getPNPCircuit();
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(0);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
+        @Test
+        @Benchmark.benchmark
+        @Order(8)
+        void testBJT_PNP_reverse(){
+            double[][] answers = {{-50,0.4},{-10,-0.38},{-47.68,-0.4},{-37.68,-0.38},{-1.98,-0.4}};
+            var c = Circuits.BJT.getPNPCircuit();
+            ((VoltageSource) c.getElements()[0]).setSourceVoltage(-50);
+            ((VoltageSource) c.getElements()[1]).setSourceVoltage(10);
+            c.preCompile();
+
+            testElements(c.getElements(), answers, getIfFails(c));
+
+            Main.printAllElements(c);
+        }
     }
 }

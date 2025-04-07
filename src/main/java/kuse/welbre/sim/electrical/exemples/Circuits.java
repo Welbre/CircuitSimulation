@@ -570,5 +570,20 @@ public final class Circuits {
 
             return builder.close();
         }
+        public static Circuit getPNPCircuit(){
+            CircuitBuilder builder = new CircuitBuilder();
+            var c = builder.pin();
+            var b = builder.pin();
+            var e = builder.pin();
+            var cm = builder.pin();
+
+            new VoltageSource(e, null, 50);
+            new VoltageSource(b, cm, -10);
+            new BJTransistor(c,b,e, BJTransistor.TYPE.PNP,100);
+            new Resistor(cm, e, 100);
+            new Resistor(c, null, 5);//charge
+
+            return builder.close();
+        }
     }
 }
