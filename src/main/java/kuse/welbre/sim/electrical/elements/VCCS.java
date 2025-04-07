@@ -5,6 +5,8 @@ import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
+
 /**
  * This element is a voltage-controlled current source (VCCS).<br>
  * The pins A and B are the output pins that the current source will flow,the positive current direction is from A to B.<br>
@@ -81,5 +83,17 @@ public class VCCS extends Element4Pin {
                 getPower(),
                 Element.GET_VOLTAGE_DIFF(getPinC(), getPinD())
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(g);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.g = buffer.getDouble();
     }
 }

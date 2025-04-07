@@ -5,11 +5,12 @@ import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class Element {
+public abstract class Element implements Serializable {
     public static final class Pin {
         private static final Random rand = new Random();
         public short address;
@@ -151,5 +152,16 @@ public abstract class Element {
         e = supplier.get();
         CircuitBuilder.isFieldElement = false;
         return e;
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        buffer.putShort(pinA.address).putShort(pinB.address);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        this.pinA.address = buffer.getShort();
+        this.pinB.address = buffer.getShort();
     }
 }

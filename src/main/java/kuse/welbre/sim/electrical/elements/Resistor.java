@@ -3,6 +3,8 @@ package kuse.welbre.sim.electrical.elements;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * A linear resistor (R).<br>
  * The pins A and B are where the resistor is connected to.<br>
@@ -59,5 +61,17 @@ public class Resistor extends Element {
     @Override
     public String[] getPropertiesSymbols() {
         return new String[]{"Ω"};
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(resistance);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        setResistance(buffer.getDouble());
     }
 }

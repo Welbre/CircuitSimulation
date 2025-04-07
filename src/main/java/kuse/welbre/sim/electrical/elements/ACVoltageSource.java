@@ -4,6 +4,8 @@ import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * An alternating voltage source (ACVS).<br>
  * The pins A and B are the output pins that the voltage source will be injected,
@@ -18,6 +20,9 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     private double frequency;
     //How much angle oscillates per tick.
     private double omega_tick;
+
+
+    private double outputVoltage;
     //The angles of sin
     private double theta;
 
@@ -34,7 +39,6 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
         this.frequency = frequency;
     }
 
-    private double outputVoltage;
     @Override
     public double getVoltageDifference() {
         return outputVoltage;
@@ -79,5 +83,18 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     @Override
     public String[] getPropertiesSymbols() {
         return new String[]{"V","Hz"};
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(frequency).putDouble(theta);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        frequency = buffer.getDouble();
+        theta = buffer.getDouble();
     }
 }

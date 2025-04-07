@@ -5,6 +5,7 @@ import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
@@ -100,5 +101,17 @@ public class CCVS extends Element4Pin implements MultipleRHSElement {
                 getPower(),
                 current_pointerInput[0]
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(r);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.r = buffer.getDouble();
     }
 }

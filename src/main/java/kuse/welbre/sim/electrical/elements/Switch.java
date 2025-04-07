@@ -4,6 +4,8 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings("unused")
 public class Switch extends Element implements Operational {
     private boolean isOpen = true;
@@ -105,5 +107,19 @@ public class Switch extends Element implements Operational {
 
     public void toggle(){
         setOpen(!isOpen);
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(openResistence).putDouble(closedResistence).put(isOpen ? (byte) 0xff : 0);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.openResistence = buffer.getDouble();
+        this.closedResistence = buffer.getDouble();
+        this.isOpen = buffer.get() == (byte) 0xff;
     }
 }

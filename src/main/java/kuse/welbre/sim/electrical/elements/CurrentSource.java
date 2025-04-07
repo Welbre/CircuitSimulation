@@ -3,6 +3,8 @@ package kuse.welbre.sim.electrical.elements;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * A simple current source (CS).<br>
  * The pins A and B are the output pins that the current source will flow,the positive current direction is from A to B.<br>
@@ -40,5 +42,17 @@ public class CurrentSource extends Element {
     @Override
     public String[] getPropertiesSymbols() {
         return new String[]{"A"};
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(current);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        current = buffer.getDouble();
     }
 }

@@ -7,6 +7,8 @@ import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings("unused")
 public class Relay extends Element4Pin implements Operational, Dynamic {
     public static final double DEFAULT_OPERATIONAL_CURRENT = 1e-1;//100mA
@@ -150,5 +152,25 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     public void connectD(Pin pin) {
         super.connectD(pin);
         inductor.connectB(pin);
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(closedResistence);
+        buffer.putDouble(openResistence);
+        buffer.put(isOpen ? (byte) 255 : 0);
+        buffer.putDouble(operationalCurrent);
+        inductor.serialize(buffer);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        closedResistence = buffer.getDouble();//1mΩ default
+        openResistence = buffer.getDouble();//1MΩ default
+        isOpen = buffer.get() == (byte) 255;
+        operationalCurrent = buffer.getDouble();
+        inductor.unSerialize(buffer);
     }
 }

@@ -6,6 +6,8 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings("unused")
 public class SquareVoltageSource extends Element implements Dynamic, RHSElement {
     private int idx;
@@ -183,5 +185,27 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
 
     public void setDutyCycle(double dutyCycle) {
         this.dutyCycle = dutyCycle /2.0;
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(voltage);
+        buffer.putDouble(frequency);
+        buffer.putDouble(period);
+        buffer.putDouble(dutyCycle);
+        buffer.putDouble(phaseShift);
+        buffer.putDouble(v_off);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        voltage = buffer.getDouble();
+        frequency = buffer.getDouble();
+        period = buffer.getDouble();
+        dutyCycle = buffer.getDouble();
+        phaseShift = buffer.getDouble();
+        v_off = buffer.getDouble();
     }
 }

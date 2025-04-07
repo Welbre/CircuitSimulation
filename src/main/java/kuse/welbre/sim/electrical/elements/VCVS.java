@@ -6,12 +6,13 @@ import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
  * This element is a voltage-controlled voltage source (VCVS).<br>
  * The pins A and B are the output pins that the voltage source will be injected, we assume that A > B so, the positive voltage difference is from A To B.<br>
- * The pins C and D are the control pins, we assume that C > D so, the positive voltage difference is from C To D.<br>
+ * The pins C and D are the control pins; we assume that C > D so, the positive voltage difference is from C To D.<br>
  * A {@link VCVS#micro micro} param is the amplification constant.<br><br>
  * So the control voltage from C to D will be amplified my {@link VCVS#micro micro} and outputted as a voltage in A to B direction.
  */
@@ -95,5 +96,17 @@ public class VCVS extends Element4Pin implements RHSElement {
                 getPower(),
                 Element.GET_VOLTAGE_DIFF(getPinC(), getPinD())
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(micro);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.micro = buffer.getDouble();
     }
 }

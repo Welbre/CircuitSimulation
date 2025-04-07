@@ -2,6 +2,8 @@ package kuse.welbre.sim.electrical.abstractt;
 
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
+
 @SuppressWarnings("unused")
 public abstract class Element4Pin extends Element {
     private Pin pinC;
@@ -58,5 +60,18 @@ public abstract class Element4Pin extends Element {
                 getCurrent(),
                 getPower()
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putShort(pinC.address).putShort(pinD.address);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.pinC.address = buffer.getShort();
+        this.pinD.address = buffer.getShort();
     }
 }

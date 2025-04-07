@@ -5,6 +5,8 @@ import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * A linear inductor (L).<br>
  * The pins A and B are where the inductor is connected to.<br>
@@ -68,5 +70,19 @@ public class Inductor extends Element implements Dynamic {
     @Override
     public void posEvaluation(MatrixBuilder builder) {
         currentSource = currentSource + (compConductance * getVoltageDifference());
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(inductance);
+        buffer.putDouble(currentSource);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        inductance = buffer.getDouble();
+        currentSource = buffer.getDouble();
     }
 }

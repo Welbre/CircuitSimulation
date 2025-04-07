@@ -4,6 +4,8 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * A simple diode, the forward current direction is from A to B.<br>
  * This element is governed by <a href="https://en.wikipedia.org/wiki/Shockley_diode_equation">Shockley diode equation</a>,
@@ -124,5 +126,20 @@ public class Diode extends Element implements NonLinear {
 
     public double getN() {
         return n;
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(saturation).putDouble(n).putDouble(tempVoltage);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        saturation = buffer.getDouble();
+        n = buffer.getDouble();
+        tempVoltage = buffer.getDouble();
+        denominator = n * tempVoltage;
     }
 }

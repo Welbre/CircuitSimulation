@@ -4,6 +4,7 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
@@ -72,5 +73,17 @@ public class VoltageSource extends Element implements RHSElement {
     @Override
     public void setValuePointer(double[] pointer) {
         this.current = pointer;
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(voltage);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        this.setSourceVoltage(buffer.getDouble());
     }
 }

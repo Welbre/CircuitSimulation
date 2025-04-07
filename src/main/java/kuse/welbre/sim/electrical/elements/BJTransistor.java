@@ -5,6 +5,8 @@ import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
+
 import static java.lang.Math.*;
 
 /**
@@ -14,6 +16,7 @@ import static java.lang.Math.*;
 public class BJTransistor extends Element3Pin implements NonLinear {
     public enum TYPE {NPN, PNP}
     public static final double DEFAULT_SATURATION = 1e-6;
+
     private double alpha_for = 0.8;
     private double alpha_rev = 0.8/20;
     private TYPE type = TYPE.NPN;
@@ -169,5 +172,31 @@ public class BJTransistor extends Element3Pin implements NonLinear {
                 GET_VOLTAGE_DIFF(getPinB(),getPinA()),
                 ce, ic, ib, ic*ce, ib*be
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(alpha_for).put((byte) type.ordinal());
+        buffer.putDouble(sat_f).putDouble(n_f).putDouble(temp_f);
+        buffer.putDouble(sat_r).putDouble(n_r).putDouble(temp_r);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        alpha_for = buffer.getDouble();
+        alpha_rev = alpha_for/20;
+        type = TYPE.values()[buffer.get()];
+        //--------------------------------------Forward-----------------------------------
+        sat_f = buffer.getDouble();
+        n_f = buffer.getDouble();
+        temp_f = buffer.getDouble();
+        den_f = n_f * temp_f;
+        //-----------------------------------Backward------------------------------------
+        sat_r = buffer.getDouble();
+        n_r = buffer.getDouble();
+        temp_r = buffer.getDouble();
+        den_r = n_r * temp_r;
     }
 }

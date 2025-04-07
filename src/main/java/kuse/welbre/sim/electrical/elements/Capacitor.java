@@ -5,6 +5,8 @@ import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
+import java.nio.ByteBuffer;
+
 /**
  * A linear capacitor (C).<br>
  * The pins A and B are where the capacitor is connected to.<br>
@@ -70,5 +72,18 @@ public class Capacitor extends Element implements Dynamic {
     @Override
     public void posEvaluation(MatrixBuilder builder) {
         capacitorCurrent = +compConductance * getVoltageDifference() - currentSource;//voltage at t+1
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(capacitance).putDouble(currentSource);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        capacitance = buffer.getDouble();
+        currentSource = buffer.getDouble();
     }
 }

@@ -5,6 +5,7 @@ import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
@@ -93,5 +94,17 @@ public class CCCS extends Element4Pin implements RHSElement {
                 getPower(),
                 current[0]
         );
+    }
+
+    @Override
+    public void serialize(ByteBuffer buffer) {
+        super.serialize(buffer);
+        buffer.putDouble(this.alpha);
+    }
+
+    @Override
+    public void unSerialize(ByteBuffer buffer) {
+        super.unSerialize(buffer);
+        alpha = buffer.getDouble();
     }
 }
