@@ -4,7 +4,10 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
 
 /**
@@ -76,14 +79,14 @@ public class VoltageSource extends Element implements RHSElement {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(voltage);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(voltage);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException{
         super.unSerialize(buffer);
-        this.setSourceVoltage(buffer.getDouble());
+        this.setSourceVoltage(buffer.readDouble());
     }
 }

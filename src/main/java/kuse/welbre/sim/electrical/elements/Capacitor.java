@@ -5,7 +5,10 @@ import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A linear capacitor (C).<br>
@@ -75,15 +78,16 @@ public class Capacitor extends Element implements Dynamic {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(capacitance).putDouble(currentSource);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(capacitance);
+        stream.writeDouble(currentSource);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        capacitance = buffer.getDouble();
-        currentSource = buffer.getDouble();
+        capacitance = buffer.readDouble();
+        currentSource = buffer.readDouble();
     }
 }

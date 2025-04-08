@@ -5,7 +5,10 @@ import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static java.lang.Math.*;
 
@@ -175,28 +178,33 @@ public class BJTransistor extends Element3Pin implements NonLinear {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(alpha_for).put((byte) type.ordinal());
-        buffer.putDouble(sat_f).putDouble(n_f).putDouble(temp_f);
-        buffer.putDouble(sat_r).putDouble(n_r).putDouble(temp_r);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(alpha_for);
+        stream.writeByte(type.ordinal());
+        stream.writeDouble(sat_f);
+        stream.writeDouble(n_f);
+        stream.writeDouble(temp_f);
+        stream.writeDouble(sat_r);
+        stream.writeDouble(n_r);
+        stream.writeDouble(temp_r);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        alpha_for = buffer.getDouble();
+        alpha_for = buffer.readDouble();
         alpha_rev = alpha_for/20;
-        type = TYPE.values()[buffer.get()];
+        type = TYPE.values()[buffer.readByte()];
         //--------------------------------------Forward-----------------------------------
-        sat_f = buffer.getDouble();
-        n_f = buffer.getDouble();
-        temp_f = buffer.getDouble();
+        sat_f = buffer.readDouble();
+        n_f = buffer.readDouble();
+        temp_f = buffer.readDouble();
         den_f = n_f * temp_f;
         //-----------------------------------Backward------------------------------------
-        sat_r = buffer.getDouble();
-        n_r = buffer.getDouble();
-        temp_r = buffer.getDouble();
+        sat_r = buffer.readDouble();
+        n_r = buffer.readDouble();
+        temp_r = buffer.readDouble();
         den_r = n_r * temp_r;
     }
 }

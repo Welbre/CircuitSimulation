@@ -2,12 +2,17 @@ package kuse.welbre.sim.electrical.abstractt;
 
 import kuse.welbre.tools.Tools;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 @SuppressWarnings("unused")
 public abstract class Element3Pin extends Element {
     private Pin pinC;
 
     public Element3Pin() {
         super();
+        pinC = new Pin();
     }
 
     public Element3Pin(Pin pinA, Pin pinB, Pin pinC) {
@@ -46,5 +51,22 @@ public abstract class Element3Pin extends Element {
                 getCurrent(),
                 getPower()
         );
+    }
+
+    @Override
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeShort(pinC != null ? pinC.address + 1 : 0);
+    }
+
+    @Override
+    public void unSerialize(DataInputStream buffer) throws IOException {
+        super.unSerialize(buffer);
+        short x;
+        if ((x = (short) (buffer.readShort()-1)) != -1) {
+            this.pinC = new Pin(x);
+        } else {
+            this.pinC = null;
+        }
     }
 }

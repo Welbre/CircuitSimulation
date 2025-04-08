@@ -3,7 +3,10 @@ package kuse.welbre.sim.electrical.elements;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A simple current source (CS).<br>
@@ -45,14 +48,14 @@ public class CurrentSource extends Element {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(current);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(current);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        current = buffer.getDouble();
+        current = buffer.readDouble();
     }
 }

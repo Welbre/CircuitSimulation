@@ -4,7 +4,10 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A simple diode, the forward current direction is from A to B.<br>
@@ -129,17 +132,19 @@ public class Diode extends Element implements NonLinear {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(saturation).putDouble(n).putDouble(tempVoltage);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(saturation);
+        stream.writeDouble(n);
+        stream.writeDouble(tempVoltage);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        saturation = buffer.getDouble();
-        n = buffer.getDouble();
-        tempVoltage = buffer.getDouble();
+        saturation = buffer.readDouble();
+        n = buffer.readDouble();
+        tempVoltage = buffer.readDouble();
         denominator = n * tempVoltage;
     }
 }

@@ -33,8 +33,8 @@ public final class CircuitAnalyser {
         pins = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
-            addPin(pins, element.getPinA());
-            addPin(pins, element.getPinB());
+            for (Element.Pin pin : element.getPins())
+                addPin(pins, pin);
 
             map.putIfAbsent(element.getClass(), new ArrayList<>());
             map.get(element.getClass()).add(element);

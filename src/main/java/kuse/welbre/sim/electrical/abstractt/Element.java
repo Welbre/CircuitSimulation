@@ -5,7 +5,7 @@ import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.nio.ByteBuffer;
+import java.io.*;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -27,6 +27,16 @@ public abstract class Element implements Serializable {
         @Override
         public String toString() {
             return "Pin[" + address + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Pin pin && pin.address == this.address;
+        }
+
+        @Override
+        public int hashCode() {
+            return address;//todo this is not the ideal, create one system that is fast, light, and can be easily replaced by the current one.
         }
     }
     private Pin pinA;
@@ -155,13 +165,23 @@ public abstract class Element implements Serializable {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        buffer.putShort(pinA.address).putShort(pinB.address);
+    public void serialize(DataOutputStream stream) throws IOException {
+        stream.writeShort(pinA != null ? pinA.address + 1 : 0);
+        stream.writeShort(pinB != null ? pinB.address + 1 : 0);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
-        this.pinA.address = buffer.getShort();
-        this.pinB.address = buffer.getShort();
+    public void unSerialize(DataInputStream buffer) throws IOException {
+        short x;
+        if ((x = (short) (buffer.readShort()-1)) != -1) {
+            this.pinA = new Pin(x);
+        } else {
+            this.pinA = null;
+        }
+        if ((x = (short) (buffer.readShort()-1)) != -1) {
+            this.pinB = new Pin(x);
+        } else {
+            this.pinB = null;
+        }
     }
 }

@@ -7,7 +7,9 @@ import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 @SuppressWarnings("unused")
 public class Relay extends Element4Pin implements Operational, Dynamic {
@@ -155,22 +157,22 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(closedResistence);
-        buffer.putDouble(openResistence);
-        buffer.put(isOpen ? (byte) 255 : 0);
-        buffer.putDouble(operationalCurrent);
-        inductor.serialize(buffer);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(closedResistence);
+        stream.writeDouble(openResistence);
+        stream.writeBoolean(isOpen);
+        stream.writeDouble(operationalCurrent);
+        inductor.serialize(stream);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException  {
         super.unSerialize(buffer);
-        closedResistence = buffer.getDouble();//1mΩ default
-        openResistence = buffer.getDouble();//1MΩ default
-        isOpen = buffer.get() == (byte) 255;
-        operationalCurrent = buffer.getDouble();
+        closedResistence = buffer.readDouble();//1mΩ default
+        openResistence = buffer.readDouble();//1MΩ default
+        isOpen = buffer.readBoolean();
+        operationalCurrent = buffer.readDouble();
         inductor.unSerialize(buffer);
     }
 }

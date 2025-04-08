@@ -5,7 +5,9 @@ import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * This element is a voltage-controlled current source (VCCS).<br>
@@ -86,14 +88,14 @@ public class VCCS extends Element4Pin {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(g);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(g);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        this.g = buffer.getDouble();
+        this.g = buffer.readDouble();
     }
 }

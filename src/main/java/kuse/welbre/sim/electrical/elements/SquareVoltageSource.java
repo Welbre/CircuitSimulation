@@ -6,7 +6,10 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @SuppressWarnings("unused")
 public class SquareVoltageSource extends Element implements Dynamic, RHSElement {
@@ -188,24 +191,24 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(voltage);
-        buffer.putDouble(frequency);
-        buffer.putDouble(period);
-        buffer.putDouble(dutyCycle);
-        buffer.putDouble(phaseShift);
-        buffer.putDouble(v_off);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(voltage);
+        stream.writeDouble(frequency);
+        stream.writeDouble(period);
+        stream.writeDouble(dutyCycle);
+        stream.writeDouble(phaseShift);
+        stream.writeDouble(v_off);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException  {
         super.unSerialize(buffer);
-        voltage = buffer.getDouble();
-        frequency = buffer.getDouble();
-        period = buffer.getDouble();
-        dutyCycle = buffer.getDouble();
-        phaseShift = buffer.getDouble();
-        v_off = buffer.getDouble();
+        voltage = buffer.readDouble();
+        frequency = buffer.readDouble();
+        period = buffer.readDouble();
+        dutyCycle = buffer.readDouble();
+        phaseShift = buffer.readDouble();
+        v_off = buffer.readDouble();
     }
 }

@@ -2,39 +2,31 @@ package kuse.welbre.sim.electrical.abstractt;
 
 import kuse.welbre.tools.Tools;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 @SuppressWarnings("unused")
-public abstract class Element4Pin extends Element {
-    private Pin pinC;
+public abstract class Element4Pin extends Element3Pin {
     private Pin pinD;
 
     public Element4Pin() {
         super();
+        pinD = new Pin();
     }
 
     public Element4Pin(Pin pinA, Pin pinB, Pin pinC, Pin pinD) {
-        super(pinA, pinB);
-        this.pinC = pinC;
+        super(pinA, pinB, pinC);
         this.pinD = pinD;
     }
 
     public void connect(Pin pinA, Pin pinB, Pin pinC, Pin pinD) {
-        super.connect(pinA, pinB);
-        this.pinC = pinC;
+        super.connect(pinA, pinB, pinC);
         this.pinD = pinD;
-    }
-
-    public void connectC(Pin pin) {
-        this.pinC = pin;
     }
 
     public void connectD(Pin pin) {
         this.pinD = pin;
-    }
-
-    public Pin getPinC() {
-        return pinC;
     }
 
     public Pin getPinD() {
@@ -63,15 +55,19 @@ public abstract class Element4Pin extends Element {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putShort(pinC.address).putShort(pinD.address);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeShort(pinD != null ? pinD.address + 1 : 0);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
-        this.pinC.address = buffer.getShort();
-        this.pinD.address = buffer.getShort();
+        short x;
+        if ((x = (short) (buffer.readShort()-1)) != -1) {
+            this.pinD = new Pin(x);
+        } else {
+            this.pinD = null;
+        }
     }
 }

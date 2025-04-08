@@ -4,7 +4,10 @@ import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Dynamic;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * An alternating voltage source (ACVS).<br>
@@ -86,15 +89,16 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(frequency).putDouble(theta);
+    public void serialize(DataOutputStream stream) throws IOException {
+        super.serialize(stream);
+        stream.writeDouble(frequency);
+        stream.writeDouble(theta);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException  {
         super.unSerialize(buffer);
-        frequency = buffer.getDouble();
-        theta = buffer.getDouble();
+        frequency = buffer.readDouble();
+        theta = buffer.readDouble();
     }
 }

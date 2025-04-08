@@ -4,7 +4,10 @@ import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @SuppressWarnings("unused")
 public class Switch extends Element implements Operational {
@@ -110,16 +113,18 @@ public class Switch extends Element implements Operational {
     }
 
     @Override
-    public void serialize(ByteBuffer buffer) {
-        super.serialize(buffer);
-        buffer.putDouble(openResistence).putDouble(closedResistence).put(isOpen ? (byte) 0xff : 0);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(openResistence);
+        s.writeDouble(closedResistence);
+        s.writeBoolean(isOpen);
     }
 
     @Override
-    public void unSerialize(ByteBuffer buffer) {
+    public void unSerialize(DataInputStream buffer) throws IOException  {
         super.unSerialize(buffer);
-        this.openResistence = buffer.getDouble();
-        this.closedResistence = buffer.getDouble();
-        this.isOpen = buffer.get() == (byte) 0xff;
+        this.openResistence = buffer.readDouble();
+        this.closedResistence = buffer.readDouble();
+        this.isOpen = buffer.readBoolean();
     }
 }

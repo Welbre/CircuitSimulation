@@ -1,8 +1,10 @@
 package kuse.welbre.sim.electrical.abstractt;
 
-import java.nio.ByteBuffer;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public interface Serializable {
-    void serialize(ByteBuffer buffer);
-    void unSerialize(ByteBuffer buffer);
+    void serialize(DataOutputStream st) throws IOException;
+    void unSerialize(DataInputStream st) throws IOException;
 }

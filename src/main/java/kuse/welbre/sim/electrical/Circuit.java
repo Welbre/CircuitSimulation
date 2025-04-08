@@ -5,10 +5,9 @@ import kuse.welbre.sim.electrical.abstractt.Element.Pin;
 import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
-import kuse.welbre.tools.StaticBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 
 public class Circuit {
@@ -81,7 +80,8 @@ public class Circuit {
         //Add all elements to correspondent pins.
         for (Element element : elements)
             for (Pin pin : element.getPins())
-                elements_per_pin.get(pin == null ? gnd : pin).add(element);
+
+                elements_per_pin.get(pin == null ? gnd : pin).add(element);//is crashing because used memory address to compare the element, instead the address field.
 
         //Error check
         for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet()) {
@@ -317,7 +317,7 @@ public class Circuit {
     private void clean() {
         analyseResult = new CircuitAnalyser(this);
 
-        try {checkInconsistencies();} catch (RuntimeException e) {
+        try {checkInconsistencies();} catch (IllegalStateException e) {
             e.printStackTrace(System.err);
             throw new RuntimeException("Circuit with inconsistencies!");
         }
