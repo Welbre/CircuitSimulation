@@ -115,6 +115,8 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
 
     @Override
     public double getCurrent() {
+        if (current == null)
+            return Double.NaN;
         return current[0];
     }
 

@@ -44,7 +44,7 @@ public class VoltageSource extends Element implements RHSElement {
     @Override
     public double getCurrent() {
         if (current == null)
-            throw new IllegalStateException("Try to get a current in a voltage source that doesn't be initiated!");
+            return Double.NaN;
         return current[0];
     }
 

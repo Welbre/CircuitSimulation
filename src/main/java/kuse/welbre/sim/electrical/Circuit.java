@@ -497,13 +497,13 @@ public class Circuit implements Serializable {
             double K = 0, L = 0;
             if (k != null)
                 if (k.P_voltage == null)
-                    throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");//todo pass a NAN instead a exception.
+                    return Double.NaN;
                 else
                     K = k.P_voltage[0];
 
             if (l != null)
                 if (l.P_voltage == null)
-                    throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
+                    return Double.NaN;
                 else
                     L = l.P_voltage[0];
 
