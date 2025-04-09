@@ -146,7 +146,6 @@ class CircuitTest {
             final double[][] initialResultExpected;
             final double[][] finalResultExpected;
             private double time = 0;
-            private int tick = 0;
             private double tickRate = Circuit.DEFAULT_TIME_STEP;
             final double total_time;
             private final Supplier<Circuit> circuitProvider;
@@ -160,7 +159,7 @@ class CircuitTest {
 
             public Consumer<Element> getDynamicFails(Circuit circuit, double modifiedTick){
                 return element -> {
-                    System.out.printf("Tick(%d)\t TickRate(%s)\t %s\n", tick,Tools.proprietyToSi(modifiedTick, "Hz"), Tools.proprietyToSi(time, "s"));
+                    System.out.printf("Time(%fs)\t TickRate(%s)\t %s\n", time,Tools.proprietyToSi(modifiedTick, "Hz"), Tools.proprietyToSi(time, "s"));
                     Main.printCircuitMatrix(circuit);
                     Main.printAllElements(circuit);
                     System.out.println();
@@ -172,7 +171,6 @@ class CircuitTest {
                 final double modified_tick_rate = tickRate;
                 final Circuit circuit = circuitProvider.get();
                 time = 0;
-                tick = 0;
 
                 circuit.setTickRate(modified_tick_rate);
                 circuit.preCompile();
@@ -186,13 +184,14 @@ class CircuitTest {
                     Main.printAllElements(circuit, printStream);
                     printStream.print("\n------------------------------------------------------\n");
                 }
-
                 //simulate
                 circuit.tick(total_time);
+                time = total_time;
+
                 testElements(elements, finalResultExpected, getDynamicFails(circuit, modified_tick_rate));
-                System.out.printf("Tick(%d)\t TickRate(%s)\t %s initial result:\n", 0,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(0, "s"));
+                System.out.printf("Time(%fs)\t TickRate(%s)\t %s initial result:\n", 0.0,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(0, "s"));
                 System.out.println(stream);
-                System.out.printf("Tick(%d)\t TickRate(%s)\t %s final result:\n", tick,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(time, "s"));
+                System.out.printf("Time(%fs)\t TickRate(%s)\t %s final result:\n", time,Tools.proprietyToSi(modified_tick_rate, "Hz"), Tools.proprietyToSi(time, "s"));
                 Main.printAllElements(circuit);
             }
 

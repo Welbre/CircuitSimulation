@@ -13,7 +13,11 @@ public final class LU {
         this.swaps = swaps;
     }
 
-    ///Decompose lu matrix to a lu instance, the matrix lu at first param is lost in the process.
+
+    /**
+     * Decompose a matrix to a lu instance.
+     * @implNote The first param is modified in the process.
+     */
     public static LU decompose(double[][] lu){
         final int length = lu.length;
 

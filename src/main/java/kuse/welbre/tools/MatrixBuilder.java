@@ -125,11 +125,10 @@ public class MatrixBuilder extends StaticBuilder {
         if (rhs_pairs.isEmpty() && lhs_pairs.isEmpty()) {
             if (lu == null)
                 lu = LU.decompose(Tools.deepCopy(lhs_overlap));
-            solution = lu.solve(Tools.deepCopy(getRhs()));
+            solution = lu.solve(getRhs());
         } else {
             lu = LU.decompose(Tools.deepCopy(lhs_overlap));
-            //todo don't forget to change how the lu swaps,to don't affect the original rhs.
-            solution = lu.solve(Tools.deepCopy(getRhs()));
+            solution = lu.solve(getRhs());
             clear();
         }
 

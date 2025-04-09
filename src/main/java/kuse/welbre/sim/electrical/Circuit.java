@@ -167,9 +167,7 @@ public class Circuit {
         final double originalTickRate = getTickRate();
         this.tickRate = Circuit.TICK_TO_SOLVE_INITIAL_CONDITIONS;
         MatrixBuilder builder = new MatrixBuilder(analyseResult);
-        //todo check if this can be changed to the matrix builder of the instance.
-        //todo maybe mark the capacitor and inductors as a volatile element, therefore will be stamped
-        //todo in the overload instead of original LHS.
+        //todo maybe mark the capacitor and inductors as a volatile element, therefore will be stamped in the overload instead of original LHS (only because the inductance / tickRate ?).
 
         //initial the elements to solve initial conditions.
         for (Dynamic dynamic : dynamics)
