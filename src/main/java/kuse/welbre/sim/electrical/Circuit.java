@@ -1,13 +1,18 @@
 package kuse.welbre.sim.electrical;
 
+import com.jogamp.common.util.ReflectionUtil;
 import kuse.welbre.sim.electrical.abstractt.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class Circuit {
+public class Circuit implements Serializable {
     /// 50ms time step
     public static final double TICK_TO_SOLVE_INITIAL_CONDITIONS = 1E-10;
     public static final double DEFAULT_TIME_STEP = 0.05;
@@ -77,7 +82,6 @@ public class Circuit {
         //Add all elements to correspondent pins.
         for (Element element : elements)
             for (Pin pin : element.getPins())
-
                 elements_per_pin.get(pin == null ? gnd : pin).add(element);//is crashing because used memory address to compare the element, instead the address field.
 
         //Error check
@@ -311,7 +315,7 @@ public class Circuit {
 
     private void clean() {
         //ensure that pins with the same address are point to the same memory location.
-        for (int i = 0; i < elements.size()-1; i++) {
+        for (int i = 0; i < elements.size()-1; i++) {//todo put in a method
             Pin[] outPins = elements.get(i).getPins();
             for (Pin out : outPins) {
                 if (out == null) continue;
@@ -403,6 +407,63 @@ public class Circuit {
         return tickRate;
     }
 
+    @Override
+    public void serialize(DataOutputStream st) throws IOException {
+        st.writeDouble(tickRate);
+        var map = new HashMap<Class<? extends Element>,List<Element>>();
+
+        for (Element element : elements) {//Organize based on element class
+            map.putIfAbsent(element.getClass(), new ArrayList<>());
+            map.get(element.getClass()).add(element);
+        }
+        {//write to stream
+            var set = map.entrySet();
+            st.writeInt(set.size());
+            for (var entry : set) {
+                var ls = entry.getValue();
+                st.write(entry.getKey().getName().concat("\0").getBytes(StandardCharsets.US_ASCII));//todo use a light approach to write the class name.
+                st.writeInt(ls.size());
+                for (Element l : ls)
+                    l.serialize(st);
+            }
+        }
+    }
+
+    @Override
+    public void unSerialize(DataInputStream st) throws IOException {
+        setTickRate(st.readDouble());
+        //read all elements
+        try {
+            int elements_size = st.readInt();
+            for (int i = 0; i < elements_size; i++) {
+                StringBuilder className = new StringBuilder();
+                {//read a string using the zero char as stop point.
+                    byte next;
+                    while ((next = st.readByte()) != 0) {
+                        className.append(new String(new byte[]{next}, StandardCharsets.US_ASCII));
+                    }
+                }
+
+                Class<? extends Element> element_class;
+                {//get the element class using the class name
+                    Class<?> fromName = Class.forName(className.toString());
+                    if (Element.class.isAssignableFrom(fromName)) {
+                        element_class = (Class<? extends Element>) fromName;//is safe
+                    } else
+                        throw new RuntimeException("Class %s isn't a element class!".formatted(className));
+                }
+                int amount = st.readInt();
+                for (int j = 0; j < amount; j++) {
+                    Element element = element_class.getConstructor().newInstance();
+                    element.unSerialize(st);
+                    this.addElement(element);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static final class Pin {
         private static final Random rand = new Random();
         public short address;
@@ -439,7 +500,7 @@ public class Circuit {
             double K = 0, L = 0;
             if (k != null)
                 if (k.P_voltage == null)
-                    throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
+                    throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");//todo pass a NAN instead a exception.
                 else
                     K = k.P_voltage[0];
 

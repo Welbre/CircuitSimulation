@@ -42,21 +42,15 @@ public class SerializationTest {
     @Test
     void serializeCircuit() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Circuit circuit0 = Circuits.Capacitors.getRcCircuit();
-        circuit0.preCompile();
-        circuit0.tick();
         Circuit circuit1 = new Circuit();
 
-        for (Element element : circuit0.getElements()) {
-            ByteArrayOutputStream st = new ByteArrayOutputStream();
-            var out = new DataOutputStream(st);
-            Element newed = element.getClass().getConstructor().newInstance();
+        ByteArrayOutputStream st = new ByteArrayOutputStream();
+        var out = new DataOutputStream(st);
+        circuit0.serialize(out);
+        circuit1.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
+        st.close();
 
-            element.serialize(out);
-            newed.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
-            st.close();
-            circuit1.addElement(newed);
-        }
-
+        circuit0.preCompile();
         circuit1.preCompile();
 
         checkIfCircuitIsEqual(circuit0, circuit1);
