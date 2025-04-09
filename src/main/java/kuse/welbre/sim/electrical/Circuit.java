@@ -9,6 +9,7 @@ import kuse.welbre.tools.Tools;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -66,6 +67,27 @@ public class Circuit implements Serializable {
         this.watchers.addAll(Arrays.asList(watchers));
     }
 
+    ///ensures that pins with the same address are point to the same memory location.
+    private void mergePins(){
+        for (int i = 0; i < elements.size()-1; i++) {
+            Pin[] outPins = elements.get(i).getPins();
+            for (Pin out : outPins) {
+                if (out == null) continue;
+
+                for (int j = i + 1; j < elements.size(); j++) {
+                    Pin[] innerPin = elements.get(j).getPins();
+                    for (int j1 = 0; j1 < innerPin.length; j1++) {
+                        Pin in = innerPin[j1];
+                        if (in == null)
+                            continue;
+                        if (out.address == in.address)
+                            elements.get(j).connect(out, j1);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Try to find if some node or element can crash the matrix generation.
      */
@@ -82,7 +104,7 @@ public class Circuit implements Serializable {
         //Add all elements to correspondent pins.
         for (Element element : elements)
             for (Pin pin : element.getPins())
-                elements_per_pin.get(pin == null ? gnd : pin).add(element);//is crashing because used memory address to compare the element, instead the address field.
+                elements_per_pin.get(pin == null ? gnd : pin).add(element);
 
         //Error check
         for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet()) {
@@ -314,24 +336,7 @@ public class Circuit implements Serializable {
     }
 
     private void clean() {
-        //ensure that pins with the same address are point to the same memory location.
-        for (int i = 0; i < elements.size()-1; i++) {//todo put in a method
-            Pin[] outPins = elements.get(i).getPins();
-            for (Pin out : outPins) {
-                if (out == null) continue;
-
-                for (int j = i + 1; j < elements.size(); j++) {
-                    Pin[] innerPin = elements.get(j).getPins();
-                    for (int j1 = 0; j1 < innerPin.length; j1++) {
-                        Pin in = innerPin[j1];
-                        if (in == null)
-                            continue;
-                        if (out.address == in.address)
-                            elements.get(j).connect(out, j1);
-                    }
-                }
-            }
-        }
+        mergePins();
         analyseResult = new CircuitAnalyser(this);
 
         try {checkInconsistencies();} catch (IllegalStateException e) {
@@ -410,21 +415,26 @@ public class Circuit implements Serializable {
     @Override
     public void serialize(DataOutputStream st) throws IOException {
         st.writeDouble(tickRate);
-        var map = new HashMap<Class<? extends Element>,List<Element>>();
 
-        for (Element element : elements) {//Organize based on element class
+        var map = new LinkedHashMap<Class<? extends Element>,List<Element>>();
+        for (Element element : elements) {//sort based on element class
             map.putIfAbsent(element.getClass(), new ArrayList<>());
             map.get(element.getClass()).add(element);
         }
-        {//write to stream
+        {//write all elements
+            st.writeInt(elements.size());//put the number of elements in total.
             var set = map.entrySet();
-            st.writeInt(set.size());
+            st.writeInt(set.size());//put the amount of types.
+
             for (var entry : set) {
-                var ls = entry.getValue();
-                st.write(entry.getKey().getName().concat("\0").getBytes(StandardCharsets.US_ASCII));//todo use a light approach to write the class name.
-                st.writeInt(ls.size());
-                for (Element l : ls)
-                    l.serialize(st);
+                var list = entry.getValue();
+                st.writeShort(SerialTypeEnum.fromClass(entry.getKey()));//write the code of class
+                st.writeInt(list.size());//write the number of elements of this class
+                for (Element l : list) {
+                    //todo key eyes on it, with circuit with more that 255 elements of a type, this will be crash.
+                    st.writeByte(elements.indexOf(l));//put the idx of each element
+                    l.serialize(st);//write the element itself
+                }
             }
         }
     }
@@ -432,35 +442,32 @@ public class Circuit implements Serializable {
     @Override
     public void unSerialize(DataInputStream st) throws IOException {
         setTickRate(st.readDouble());
-        //read all elements
-        try {
-            int elements_size = st.readInt();
-            for (int i = 0; i < elements_size; i++) {
-                StringBuilder className = new StringBuilder();
-                {//read a string using the zero char as stop point.
-                    byte next;
-                    while ((next = st.readByte()) != 0) {
-                        className.append(new String(new byte[]{next}, StandardCharsets.US_ASCII));
+        {//read all elements
+            Element[] elements_array = new Element[st.readInt()];
+            try {
+                int elements_size = st.readInt();//read the amount of element types
+                for (int i = 0; i < elements_size; i++) {
+                    Class<? extends Element> element_class;
+                    {//get the element class
+                        short class_idx = st.readShort();
+                        if (class_idx == -1)
+                            throw new RuntimeException("SerialType %d is invalid!!!".formatted(class_idx));
+                        element_class = SerialTypeEnum.values()[class_idx].aClass;
+                    }
+
+                    int amount = st.readInt();//gets the amount of element of this class
+                    for (int j = 0; j < amount; j++) {
+                        Element element = element_class.getConstructor().newInstance();
+                        final byte idx = (byte) st.readUnsignedByte();//todo the same here, with circuits with 255 or more elements this may crash
+                        element.unSerialize(st);
+                        elements_array[idx] = element;
                     }
                 }
-
-                Class<? extends Element> element_class;
-                {//get the element class using the class name
-                    Class<?> fromName = Class.forName(className.toString());
-                    if (Element.class.isAssignableFrom(fromName)) {
-                        element_class = (Class<? extends Element>) fromName;//is safe
-                    } else
-                        throw new RuntimeException("Class %s isn't a element class!".formatted(className));
-                }
-                int amount = st.readInt();
-                for (int j = 0; j < amount; j++) {
-                    Element element = element_class.getConstructor().newInstance();
-                    element.unSerialize(st);
-                    this.addElement(element);
-                }
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+            {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            addElement(elements_array);
         }
     }
 
@@ -480,16 +487,6 @@ public class Circuit implements Serializable {
         @Override
         public String toString() {
             return "Pin[" + address + "]";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof Pin pin && pin.address == this.address;
-        }
-
-        @Override
-        public int hashCode() {
-            return address;//todo this is not the ideal, create one system that is fast, light, and can be easily replaced by the current one.
         }
 
         /**

@@ -132,15 +132,7 @@ public abstract class Element implements Serializable {
     @Override
     public void unSerialize(DataInputStream buffer) throws IOException {
         short x;
-        if ((x = (short) (buffer.readShort()-1)) != -1) {
-            this.pinA = new Pin(x);
-        } else {
-            this.pinA = null;
-        }
-        if ((x = (short) (buffer.readShort()-1)) != -1) {
-            this.pinB = new Pin(x);
-        } else {
-            this.pinB = null;
-        }
+        this.connectA((x = (short) (buffer.readShort()-1)) != -1 ? new Pin(x) : null);
+        this.connectB((x = (short) (buffer.readShort()-1)) != -1 ? new Pin(x) : null);
     }
 }

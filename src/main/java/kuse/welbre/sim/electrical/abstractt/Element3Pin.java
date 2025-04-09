@@ -71,10 +71,6 @@ public abstract class Element3Pin extends Element {
     public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
         short x;
-        if ((x = (short) (buffer.readShort()-1)) != -1) {
-            this.pinC = new Circuit.Pin(x);
-        } else {
-            this.pinC = null;
-        }
+        this.connectC((x = (short) (buffer.readShort()-1)) != -1 ? new Circuit.Pin(x) : null);
     }
 }

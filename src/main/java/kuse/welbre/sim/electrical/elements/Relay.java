@@ -174,5 +174,6 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
         isOpen = buffer.readBoolean();
         operationalCurrent = buffer.readDouble();
         inductor.unSerialize(buffer);
+        inductor.connect(getPinC(), getPinD());//connect again to ensure the same memory address to the inductor.
     }
 }

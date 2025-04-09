@@ -40,8 +40,8 @@ public class SerializationTest {
     }
 
     @Test
-    void serializeCircuit() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Circuit circuit0 = Circuits.Capacitors.getRcCircuit();
+    void serializeCircuit() throws IOException{
+        Circuit circuit0 = Circuits.Relays.getPwmWithSquareWaveSource();
         Circuit circuit1 = new Circuit();
 
         ByteArrayOutputStream st = new ByteArrayOutputStream();
@@ -53,7 +53,7 @@ public class SerializationTest {
         circuit0.preCompile();
         circuit1.preCompile();
 
-        checkIfCircuitIsEqual(circuit0, circuit1);
+        checkIfCircuitIsEqual(circuit0, circuit1);//esta dando problema pq a serialização não mantém a ordem dos elementos.
 
         Main.printAllElements(circuit0);
         System.out.println("-".repeat(30));
