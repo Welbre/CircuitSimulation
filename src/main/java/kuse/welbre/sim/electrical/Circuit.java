@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Circuit implements Serializable {
     /// 50ms time step
@@ -422,8 +423,10 @@ public class Circuit implements Serializable {
             map.get(element.getClass()).add(element);
         }
         {//write all elements
-            st.writeInt(elements.size());//put the number of elements in total.
+            final byte idx_deep = (byte) Math.ceil(elements.size()/255.0);
             var set = map.entrySet();
+            st.writeInt(elements.size());//put the number of elements in total.
+            st.writeByte(idx_deep);//write numbers of bytes to write the element index.
             st.writeInt(set.size());//put the amount of types.
 
             for (var entry : set) {
@@ -432,7 +435,15 @@ public class Circuit implements Serializable {
                 st.writeInt(list.size());//write the number of elements of this class
                 for (Element l : list) {
                     //todo key eyes on it, with circuit with more that 255 elements of a type, this will be crash.
-                    st.writeByte(elements.indexOf(l));//put the idx of each element
+                    if (idx_deep == 1)//put the idx of each element
+                        st.writeByte(elements.indexOf(l));
+                    else if (idx_deep == 2)
+                        st.writeShort(elements.indexOf(l));
+                    else if (idx_deep == 3 || idx_deep == 4)
+                        st.writeInt(elements.indexOf(l));
+                    else
+                        throw new RuntimeException("Circuit is to big to be serialized!");
+
                     l.serialize(st);//write the element itself
                 }
             }
@@ -444,6 +455,7 @@ public class Circuit implements Serializable {
         setTickRate(st.readDouble());
         {//read all elements
             Element[] elements_array = new Element[st.readInt()];
+            final byte idx_deep = st.readByte();
             try {
                 int elements_size = st.readInt();//read the amount of element types
                 for (int i = 0; i < elements_size; i++) {
@@ -457,10 +469,19 @@ public class Circuit implements Serializable {
 
                     int amount = st.readInt();//gets the amount of element of this class
                     for (int j = 0; j < amount; j++) {
+                        final int idx;
+                        if (idx_deep == 1)//put the idx of each element
+                            idx = st.readUnsignedByte();
+                        else if (idx_deep == 2)
+                            idx = st.readUnsignedShort();
+                        else if (idx_deep == 3 || idx_deep == 4)
+                            idx = st.readInt();
+                        else
+                            throw new RuntimeException("Circuit is to big to be serialized!");
                         Element element = element_class.getConstructor().newInstance();
-                        final byte idx = (byte) st.readUnsignedByte();//todo the same here, with circuits with 255 or more elements this may crash
-                        element.unSerialize(st);
                         elements_array[idx] = element;
+
+                        element.unSerialize(st);
                     }
                 }
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)

@@ -41,8 +41,10 @@ public class SerializationTest {
 
     @Test
     void serializeCircuit() throws IOException{
-        Circuit circuit0 = Circuits.Relays.getPwmWithSquareWaveSource();
+        Circuit circuit0 = Circuits.Capacitors.getMultiplesCapacitorsCircuit();
         Circuit circuit1 = new Circuit();
+        circuit0.preCompile();
+        circuit0.tick();
 
         ByteArrayOutputStream st = new ByteArrayOutputStream();
         var out = new DataOutputStream(st);
@@ -50,10 +52,9 @@ public class SerializationTest {
         circuit1.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
         st.close();
 
-        circuit0.preCompile();
         circuit1.preCompile();
 
-        checkIfCircuitIsEqual(circuit0, circuit1);//esta dando problema pq a serialização não mantém a ordem dos elementos.
+        checkIfCircuitIsEqual(circuit0, circuit1);
 
         Main.printAllElements(circuit0);
         System.out.println("-".repeat(30));
