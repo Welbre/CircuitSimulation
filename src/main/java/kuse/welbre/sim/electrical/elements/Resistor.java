@@ -1,12 +1,12 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A linear resistor (R).<br>
@@ -28,7 +28,7 @@ public class Resistor extends Element {
         setResistance(resistance);
     }
 
-    public Resistor(Pin nodeA, Pin nodeB, double resistance) {
+    public Resistor(Circuit.Pin nodeA, Circuit.Pin nodeB, double resistance) {
         super(nodeA, nodeB);
         setResistance(resistance);
     }

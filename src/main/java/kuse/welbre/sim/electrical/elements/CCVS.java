@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.sim.electrical.abstractt.MultipleRHSElement;
 import kuse.welbre.tools.MatrixBuilder;
@@ -39,7 +40,7 @@ public class CCVS extends Element4Pin implements MultipleRHSElement {
      * @param pinD The current control input positive(-) pin.
      * @param r The amplification value.
      */
-    public CCVS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double r) {
+    public CCVS(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD, double r) {
         super(pinA, pinB, pinC, pinD);
         this.r = r;
     }

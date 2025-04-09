@@ -1,10 +1,8 @@
 package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.Circuit;
-import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.Resistor;
 import kuse.welbre.sim.electrical.elements.VoltageSource;
-import kuse.welbre.tools.LU;
 
 public class CircuitBenchmark {
     private static final int size = 800;
@@ -18,7 +16,7 @@ public class CircuitBenchmark {
         circuit.addElement(v);
 
         v.connectB(null);
-        Element.Pin last = v.getPinA();
+        Circuit.Pin last = v.getPinA();
 
         Resistor r = null;
 

@@ -1,8 +1,7 @@
 package kuse.welbre.tools;
 
 import kuse.welbre.sim.electrical.CircuitAnalyser;
-import kuse.welbre.sim.electrical.abstractt.Element;
-import kuse.welbre.sim.electrical.abstractt.Element.Pin;
+import kuse.welbre.sim.electrical.Circuit.Pin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class MatrixBuilder extends StaticBuilder {
         stampRHS(sor_idx, voltage);
     }
 
-    public void stampCurrentSource(Element.Pin a, Element.Pin b, double current){
+    public void stampCurrentSource(Pin a, Pin b, double current){
         if (isClosed) {
             if (a != null) {
                 if (isLocked) {

@@ -2,7 +2,7 @@ package kuse.welbre.sim.electrical.exemples;
 
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.CircuitBuilder;
-import kuse.welbre.sim.electrical.abstractt.Element.Pin;
+import kuse.welbre.sim.electrical.Circuit.Pin;
 import kuse.welbre.sim.electrical.elements.*;
 
 public final class Circuits {

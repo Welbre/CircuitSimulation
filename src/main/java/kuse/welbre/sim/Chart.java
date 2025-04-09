@@ -24,7 +24,6 @@ public class Chart {
                 .see(3, true, true, false, "rc")
                 .see(4, true, true, false, "charge")
         );
-        circuit.exportToSpiceNetlist(System.out);
 
         Main.printAllElements(circuit);
 
@@ -54,7 +53,6 @@ public class Chart {
                 .see(5, true, true, false, "comSquare")
                 .see(6, true, true, false, "comR")
         );
-        c.exportToSpiceNetlist(System.out);
 
         Main.printAllElements(c);
 

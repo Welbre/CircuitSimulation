@@ -164,7 +164,6 @@ class CircuitTest {
                     Main.printCircuitMatrix(circuit);
                     Main.printAllElements(circuit);
                     System.out.println();
-                    circuit.exportToSpiceNetlist(System.out);
                     System.err.println(element);
                 };
             }

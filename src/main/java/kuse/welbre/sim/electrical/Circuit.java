@@ -1,13 +1,10 @@
 package kuse.welbre.sim.electrical;
 
 import kuse.welbre.sim.electrical.abstractt.*;
-import kuse.welbre.sim.electrical.abstractt.Element.Pin;
-import kuse.welbre.sim.electrical.elements.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
-import java.io.*;
 import java.util.*;
 
 public class Circuit {
@@ -315,6 +312,24 @@ public class Circuit {
     }
 
     private void clean() {
+        //ensure that pins with the same address are point to the same memory location.
+        for (int i = 0; i < elements.size()-1; i++) {
+            Pin[] outPins = elements.get(i).getPins();
+            for (Pin out : outPins) {
+                if (out == null) continue;
+
+                for (int j = i + 1; j < elements.size(); j++) {
+                    Pin[] innerPin = elements.get(j).getPins();
+                    for (int j1 = 0; j1 < innerPin.length; j1++) {
+                        Pin in = innerPin[j1];
+                        if (in == null)
+                            continue;
+                        if (out.address == in.address)
+                            elements.get(j).connect(out, j1);
+                    }
+                }
+            }
+        }
         analyseResult = new CircuitAnalyser(this);
 
         try {checkInconsistencies();} catch (IllegalStateException e) {
@@ -390,47 +405,53 @@ public class Circuit {
         return tickRate;
     }
 
-    public void exportToSpiceNetlist(PrintStream stream){
-        if (this.analyseResult == null)
-            throw new IllegalStateException("Matrix need's to be build before run this method.");
+    public static final class Pin {
+        private static final Random rand = new Random();
+        public short address;
+        public double[] P_voltage = null;
 
-        stream.println("Exported by Welber's Circuit sim");
-        {
-            int idx = 1;
-            for (VoltageSource source : analyseResult.get(VoltageSource.class))
-                stream.printf("V%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
+        public Pin(short node) {
+            this.address = node;
         }
-        {
-            int idx = 1;
-            for (CurrentSource source : analyseResult.get(CurrentSource.class))
-                stream.printf("I%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
+
+        public Pin() {
+            address = (short) rand.nextInt();
         }
-        {
-            int idx = 1;
-            for (Resistor source : analyseResult.get(Resistor.class))
-                stream.printf("R%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
+
+        @Override
+        public String toString() {
+            return "Pin[" + address + "]";
         }
-        {
-            int idx = 1;
-            for (Capacitor source : analyseResult.get(Capacitor.class))
-                stream.printf("C%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof Pin pin && pin.address == this.address;
         }
-        {
-            int idx = 1;
-            for (Inductor source : analyseResult.get(Inductor.class))
-                stream.printf("L%d %s %s %s\n",idx++, source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1), source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1), source.getProperties());
+
+        @Override
+        public int hashCode() {
+            return address;//todo this is not the ideal, create one system that is fast, light, and can be easily replaced by the current one.
         }
-        {
-            int idx = 1;
-            for (CCCS source : analyseResult.get(CCCS.class))
-                stream.printf("CCCS%d %s %s %s %s %s\n",
-                        idx++,
-                        source.getPinA() == null ? 0 : "N" + (source.getPinA().address + 1),
-                        source.getPinB() == null ? 0 : "N" + (source.getPinB().address + 1),
-                        source.getPinC() == null ? 0 : "N" + (source.getPinC().address + 1),
-                        source.getPinD() == null ? 0 : "N" + (source.getPinD().address + 1),
-                        source.getProperties());
+
+        /**
+         * The voltage difference.
+         * Assuming that voltage in K is bigger than L. Therefore, current flows from K to L.
+         */
+        public static double GET_VOLTAGE_DIFF(Pin k, Pin l){
+            double K = 0, L = 0;
+            if (k != null)
+                if (k.P_voltage == null)
+                    throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
+                else
+                    K = k.P_voltage[0];
+
+            if (l != null)
+                if (l.P_voltage == null)
+                    throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
+                else
+                    L = l.P_voltage[0];
+
+            return K-L;
         }
-        stream.println(".tran 0 1 0 0.005 startup\n.backanno\n.end");
     }
 }

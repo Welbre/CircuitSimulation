@@ -8,7 +8,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A linear inductor (L).<br>
@@ -31,7 +30,7 @@ public class Inductor extends Element implements Dynamic {
         this.inductance = inductance;
     }
 
-    public Inductor(Pin pinA, Pin pinB, double inductance) {
+    public Inductor(Circuit.Pin pinA, Circuit.Pin pinB, double inductance) {
         super(pinA, pinB);
         this.inductance = inductance;
     }

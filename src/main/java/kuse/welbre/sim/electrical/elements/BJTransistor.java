@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element3Pin;
 import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
@@ -8,7 +9,6 @@ import kuse.welbre.tools.Tools;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import static java.lang.Math.*;
 
@@ -39,7 +39,7 @@ public class BJTransistor extends Element3Pin implements NonLinear {
     public BJTransistor() {
     }
 
-    public BJTransistor(Pin collector, Pin base, Pin emissor) {
+    public BJTransistor(Circuit.Pin collector, Circuit.Pin base, Circuit.Pin emissor) {
         super(collector, base, emissor);
     }
 
@@ -48,12 +48,12 @@ public class BJTransistor extends Element3Pin implements NonLinear {
         setBeta(beta);
     }
 
-    public BJTransistor(Pin pinA, Pin pinB, Pin pinC, double beta) {
+    public BJTransistor(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, double beta) {
         super(pinA, pinB, pinC);
         setBeta(beta);
     }
 
-    public BJTransistor(Pin pinA, Pin pinB, Pin pinC, TYPE type, double beta) {
+    public BJTransistor(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, TYPE type, double beta) {
         super(pinA, pinB, pinC);
         setBeta(beta);
         this.type = type;
@@ -78,21 +78,21 @@ public class BJTransistor extends Element3Pin implements NonLinear {
 
     @Override
     public double getVoltageDifference() {
-        return GET_VOLTAGE_DIFF(getPinB(), getPinC());
+        return Circuit.Pin.GET_VOLTAGE_DIFF(getPinB(), getPinC());
     }
 
     @Override
     public void stamp_I_V(MatrixBuilder builder) {
-        final Pin a = getPinA(),b = getPinB(), c = getPinC();
+        final Circuit.Pin a = getPinA(),b = getPinB(), c = getPinC();
         if (type == TYPE.NPN) {
-            current_r = min(sat_r * (exp(GET_VOLTAGE_DIFF(b, a) / den_r) - 1), 10e6);
-            current_f = min(sat_f * (exp(GET_VOLTAGE_DIFF(b, c) / den_f) - 1), 10e6);
+            current_r = min(sat_r * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(b, a) / den_r) - 1), 10e6);
+            current_f = min(sat_f * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(b, c) / den_f) - 1), 10e6);
 
             builder.stampCurrentSource(b, a, -current_r + alpha_for * current_f);//from base to collector.
             builder.stampCurrentSource(b, c, -current_f + alpha_rev * current_r);//from base to emissor.
         } else {
-            current_r = min(sat_r * (exp(GET_VOLTAGE_DIFF(a, b) / den_r) - 1), 10e6);
-            current_f = min(sat_f * (exp(GET_VOLTAGE_DIFF(c, b) / den_f) - 1), 10e6);
+            current_r = min(sat_r * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(a, b) / den_r) - 1), 10e6);
+            current_f = min(sat_f * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(c, b) / den_f) - 1), 10e6);
 
             builder.stampCurrentSource(a, b, -current_r + alpha_for * current_f);//from collector to base.
             builder.stampCurrentSource(c, b, -current_f + alpha_rev * current_r);//from emissor to base.
@@ -101,19 +101,19 @@ public class BJTransistor extends Element3Pin implements NonLinear {
 
     @Override
     public void stamp_dI_dV(MatrixBuilder builder) {
-        final Pin a = getPinA(),b = getPinB(), c = getPinC();
+        final Circuit.Pin a = getPinA(),b = getPinB(), c = getPinC();
         double gee,gec,gce,gcc;
         if (type == TYPE.NPN) {
-            final double gf = sat_f * (exp(GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_f)) / den_f;//forward diode
-            final double gr = sat_r * (exp(GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_r)) / den_r;//reverse diode
+            final double gf = sat_f * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(getPinB(), getPinC()) / den_f)) / den_f;//forward diode
+            final double gr = sat_r * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(getPinB(), getPinA()) / den_r)) / den_r;//reverse diode
 
             gee = -gf;
             gec = alpha_rev * gr;
             gce = alpha_for * gf;
             gcc = -gr;
         } else {
-            final double gf = sat_f * (exp(GET_VOLTAGE_DIFF(getPinC(), getPinB()) / den_f)) / den_f;//forward diode
-            final double gr = sat_r * (exp(GET_VOLTAGE_DIFF(getPinA(), getPinB()) / den_r)) / den_r;//reverse diode
+            final double gf = sat_f * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(getPinC(), getPinB()) / den_f)) / den_f;//forward diode
+            final double gr = sat_r * (exp(Circuit.Pin.GET_VOLTAGE_DIFF(getPinA(), getPinB()) / den_r)) / den_r;//reverse diode
 
             gee = -gf;
             gec = alpha_rev * gr;
@@ -160,8 +160,8 @@ public class BJTransistor extends Element3Pin implements NonLinear {
 
     @Override
     public String toString() {
-        double ce = GET_VOLTAGE_DIFF(getPinA(), getPinC());
-        double be = GET_VOLTAGE_DIFF(getPinB(), getPinC());
+        double ce = Circuit.Pin.GET_VOLTAGE_DIFF(getPinA(), getPinC());
+        double be = Circuit.Pin.GET_VOLTAGE_DIFF(getPinB(), getPinC());
         double ic = -current_r + alpha_for*current_f;
         double ib = -current_f + alpha_rev*current_r +ic;
         return String.format(
@@ -172,7 +172,7 @@ public class BJTransistor extends Element3Pin implements NonLinear {
                 getPinB() == null ? "gnd" : getPinB().address+1,
                 getPinC() == null ? "gnd" : getPinC().address+1,
                 be,
-                GET_VOLTAGE_DIFF(getPinB(),getPinA()),
+                Circuit.Pin.GET_VOLTAGE_DIFF(getPinB(),getPinA()),
                 ce, ic, ib, ic*ce, ib*be
         );
     }

@@ -1,6 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
@@ -34,7 +34,7 @@ public class VCCS extends Element4Pin {
      * @param pinD The voltage control input positive(-) pin.
      * @param g The amplification value.
      */
-    public VCCS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double g) {
+    public VCCS(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD, double g) {
         super(pinA, pinB, pinC, pinD);
         this.g = g;
     }
@@ -51,7 +51,7 @@ public class VCCS extends Element4Pin {
 
     @Override
     public double getCurrent() {
-        return Element.GET_VOLTAGE_DIFF(getPinC(), getPinD()) * g;
+        return Circuit.Pin.GET_VOLTAGE_DIFF(getPinC(), getPinD()) * g;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class VCCS extends Element4Pin {
                 getVoltageDifference(),
                 getCurrent(),
                 getPower(),
-                Element.GET_VOLTAGE_DIFF(getPinC(), getPinD())
+                Circuit.Pin.GET_VOLTAGE_DIFF(getPinC(), getPinD())
         );
     }
 

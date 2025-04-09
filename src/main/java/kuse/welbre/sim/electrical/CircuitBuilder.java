@@ -24,8 +24,8 @@ public class CircuitBuilder {
         watchers.add(new Watcher<>(e,cos));
     }
 
-    public Element.Pin pin(){
-        return new Element.Pin();
+    public Circuit.Pin pin(){
+        return new Circuit.Pin();
     }
 
     public Circuit close(){

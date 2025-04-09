@@ -1,12 +1,12 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.tools.MatrixBuilder;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A simple current source (CS).<br>
@@ -23,7 +23,7 @@ public class CurrentSource extends Element {
         this.current = current;
     }
 
-    public CurrentSource(Pin nodeA, Pin nodeB, double current) {
+    public CurrentSource(Circuit.Pin nodeA, Circuit.Pin nodeB, double current) {
         super(nodeA, nodeB);
         this.current = current;
     }

@@ -41,12 +41,12 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
         this.isOpen = isOpen;
     }
 
-    public Relay(Pin pinA, Pin pinB, Pin pinC, Pin pinD) {
+    public Relay(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD) {
         super(pinA, pinB, pinC, pinD);
         inductor.connect(pinC, pinD);
     }
 
-    public Relay(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double closedResistence, boolean isOpen) {
+    public Relay(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD, double closedResistence, boolean isOpen) {
         super(pinA, pinB, pinC, pinD);
         this.closedResistence = closedResistence;
         this.isOpen = isOpen;
@@ -145,13 +145,13 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     }
 
     @Override
-    public void connectC(Pin pin) {
+    public void connectC(Circuit.Pin pin) {
         super.connectC(pin);
         inductor.connectA(pin);
     }
 
     @Override
-    public void connectD(Pin pin) {
+    public void connectD(Circuit.Pin pin) {
         super.connectD(pin);
         inductor.connectB(pin);
     }

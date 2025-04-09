@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.NonLinear;
 import kuse.welbre.tools.MatrixBuilder;
@@ -7,7 +8,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A simple diode, the forward current direction is from A to B.<br>
@@ -36,12 +36,12 @@ public class Diode extends Element implements NonLinear {
         setSaturation(saturation);
     }
 
-    public Diode(Pin pinA, Pin pinB, double saturation) {
+    public Diode(Circuit.Pin pinA, Circuit.Pin pinB, double saturation) {
         super(pinA, pinB);
         setSaturation(saturation);
     }
 
-    public Diode(Pin pinA, Pin pinB) {
+    public Diode(Circuit.Pin pinA, Circuit.Pin pinB) {
         super(pinA, pinB);
     }
 
@@ -61,7 +61,7 @@ public class Diode extends Element implements NonLinear {
         this(forwardVoltage / (0.025852 * Math.log((openCurrent / saturation) + 1)), saturation);
     }
 
-    public Diode(Pin pinA, Pin pinB, double n, double saturation) {
+    public Diode(Circuit.Pin pinA, Circuit.Pin pinB, double n, double saturation) {
         super(pinA, pinB);
         this.n = n;
         this.saturation = saturation;

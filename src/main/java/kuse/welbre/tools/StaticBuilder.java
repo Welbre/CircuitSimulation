@@ -1,7 +1,7 @@
 package kuse.welbre.tools;
 
 import kuse.welbre.sim.electrical.CircuitAnalyser;
-import kuse.welbre.sim.electrical.abstractt.Element.Pin;
+import kuse.welbre.sim.electrical.Circuit.Pin;
 
 public class StaticBuilder {
     protected final double[][] lhs;

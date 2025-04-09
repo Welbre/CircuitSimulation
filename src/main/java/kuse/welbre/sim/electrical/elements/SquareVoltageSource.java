@@ -9,7 +9,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @SuppressWarnings("unused")
 public class SquareVoltageSource extends Element implements Dynamic, RHSElement {
@@ -37,7 +36,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.time = period * phaseShift / (2 * Math.PI);//shift the time instead of shift the voltage calculation.;
     }
 
-    public SquareVoltageSource(Pin pinA, Pin pinB, double voltage, double frequency, double dutyCycle, double phaseShift) {
+    public SquareVoltageSource(Circuit.Pin pinA, Circuit.Pin pinB, double voltage, double frequency, double dutyCycle, double phaseShift) {
         super(pinA, pinB);
         this.voltage = voltage;
         this.frequency = frequency;
@@ -52,7 +51,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.dutyCycle = dutyCycle / frequency;
     }
 
-    public SquareVoltageSource(Pin pinA, Pin pinB, double voltage, double frequency, double dutyCycle) {
+    public SquareVoltageSource(Circuit.Pin pinA, Circuit.Pin pinB, double voltage, double frequency, double dutyCycle) {
         super(pinA, pinB);
         this.voltage = voltage;
         this.frequency = frequency;
@@ -64,7 +63,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.frequency = frequency;
     }
 
-    public SquareVoltageSource(Pin pinA, Pin pinB, double voltage, double frequency) {
+    public SquareVoltageSource(Circuit.Pin pinA, Circuit.Pin pinB, double voltage, double frequency) {
         super(pinA, pinB);
         this.voltage = voltage;
         this.frequency = frequency;
@@ -73,7 +72,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     public SquareVoltageSource() {
     }
 
-    public SquareVoltageSource(Pin pinA, Pin pinB) {
+    public SquareVoltageSource(Circuit.Pin pinA, Circuit.Pin pinB) {
         super(pinA, pinB);
     }
 
@@ -81,7 +80,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.voltage = voltage;
     }
 
-    public SquareVoltageSource(Pin pinA, Pin pinB, double voltage) {
+    public SquareVoltageSource(Circuit.Pin pinA, Circuit.Pin pinB, double voltage) {
         super(pinA, pinB);
         this.voltage = voltage;
     }

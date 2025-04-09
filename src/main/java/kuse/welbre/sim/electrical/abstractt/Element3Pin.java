@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.abstractt;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.tools.Tools;
 
 import java.io.DataInputStream;
@@ -8,34 +9,41 @@ import java.io.IOException;
 
 @SuppressWarnings("unused")
 public abstract class Element3Pin extends Element {
-    private Pin pinC;
+    private Circuit.Pin pinC;
 
     public Element3Pin() {
         super();
-        pinC = new Pin();
+        pinC = new Circuit.Pin();
     }
 
-    public Element3Pin(Pin pinA, Pin pinB, Pin pinC) {
+    public Element3Pin(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC) {
         super(pinA, pinB);
         this.pinC = pinC;
     }
 
-    public void connect(Pin pinA, Pin pinB, Pin pinC) {
+    public void connect(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC) {
         super.connect(pinA, pinB);
         this.pinC = pinC;
     }
 
-    public void connectC(Pin pin) {
+    public void connectC(Circuit.Pin pin) {
         this.pinC = pin;
     }
 
-    public Pin getPinC() {
+    public Circuit.Pin getPinC() {
         return pinC;
     }
 
     @Override
-    public Pin[] getPins() {
-        return new Pin[]{getPinA(), getPinB(), getPinC()};
+    public Circuit.Pin[] getPins() {
+        return new Circuit.Pin[]{getPinA(), getPinB(), getPinC()};
+    }
+
+    @Override
+    public void connect(Circuit.Pin pin, int idx) {
+        super.connect(pin, idx);
+        if (idx == 2)
+            pinC = pin;
     }
 
     @Override
@@ -64,7 +72,7 @@ public abstract class Element3Pin extends Element {
         super.unSerialize(buffer);
         short x;
         if ((x = (short) (buffer.readShort()-1)) != -1) {
-            this.pinC = new Pin(x);
+            this.pinC = new Circuit.Pin(x);
         } else {
             this.pinC = null;
         }

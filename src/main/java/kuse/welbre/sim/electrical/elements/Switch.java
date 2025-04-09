@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.Operational;
 import kuse.welbre.tools.MatrixBuilder;
@@ -7,7 +8,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @SuppressWarnings("unused")
 public class Switch extends Element implements Operational {
@@ -36,13 +36,13 @@ public class Switch extends Element implements Operational {
         this.isOpen = isOpen;
     }
 
-    public Switch(Pin pinA, Pin pinB) {
+    public Switch(Circuit.Pin pinA, Circuit.Pin pinB) {
         super(pinA, pinB);
         closedResistence = 1e-3;
         openResistence = 1e6;
     }
 
-    public Switch(Pin pinA, Pin pinB, double closedResistence, boolean isOpen) {
+    public Switch(Circuit.Pin pinA, Circuit.Pin pinB, double closedResistence, boolean isOpen) {
         super(pinA, pinB);
         this.closedResistence = closedResistence;
         this.openResistence = 1e6;

@@ -7,7 +7,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * An alternating voltage source (ACVS).<br>
@@ -37,7 +36,7 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
         this.frequency = frequency;
     }
 
-    public ACVoltageSource(Pin nodeA, Pin nodeB, double voltage, double frequency) {
+    public ACVoltageSource(Circuit.Pin nodeA, Circuit.Pin nodeB, double voltage, double frequency) {
         super(nodeA, nodeB, voltage);
         this.frequency = frequency;
     }

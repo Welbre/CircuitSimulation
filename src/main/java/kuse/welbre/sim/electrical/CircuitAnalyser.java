@@ -12,7 +12,7 @@ public final class CircuitAnalyser {
     public final boolean isOperational;
     public final int nodes;
     public final int matrixSize;
-    public final List<Element.Pin> pins;
+    public final List<Circuit.Pin> pins;
     HashMap<Class<? extends Element>,List<Element>> map = new HashMap<>();
 
     public <T extends Element> List<T> get(Class<T> tClass){
@@ -33,7 +33,7 @@ public final class CircuitAnalyser {
         pins = new ArrayList<>();
 
         for (Element element : circuit.getElements()) {
-            for (Element.Pin pin : element.getPins())
+            for (Circuit.Pin pin : element.getPins())
                 addPin(pins, pin);
 
             map.putIfAbsent(element.getClass(), new ArrayList<>());
@@ -61,7 +61,7 @@ public final class CircuitAnalyser {
         this.isOperational = isOperational;
     }
     //add only if non-contains and isn't null.
-    private void addPin(List<Element.Pin> pins, Element.Pin pin){
+    private void addPin(List<Circuit.Pin> pins, Circuit.Pin pin){
         if (pin == null)
             return;
         if (!pins.contains(pin))

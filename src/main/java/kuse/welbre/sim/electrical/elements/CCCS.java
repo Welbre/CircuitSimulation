@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
@@ -37,7 +38,7 @@ public class CCCS extends Element4Pin implements RHSElement {
      * @param pinD The current control input positive(-) pin.
      * @param alpha The amplification value.
      */
-    public CCCS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double alpha) {
+    public CCCS(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD, double alpha) {
         super(pinA, pinB, pinC, pinD);
         this.alpha = alpha;
     }

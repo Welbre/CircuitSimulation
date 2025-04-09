@@ -8,7 +8,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A linear capacitor (C).<br>
@@ -31,7 +30,7 @@ public class Capacitor extends Element implements Dynamic {
         this.capacitance = capacitance;
     }
 
-    public Capacitor(Pin pinA, Pin pinB, double capacitance) {
+    public Capacitor(Circuit.Pin pinA, Circuit.Pin pinB, double capacitance) {
         super(pinA, pinB);
         this.capacitance = capacitance;
     }

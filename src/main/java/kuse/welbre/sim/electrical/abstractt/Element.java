@@ -1,44 +1,16 @@
 package kuse.welbre.sim.electrical.abstractt;
 
 import kuse.welbre.sim.electrical.Circuit;
+import kuse.welbre.sim.electrical.Circuit.Pin;
 import kuse.welbre.sim.electrical.CircuitBuilder;
 import kuse.welbre.tools.MatrixBuilder;
 import kuse.welbre.tools.Tools;
 
 import java.io.*;
-import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class Element implements Serializable {
-    public static final class Pin {
-        private static final Random rand = new Random();
-        public short address;
-        public double[] P_voltage = null;
-
-        public Pin(short node) {
-            this.address = node;
-        }
-
-        public Pin() {
-            address = (short) rand.nextInt();
-        }
-
-        @Override
-        public String toString() {
-            return "Pin[" + address + "]";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof Pin pin && pin.address == this.address;
-        }
-
-        @Override
-        public int hashCode() {
-            return address;//todo this is not the ideal, create one system that is fast, light, and can be easily replaced by the current one.
-        }
-    }
     private Pin pinA;
     private Pin pinB;
 
@@ -75,6 +47,14 @@ public abstract class Element implements Serializable {
     public void connect(Pin pinA, Pin pinB) {
         this.pinA = pinA;
         this.pinB = pinB;
+    }
+
+    public void connect(Pin pin, int idx){
+        if (idx == 0)
+            pinA = pin;
+        else if (idx == 1) {
+            pinB = pin;
+        }
     }
 
     /**
@@ -125,32 +105,11 @@ public abstract class Element implements Serializable {
      * Assuming that voltage in A is bigger than B. Therefore, current flows from A to B.
      */
     public double getVoltageDifference(){
-        return GET_VOLTAGE_DIFF(getPinA(), getPinB());
+        return Pin.GET_VOLTAGE_DIFF(getPinA(), getPinB());
     }
 
     public double getPower() {
         return getVoltageDifference() * getCurrent();
-    }
-
-    /**
-     * The voltage difference.
-     * Assuming that voltage in K is bigger than L. Therefore, current flows from K to L.
-     */
-    protected static double GET_VOLTAGE_DIFF(Pin k, Pin l){
-        double K = 0, L = 0;
-        if (k != null)
-            if (k.P_voltage == null)
-                throw new IllegalStateException("Try get a voltage in a non initialized pin(A)!");
-            else
-                K = k.P_voltage[0];
-
-        if (l != null)
-            if (l.P_voltage == null)
-                throw new IllegalStateException("Try get a voltage in a non initialized pin(B)!");
-            else
-                L = l.P_voltage[0];
-
-        return K-L;
     }
 
     /**

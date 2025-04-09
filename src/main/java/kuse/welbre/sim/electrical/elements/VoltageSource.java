@@ -1,5 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
@@ -7,7 +8,6 @@ import kuse.welbre.tools.MatrixBuilder;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Random;
 
 /**
@@ -27,7 +27,7 @@ public class VoltageSource extends Element implements RHSElement {
         this.voltage = voltage;
     }
 
-    public VoltageSource(Pin nodeA, Pin nodeB, double voltage) {
+    public VoltageSource(Circuit.Pin nodeA, Circuit.Pin nodeB, double voltage) {
         super(nodeA, nodeB);
         this.voltage = voltage;
     }

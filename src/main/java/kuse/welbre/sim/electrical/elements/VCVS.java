@@ -1,6 +1,6 @@
 package kuse.welbre.sim.electrical.elements;
 
-import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element4Pin;
 import kuse.welbre.sim.electrical.abstractt.RHSElement;
 import kuse.welbre.tools.MatrixBuilder;
@@ -38,7 +38,7 @@ public class VCVS extends Element4Pin implements RHSElement {
      * @param pinD The voltage control input positive(-) pin.
      * @param micro The amplification value.
      */
-    public VCVS(Pin pinA, Pin pinB, Pin pinC, Pin pinD, double micro) {
+    public VCVS(Circuit.Pin pinA, Circuit.Pin pinB, Circuit.Pin pinC, Circuit.Pin pinD, double micro) {
         super(pinA, pinB, pinC, pinD);
         this.micro = micro;
     }
@@ -96,7 +96,7 @@ public class VCVS extends Element4Pin implements RHSElement {
                 getVoltageDifference(),
                 getCurrent(),
                 getPower(),
-                Element.GET_VOLTAGE_DIFF(getPinC(), getPinD())
+                Circuit.Pin.GET_VOLTAGE_DIFF(getPinC(), getPinD())
         );
     }
 
