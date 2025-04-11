@@ -6,7 +6,6 @@ import kuse.welbre.sim.electrical.exemples.Circuits;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
 public class SerializationTest {
@@ -41,20 +40,25 @@ public class SerializationTest {
 
     @Test
     void serializeCircuit() throws IOException{
-        Circuit circuit0 = Circuits.Capacitors.getMultiplesCapacitorsCircuit();
-        Circuit circuit1 = new Circuit();
+        Circuit circuit0 = Circuits.Capacitors.getRcCircuit();
+        Circuit circuit1 = null;
+
         circuit0.preCompile();
-        circuit0.tick();
+        for (int i = 0; i < 50; i++) {
+            circuit0.tick();
+            circuit1 = new Circuit();
 
-        ByteArrayOutputStream st = new ByteArrayOutputStream();
-        var out = new DataOutputStream(st);
-        circuit0.serialize(out);
-        circuit1.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
-        st.close();
+            ByteArrayOutputStream st = new ByteArrayOutputStream();
+            var out = new DataOutputStream(st);
 
-        circuit1.preCompile();
+            circuit0.serialize(out);
+            circuit1.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
+            st.close();
 
-        checkIfCircuitIsEqual(circuit0, circuit1);
+            circuit1.preCompile();
+            checkIfCircuitIsEqual(circuit0, circuit1);
+            System.out.println("Last i %d".formatted(i));
+        }
 
         Main.printAllElements(circuit0);
         System.out.println("-".repeat(30));

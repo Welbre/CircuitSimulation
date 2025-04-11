@@ -23,6 +23,9 @@ public class Capacitor extends Element implements Dynamic {
     public double compConductance;
     private double currentSource;
 
+    private double capacitorCurrent = 0;
+    private double vDif = 0;
+
     public Capacitor() {
     }
 
@@ -54,7 +57,11 @@ public class Capacitor extends Element implements Dynamic {
         builder.stampConductance(this.getPinA(), this.getPinB(), compConductance);
     }
 
-    private double capacitorCurrent = 0;
+    @Override
+    public double getVoltageDifference() {
+        return vDif;
+    }
+
     @Override
     public double getCurrent() {
         return capacitorCurrent;
@@ -67,27 +74,29 @@ public class Capacitor extends Element implements Dynamic {
 
     @Override
     public void preEvaluation(MatrixBuilder builder) {
-        currentSource = compConductance * getVoltageDifference();//voltage at t
+        currentSource = compConductance * vDif;//voltage at t
         builder.stampCurrentSource(getPinA(), getPinB(), currentSource);
     }
 
     @Override
     public void posEvaluation(MatrixBuilder builder) {
-        capacitorCurrent = +compConductance * getVoltageDifference() - currentSource;//voltage at t+1
+        vDif = super.getVoltageDifference();
+        capacitorCurrent = compConductance * vDif - currentSource;//voltage at t+1
     }
 
     @Override
     public void serialize(DataOutputStream stream) throws IOException {
         super.serialize(stream);
         stream.writeDouble(capacitance);
-        stream.writeDouble(currentSource);//todo this is useless, write the voltage at this point, instead the currentSource.
+        stream.writeDouble(getVoltageDifference());//todo this is useless, write the voltage at this point, instead the currentSource.
     }
 
     @Override
     public void unSerialize(DataInputStream buffer) throws IOException {
         super.unSerialize(buffer);
         capacitance = buffer.readDouble();
-        currentSource = buffer.readDouble();
+        vDif = buffer.readDouble();
+
         //todo nesse ponto, quando o elemento é desSerializado ele perde o valor de currentSource pq o circuito irar executar uma simulação com um tickRate minimo, para calcular o ponto de operação Dc
         //todo para consertar isso, preciso fazer uma simulação dc, ao invés de usar um timestep pequeno, assim vou conseguir por um valor inicial de tensão para os capacitores e indutores e outros elementos dinâmicos
     }

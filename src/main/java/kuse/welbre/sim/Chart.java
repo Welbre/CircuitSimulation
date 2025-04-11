@@ -2,6 +2,7 @@ package kuse.welbre.sim;
 
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
+import kuse.welbre.sim.electrical.elements.Capacitor;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.File;
@@ -14,15 +15,13 @@ import java.util.Map;
 public class Chart {
 
     public static void aaaa() throws Exception {
-        var circuit = Circuits.BJT.getNPNCircuit();
+        var circuit = Circuits.Capacitors.getRcCircuit();
 
         circuit.setTickRate(0.001);
         String csv = createCsvFromCircuit(circuit, 10, new PlotConfigs(circuit)
-                .see(0, true, true, false, "vs")
-                .see(1, true, true, false, "vc")
-                .see(2, true, true, false, "t")
-                .see(3, true, true, false, "rc")
-                .see(4, true, true, false, "charge")
+                .see(0, true, true, false, "v")
+                .see(1, true, true, false, "r")
+                .see(2, true, true, false, "c")
         );
 
         Main.printAllElements(circuit);
