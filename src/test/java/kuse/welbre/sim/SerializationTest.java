@@ -4,24 +4,30 @@ import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SerializationTest {
     public static Consumer<Element> getIfFails(Circuit expected, Circuit value){
         return broken -> {
-            System.out.println("-".repeat(48));
-            System.out.println("-".repeat(20) + "Expected" + "-".repeat(20));
-            System.out.println("-".repeat(48));
-            Main.printAllElements(expected);
-            System.out.println("-".repeat(43));
-            System.out.println("-".repeat(20) + "got" + "-".repeat(20));
-            System.out.println("-".repeat(43));
-            Main.printAllElements(value);
-            System.out.println("-".repeat(44));
-            System.out.println("-".repeat(20) + "fail" + "-".repeat(20));
-            System.out.println("-".repeat(44));
+            System.err.println("-".repeat(48));
+            System.err.println("-".repeat(20) + "Expected" + "-".repeat(20));
+            System.err.println("-".repeat(48));
+            Main.printAllElements(expected,System.err);
+            System.err.println("-".repeat(43));
+            System.err.println("-".repeat(20) + "got" + "-".repeat(20));
+            System.err.println("-".repeat(43));
+            Main.printAllElements(value,System.err);
+            System.err.println("-".repeat(44));
+            System.err.println("-".repeat(20) + "fail" + "-".repeat(20));
+            System.err.println("-".repeat(44));
             System.err.println(broken.toString());
         };
     }
@@ -38,13 +44,57 @@ public class SerializationTest {
         CircuitTest.testElements(value_elements, data_expected,getIfFails(expected,value));
     }
 
+    private static List<Method> getAllCircuits(){
+        List<Method> list = new ArrayList<>();
+        for (Class<?> aClass : Circuits.class.getDeclaredClasses()) {
+            for (Method method : aClass.getMethods()) {
+                if (method.getReturnType() == Circuit.class)
+                    list.add(method);
+            }
+        }
+        return list.stream().sorted(Comparator.comparing(Method::getName)).toList();
+    }
+
+    @Test
+    void testAllCircuits() throws Exception{
+        List<Method> circuits = getAllCircuits();
+
+        for (Method constructor : circuits) {
+            System.out.println("-".repeat(20) + "%s::%s".formatted(constructor.getDeclaringClass().getSimpleName(), constructor.getName()) + "-".repeat(20));
+            Circuit circuit = (Circuit) constructor.invoke(null);
+            Circuit copy;
+
+            circuit.preCompile();
+            for (int i = 0; i < 5000; i++) {
+                copy = new Circuit();
+
+                ByteArrayOutputStream st = new ByteArrayOutputStream();
+                var out = new DataOutputStream(st);
+
+                circuit.serialize(out);
+
+                var in = new DataInputStream(new ByteArrayInputStream(st.toByteArray()));
+                copy.unSerialize(in);
+
+                out.close();
+                in.close();
+
+                checkIfCircuitIsEqual(circuit, copy);
+                circuit.tick();
+            }
+
+            Main.printAllElements(circuit);
+            System.out.println("-".repeat(50));
+        }
+    }
+
     @Test
     void serializeCircuit() throws IOException{
-        Circuit circuit0 = Circuits.Capacitors.getRcCircuit();
+        Circuit circuit0 = Circuits.Inductors.getAssociationCircuit();
         Circuit circuit1 = null;
 
         circuit0.preCompile();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 500; i++) {
             circuit0.tick();
             circuit1 = new Circuit();
 
@@ -55,9 +105,7 @@ public class SerializationTest {
             circuit1.unSerialize(new DataInputStream(new ByteArrayInputStream(st.toByteArray())));
             st.close();
 
-            circuit1.preCompile();
             checkIfCircuitIsEqual(circuit0, circuit1);
-            System.out.println("Last i %d".formatted(i));
         }
 
         Main.printAllElements(circuit0);

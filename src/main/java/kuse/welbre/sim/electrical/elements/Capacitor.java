@@ -85,17 +85,21 @@ public class Capacitor extends Element implements Dynamic {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(capacitance);
-        stream.writeDouble(getVoltageDifference());//todo this is useless, write the voltage at this point, instead the currentSource.
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(capacitance);
+        s.writeDouble(currentSource);//todo this is useless, write the voltage at this point, instead the currentSource.
+        s.writeDouble(vDif);//todo this is useless, write the voltage at this point, instead the currentSource.
+        s.writeDouble(capacitorCurrent);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
-        capacitance = buffer.readDouble();
-        vDif = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
+        capacitance = s.readDouble();
+        currentSource = s.readDouble();
+        vDif = s.readDouble();
+        capacitorCurrent = s.readDouble();
 
         //todo nesse ponto, quando o elemento é desSerializado ele perde o valor de currentSource pq o circuito irar executar uma simulação com um tickRate minimo, para calcular o ponto de operação Dc
         //todo para consertar isso, preciso fazer uma simulação dc, ao invés de usar um timestep pequeno, assim vou conseguir por um valor inicial de tensão para os capacitores e indutores e outros elementos dinâmicos

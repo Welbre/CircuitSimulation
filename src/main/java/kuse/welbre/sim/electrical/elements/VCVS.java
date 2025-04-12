@@ -101,14 +101,14 @@ public class VCVS extends Element4Pin implements RHSElement {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(micro);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(micro);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
-        this.micro = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
+        this.micro = s.readDouble();
     }
 }

@@ -48,7 +48,6 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
 
     @Override
     public void initiate(Circuit circuit) {
-        outputVoltage = 0;
         omega_tick = frequency * 2.0 * Math.PI * circuit.getTickRate();
         theta = omega_tick;
     }
@@ -88,16 +87,18 @@ public class ACVoltageSource extends VoltageSource implements Dynamic {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(frequency);
-        stream.writeDouble(theta);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(frequency);
+        s.writeDouble(theta);
+        s.writeDouble(outputVoltage);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        frequency = buffer.readDouble();
-        theta = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        frequency = s.readDouble();
+        theta = s.readDouble();
+        outputVoltage = s.readDouble();
     }
 }

@@ -4,4 +4,6 @@ public interface Operational {
     boolean isDirt();
 
     void dirt();
+
+    void clear();
 }

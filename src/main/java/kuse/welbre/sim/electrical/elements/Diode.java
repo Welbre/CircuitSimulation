@@ -132,19 +132,19 @@ public class Diode extends Element implements NonLinear {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(saturation);
-        stream.writeDouble(n);
-        stream.writeDouble(tempVoltage);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(saturation);
+        s.writeDouble(n);
+        s.writeDouble(tempVoltage);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
-        saturation = buffer.readDouble();
-        n = buffer.readDouble();
-        tempVoltage = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
+        saturation = s.readDouble();
+        n = s.readDouble();
+        tempVoltage = s.readDouble();
         denominator = n * tempVoltage;
     }
 }

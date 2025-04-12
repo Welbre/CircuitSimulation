@@ -63,15 +63,15 @@ public abstract class Element4Pin extends Element3Pin {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeShort(pinD != null ? pinD.address + 1 : 0);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeShort(pinD != null ? pinD.address + 1 : 0);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
         short x;
-        this.connectD((x = (short) (buffer.readShort()-1)) != -1 ? new Circuit.Pin(x) : null);
+        this.connectD((x = (short) (s.readShort()-1)) != -1 ? new Circuit.Pin(x) : null);
     }
 }

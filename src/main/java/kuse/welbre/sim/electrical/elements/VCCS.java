@@ -88,14 +88,14 @@ public class VCCS extends Element4Pin {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(g);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(g);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
-        this.g = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
+        this.g = s.readDouble();
     }
 }

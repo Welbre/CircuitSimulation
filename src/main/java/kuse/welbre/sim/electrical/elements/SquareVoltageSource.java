@@ -13,7 +13,7 @@ import java.io.IOException;
 @SuppressWarnings("unused")
 public class SquareVoltageSource extends Element implements Dynamic, RHSElement {
     private int idx;
-    private double current[];
+    private double[] current;
 
     private double outputVoltage;
 
@@ -88,7 +88,6 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     @Override
     public void initiate(Circuit circuit) {
         period = 1.0 / frequency;
-        outputVoltage = ((time % period) < dutyCycle ? voltage : -voltage) + v_off;
         tickRate = circuit.getTickRate();
     }
 
@@ -192,24 +191,28 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(voltage);
-        stream.writeDouble(frequency);
-        stream.writeDouble(period);
-        stream.writeDouble(dutyCycle);
-        stream.writeDouble(phaseShift);
-        stream.writeDouble(v_off);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(voltage);
+        s.writeDouble(frequency);
+        s.writeDouble(period);
+        s.writeDouble(dutyCycle);
+        s.writeDouble(phaseShift);
+        s.writeDouble(v_off);
+        s.writeDouble(time);
+        s.writeDouble(outputVoltage);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        voltage = buffer.readDouble();
-        frequency = buffer.readDouble();
-        period = buffer.readDouble();
-        dutyCycle = buffer.readDouble();
-        phaseShift = buffer.readDouble();
-        v_off = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        voltage = s.readDouble();
+        frequency = s.readDouble();
+        period = s.readDouble();
+        dutyCycle = s.readDouble();
+        phaseShift = s.readDouble();
+        v_off = s.readDouble();
+        time = s.readDouble();
+        outputVoltage = s.readDouble();
     }
 }

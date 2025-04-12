@@ -9,7 +9,7 @@ public interface RHSElement {
     void setAddress(short address);
 
     ///@return the address set by {@link RHSElement#setAddress(short)}.
-    public int getAddress();
+    int getAddress();
 
     /**
      * This function set an array with 1 length in the element.<br>

@@ -178,33 +178,37 @@ public class BJTransistor extends Element3Pin implements NonLinear {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(alpha_for);
-        stream.writeByte(type.ordinal());
-        stream.writeDouble(sat_f);
-        stream.writeDouble(n_f);
-        stream.writeDouble(temp_f);
-        stream.writeDouble(sat_r);
-        stream.writeDouble(n_r);
-        stream.writeDouble(temp_r);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(alpha_for);
+        s.writeByte(type.ordinal());
+        s.writeDouble(sat_f);
+        s.writeDouble(n_f);
+        s.writeDouble(temp_f);
+        s.writeDouble(sat_r);
+        s.writeDouble(n_r);
+        s.writeDouble(temp_r);
+        s.writeDouble(current_r);
+        s.writeDouble(current_f);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
-        super.unSerialize(buffer);
-        alpha_for = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException {
+        super.unSerialize(s);
+        alpha_for = s.readDouble();
         alpha_rev = alpha_for/20;
-        type = TYPE.values()[buffer.readByte()];
+        type = TYPE.values()[s.readByte()];
         //--------------------------------------Forward-----------------------------------
-        sat_f = buffer.readDouble();
-        n_f = buffer.readDouble();
-        temp_f = buffer.readDouble();
+        sat_f = s.readDouble();
+        n_f = s.readDouble();
+        temp_f = s.readDouble();
         den_f = n_f * temp_f;
         //-----------------------------------Backward------------------------------------
-        sat_r = buffer.readDouble();
-        n_r = buffer.readDouble();
-        temp_r = buffer.readDouble();
+        sat_r = s.readDouble();
+        n_r = s.readDouble();
+        temp_r = s.readDouble();
         den_r = n_r * temp_r;
+        current_r = s.readDouble();
+        current_f = s.readDouble();
     }
 }

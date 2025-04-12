@@ -79,14 +79,14 @@ public class VoltageSource extends Element implements RHSElement {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(voltage);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(voltage);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException{
-        super.unSerialize(buffer);
-        this.setSourceVoltage(buffer.readDouble());
+    public void unSerialize(DataInputStream s) throws IOException{
+        super.unSerialize(s);
+        this.setSourceVoltage(s.readDouble());
     }
 }

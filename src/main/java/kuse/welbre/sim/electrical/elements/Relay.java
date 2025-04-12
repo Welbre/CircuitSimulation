@@ -81,7 +81,6 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     public void stamp(MatrixBuilder builder) {
         builder.stampResistence(getPinA(), getPinB(), isOpen ? openResistence : closedResistence);
         inductor.stamp(builder);
-        dirt = false;
     }
 
 
@@ -140,9 +139,10 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     }
 
     @Override
-    public void dirt() {
-        dirt = true;
-    }
+    public void dirt() {dirt = true;}
+
+    @Override
+    public void clear() {dirt = false;}
 
     @Override
     public void connectC(Circuit.Pin pin) {
@@ -157,23 +157,25 @@ public class Relay extends Element4Pin implements Operational, Dynamic {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(closedResistence);
-        stream.writeDouble(openResistence);
-        stream.writeBoolean(isOpen);
-        stream.writeDouble(operationalCurrent);
-        inductor.serialize(stream);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(closedResistence);
+        s.writeDouble(openResistence);
+        s.writeBoolean(isOpen);
+        s.writeBoolean(dirt);
+        s.writeDouble(operationalCurrent);
+        inductor.serialize(s);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        closedResistence = buffer.readDouble();//1mΩ default
-        openResistence = buffer.readDouble();//1MΩ default
-        isOpen = buffer.readBoolean();
-        operationalCurrent = buffer.readDouble();
-        inductor.unSerialize(buffer);
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        closedResistence = s.readDouble();//1mΩ default
+        openResistence = s.readDouble();//1MΩ default
+        isOpen = s.readBoolean();
+        dirt = s.readBoolean();
+        operationalCurrent = s.readDouble();
+        inductor.unSerialize(s);
         inductor.connect(getPinC(), getPinD());//connect again to ensure the same memory address to the inductor.
     }
 }

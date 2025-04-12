@@ -75,16 +75,16 @@ public class Inductor extends Element implements Dynamic {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(inductance);
-        stream.writeDouble(currentSource);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(inductance);
+        s.writeDouble(currentSource);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        inductance = buffer.readDouble();
-        currentSource = buffer.readDouble();
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        inductance = s.readDouble();
+        currentSource = s.readDouble();
     }
 }

@@ -67,14 +67,14 @@ public class Resistor extends Element {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        super.serialize(stream);
-        stream.writeDouble(resistance);
+    public void serialize(DataOutputStream s) throws IOException {
+        super.serialize(s);
+        s.writeDouble(resistance);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        setResistance(buffer.readDouble());
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        setResistance(s.readDouble());
     }
 }

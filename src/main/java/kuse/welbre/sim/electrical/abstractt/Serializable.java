@@ -38,6 +38,6 @@ public interface Serializable {
             throw new RuntimeException("%s isn't a registered class in SerialTypeEnum!".formatted(clazz.getName()));
         }
     }
-    void serialize(DataOutputStream st) throws IOException;
-    void unSerialize(DataInputStream st) throws IOException;
+    void serialize(DataOutputStream s) throws IOException;
+    void unSerialize(DataInputStream s) throws IOException;
 }

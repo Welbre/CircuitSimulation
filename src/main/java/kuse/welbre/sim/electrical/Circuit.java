@@ -130,7 +130,7 @@ public class Circuit implements Serializable {
      * Defines the minimal time step in the circuit.<br>
      * Set the pointers in the {@link Pin pin}, and set the voltageSource current pointer.
      */
-    private void prepareToBuild(CircuitAnalyser result, double[][] X){
+    private void prepareToBuild(CircuitAnalyser result){
         short next = 0;
         for (Pin pin : result.pins) {
             //Set to useful index in a matrix.
@@ -180,6 +180,9 @@ public class Circuit implements Serializable {
             if (!(e instanceof NonLinear))
                 e.stamp(matrixBuilder);
 
+        for (var op : operationals)
+            op.clear();
+
         matrixBuilder.close();
     }
 
@@ -226,6 +229,9 @@ public class Circuit implements Serializable {
         //Pos tick
         for (var sim : dynamics)
             sim.posEvaluation(builder);
+
+        for (var op : operationals)
+            op.clear();
 
         this.tickRate = originalTickRate;
         //Start simulable elements with original tick rate.
@@ -336,8 +342,7 @@ public class Circuit implements Serializable {
         isDirt = true;
     }
 
-    private void clean() {
-        mergePins();
+    public void clean() {
         analyseResult = new CircuitAnalyser(this);
 
         try {checkInconsistencies();} catch (IllegalStateException e) {
@@ -346,8 +351,9 @@ public class Circuit implements Serializable {
         }
 
         final int size = analyseResult.matrixSize;
-        X = new double[size][1];
-        prepareToBuild(analyseResult, X);
+        if (X == null)
+            X = new double[size][1];
+        prepareToBuild(analyseResult);
 
         buildMatrix();
 
@@ -367,6 +373,7 @@ public class Circuit implements Serializable {
     }
 
     public void preCompile(){
+        mergePins();
         clean();
         solveInitialConditions();
     }
@@ -414,74 +421,91 @@ public class Circuit implements Serializable {
     }
 
     @Override
-    public void serialize(DataOutputStream st) throws IOException {
-        st.writeDouble(tickRate);
+    public void serialize(DataOutputStream s) throws IOException {
+        s.writeDouble(tickRate);
 
+        if (X != null) {//write x
+            s.writeInt(X.length);
+            for (double[] x : X)
+                s.writeDouble(x[0]);
+        } else
+            s.writeInt(-1);
+
+        //sort based on element class
         var map = new LinkedHashMap<Class<? extends Element>,List<Element>>();
-        for (Element element : elements) {//sort based on element class
+        for (Element element : elements) {
             map.putIfAbsent(element.getClass(), new ArrayList<>());
             map.get(element.getClass()).add(element);
         }
         {//write all elements
             final byte idx_deep = (byte) Math.ceil(elements.size()/255.0);
             var set = map.entrySet();
-            st.writeInt(elements.size());//put the number of elements in total.
-            st.writeByte(idx_deep);//write numbers of bytes to write the element index.
-            st.writeInt(set.size());//put the amount of types.
+            s.writeInt(elements.size());//put the number of elements in total.
+            s.writeByte(idx_deep);//write numbers of bytes to write the element index.
+            s.writeInt(set.size());//put the amount of types.
 
             for (var entry : set) {
                 var list = entry.getValue();
-                st.writeShort(SerialTypeEnum.fromClass(entry.getKey()));//write the code of class
-                st.writeInt(list.size());//write the number of elements of this class
+                s.writeShort(SerialTypeEnum.fromClass(entry.getKey()));//write the code of class
+                s.writeInt(list.size());//write the number of elements of this class
                 for (Element l : list) {
-                    //todo key eyes on it, with circuit with more that 255 elements of a type, this will be crash.
                     if (idx_deep == 1)//put the idx of each element
-                        st.writeByte(elements.indexOf(l));
+                        s.writeByte(elements.indexOf(l));
                     else if (idx_deep == 2)
-                        st.writeShort(elements.indexOf(l));
+                        s.writeShort(elements.indexOf(l));
                     else if (idx_deep == 3 || idx_deep == 4)
-                        st.writeInt(elements.indexOf(l));
+                        s.writeInt(elements.indexOf(l));
                     else
                         throw new RuntimeException("Circuit is to big to be serialized!");
 
-                    l.serialize(st);//write the element itself
+                    l.serialize(s);//write the element itself
                 }
             }
         }
     }
 
     @Override
-    public void unSerialize(DataInputStream st) throws IOException {
-        setTickRate(st.readDouble());
+    public void unSerialize(DataInputStream s) throws IOException {
+        setTickRate(s.readDouble());
+
+        {//read X
+            int size = s.readInt();
+            if (size >= 0){
+                X = new double[size][1];
+                for (int i = 0; i < size; i++)
+                    X[i][0] = s.readDouble();
+            }
+        }
+
         {//read all elements
-            Element[] elements_array = new Element[st.readInt()];
-            final byte idx_deep = st.readByte();
+            Element[] elements_array = new Element[s.readInt()];
+            final byte idx_deep = s.readByte();
             try {
-                int elements_size = st.readInt();//read the amount of element types
+                int elements_size = s.readInt();//read the amount of element types
                 for (int i = 0; i < elements_size; i++) {
                     Class<? extends Element> element_class;
                     {//get the element class
-                        short class_idx = st.readShort();
+                        short class_idx = s.readShort();
                         if (class_idx == -1)
                             throw new RuntimeException("SerialType %d is invalid!!!".formatted(class_idx));
                         element_class = SerialTypeEnum.values()[class_idx].aClass;
                     }
 
-                    int amount = st.readInt();//gets the amount of element of this class
+                    int amount = s.readInt();//gets the amount of element of this class
                     for (int j = 0; j < amount; j++) {
                         final int idx;
                         if (idx_deep == 1)//put the idx of each element
-                            idx = st.readUnsignedByte();
+                            idx = s.readUnsignedByte();
                         else if (idx_deep == 2)
-                            idx = st.readUnsignedShort();
+                            idx = s.readUnsignedShort();
                         else if (idx_deep == 3 || idx_deep == 4)
-                            idx = st.readInt();
+                            idx = s.readInt();
                         else
                             throw new RuntimeException("Circuit is to big to be serialized!");
                         Element element = element_class.getConstructor().newInstance();
                         elements_array[idx] = element;
 
-                        element.unSerialize(st);
+                        element.unSerialize(s);
                     }
                 }
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
@@ -490,6 +514,39 @@ public class Circuit implements Serializable {
             }
             addElement(elements_array);
         }
+
+
+        mergePins();
+        clearUnserialize();
+    }
+
+    private void clearUnserialize(){
+        analyseResult = new CircuitAnalyser(this);
+
+        try {checkInconsistencies();} catch (IllegalStateException e) {
+            e.printStackTrace(System.err);
+            throw new RuntimeException("Circuit with inconsistencies!");
+        }
+
+        final int size = analyseResult.matrixSize;
+        if (X == null)
+            X = new double[size][1];
+        prepareToBuild(analyseResult);
+
+        matrixBuilder = new MatrixBuilder(analyseResult);
+
+        //Init simulable
+        for (Dynamic s : dynamics)
+            s.initiate(this);
+
+        //Stamp and init all elements
+        for (Element e : elements)
+            if (!(e instanceof NonLinear))
+                e.stamp(matrixBuilder);
+
+        matrixBuilder.close();
+
+        isDirt = false;
     }
 
     public static final class Pin {

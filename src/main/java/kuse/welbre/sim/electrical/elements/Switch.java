@@ -68,7 +68,6 @@ public class Switch extends Element implements Operational {
     @Override
     public void stamp(MatrixBuilder builder) {
         builder.stampResistence(getPinA(), getPinB(), isOpen ? openResistence : closedResistence);
-        dirt = false;
     }
 
     public boolean isOpen() {
@@ -104,9 +103,10 @@ public class Switch extends Element implements Operational {
     }
 
     @Override
-    public void dirt() {
-        dirt = true;
-    }
+    public void dirt() {dirt = true;}
+
+    @Override
+    public void clear() {dirt = false;}
 
     public void toggle(){
         setOpen(!isOpen);
@@ -118,13 +118,15 @@ public class Switch extends Element implements Operational {
         s.writeDouble(openResistence);
         s.writeDouble(closedResistence);
         s.writeBoolean(isOpen);
+        s.writeBoolean(dirt);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException  {
-        super.unSerialize(buffer);
-        this.openResistence = buffer.readDouble();
-        this.closedResistence = buffer.readDouble();
-        this.isOpen = buffer.readBoolean();
+    public void unSerialize(DataInputStream s) throws IOException  {
+        super.unSerialize(s);
+        this.openResistence = s.readDouble();
+        this.closedResistence = s.readDouble();
+        this.isOpen = s.readBoolean();
+        this.dirt = s.readBoolean();
     }
 }

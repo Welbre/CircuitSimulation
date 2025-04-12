@@ -124,15 +124,15 @@ public abstract class Element implements Serializable {
     }
 
     @Override
-    public void serialize(DataOutputStream stream) throws IOException {
-        stream.writeShort(pinA != null ? pinA.address + 1 : 0);
-        stream.writeShort(pinB != null ? pinB.address + 1 : 0);
+    public void serialize(DataOutputStream s) throws IOException {
+        s.writeShort(pinA != null ? pinA.address + 1 : 0);
+        s.writeShort(pinB != null ? pinB.address + 1 : 0);
     }
 
     @Override
-    public void unSerialize(DataInputStream buffer) throws IOException {
+    public void unSerialize(DataInputStream s) throws IOException {
         short x;
-        this.connectA((x = (short) (buffer.readShort()-1)) != -1 ? new Pin(x) : null);
-        this.connectB((x = (short) (buffer.readShort()-1)) != -1 ? new Pin(x) : null);
+        this.connectA((x = (short) (s.readShort()-1)) != -1 ? new Pin(x) : null);
+        this.connectB((x = (short) (s.readShort()-1)) != -1 ? new Pin(x) : null);
     }
 }
