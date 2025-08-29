@@ -4,6 +4,9 @@
     <option name="sdkName" value="Python 3.12" />
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
