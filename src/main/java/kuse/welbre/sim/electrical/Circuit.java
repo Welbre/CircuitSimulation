@@ -346,8 +346,7 @@ public class Circuit implements Serializable {
         analyseResult = new CircuitAnalyser(this);
 
         try {checkInconsistencies();} catch (IllegalStateException e) {
-            e.printStackTrace(System.err);
-            throw new RuntimeException("Circuit with inconsistencies!");
+            throw new RuntimeException("Circuit with inconsistencies!", e);
         }
 
         final int size = analyseResult.matrixSize;
