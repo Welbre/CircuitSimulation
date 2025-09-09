@@ -92,8 +92,8 @@ public abstract class Element implements Serializable {
                 "%s(%s)[%s,%s]: %.2fv, %.2fA, %.2fW",
                 this.getClass().getSimpleName(),
                 Tools.proprietyToSi(getProperties(), getPropertiesSymbols(), 2),
-                getPinA() == null ? "gnd" : getPinA().address+1,
-                getPinB() == null ? "gnd" : getPinB().address+1,
+                getPinA() == null ? "gnd" : getPinA().address,
+                getPinB() == null ? "gnd" : getPinB().address,
                 getVoltageDifference(),
                 getCurrent(),
                 getPower()
