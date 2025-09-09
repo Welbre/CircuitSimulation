@@ -1,6 +1,5 @@
 package kuse.welbre.sim.electrical;
 
-import com.jogamp.common.util.ReflectionUtil;
 import kuse.welbre.sim.electrical.abstractt.*;
 import kuse.welbre.tools.LU;
 import kuse.welbre.tools.MatrixBuilder;
@@ -10,9 +9,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Circuit implements Serializable {
     /// 50ms time step
@@ -106,6 +104,34 @@ public class Circuit implements Serializable {
         for (Element element : elements)
             for (Pin pin : element.getPins())
                 elements_per_pin.get(pin == null ? gnd : pin).add(element);
+
+        //ungrounded check
+        //the ground is extremely important to the solver, if isn't presente set the pin with more elements to be the ground.
+        if (elements_per_pin.get(gnd).isEmpty())//check if the ground is empty
+        {
+            Collection<List<Element>> values = elements_per_pin.values();
+            values = values.stream().sorted((a,b) -> Integer.compare(b.size(), a.size())).toList();
+
+            final Circuit.Pin controlPin = new Pin();
+            List<Element> biggest = values.iterator().next();
+            Circuit.Pin biggestPin = controlPin;
+
+            for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet())
+            {
+                if (entry.getValue() == biggest)
+                {
+                    biggestPin = entry.getKey();
+                    break;
+                }
+            }
+
+            if (biggestPin == controlPin)
+                throw new IllegalStateException("Biggest pin can't be founded");
+
+            //set the elements pin to the ground
+            biggestPin.address = gnd.address;
+            elements_per_pin.remove(gnd);
+        }
 
         //Error check
         for (Map.Entry<Pin, List<Element>> entry : elements_per_pin.entrySet()) {
