@@ -181,7 +181,11 @@ public class Tools {
     }
 
     public static double[][] deepCopy(double[][] original){
-        int n0 = original.length, n1 = original[0].length;
+        final int n0 = original.length;
+        if (n0 == 0) return new double[0][0];
+        final int n1 = original[0].length;
+        if (n1 == 0) return new double[n0][0];
+
         double[][] copy = new double[n0][n1];
         for (int i = 0; i < n0; i++)
             System.arraycopy(original[i], 0, copy[i], 0, n1);
