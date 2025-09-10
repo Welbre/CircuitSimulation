@@ -10,7 +10,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Circuit implements Serializable {
     /// 50ms time step
@@ -26,7 +25,7 @@ public class Circuit implements Serializable {
     private final List<Operational> operationals = new ArrayList<>();
     private final List<Watcher<?>> watchers = new ArrayList<>();
 
-    private CircuitAnalyser analyseResult;
+    protected CircuitAnalyser analyseResult;
     private MatrixBuilder matrixBuilder;
     /**
      * This array storage 'n' nodes voltage pointers and 'm' current throw a voltage source.<br>
@@ -67,7 +66,7 @@ public class Circuit implements Serializable {
     }
 
     ///ensures that pins with the same address are point to the same memory location.
-    private void mergePins(){
+    protected void mergePins(){
         for (int i = 0; i < elements.size()-1; i++) {
             Pin[] outPins = elements.get(i).getPins();
             for (Pin out : outPins) {
@@ -90,7 +89,7 @@ public class Circuit implements Serializable {
     /**
      * Try to find if some node or element can crash the matrix generation.
      */
-    private void checkInconsistencies() {
+    protected void checkInconsistencies() {
         //initiation
         Pin gnd = new Pin();
         HashMap<Pin, List<Element>> elements_per_pin = new HashMap<>();
