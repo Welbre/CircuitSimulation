@@ -208,6 +208,8 @@ public class Tools {
     }
 
     public static String proprietyToSi(double value, final String unity, int precision){
+        if (!Double.isFinite(value))//avoid infinite/nan crashs
+            return Double.toString(value);
         var abs = Math.abs(value);
         String prefix = ""; double mult = 1;
 
