@@ -42,6 +42,10 @@ public class Capacitor extends Element implements Dynamic {
         return capacitance;
     }
 
+    public void setCapacitance(double capacitance) {
+        this.capacitance = capacitance;
+    }
+
     @Override
     public double[] getProperties() {
         return new double[]{capacitance};
