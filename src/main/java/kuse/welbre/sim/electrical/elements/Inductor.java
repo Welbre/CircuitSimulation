@@ -49,6 +49,10 @@ public class Inductor extends Element implements Dynamic {
         return inductance;
     }
 
+    public void setInductance(double inductance) {
+        this.inductance = inductance;
+    }
+
     @Override
     public double getCurrent() {
         return currentSource;
