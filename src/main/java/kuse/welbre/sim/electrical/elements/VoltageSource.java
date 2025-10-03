@@ -37,6 +37,11 @@ public class VoltageSource extends Element implements RHSElement {
         return voltage;
     }
 
+    public double getSourceVoltage()
+    {
+        return voltage;
+    }
+
     public void setSourceVoltage(double voltage) {
         this.voltage = voltage;
     }

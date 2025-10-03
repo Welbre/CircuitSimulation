@@ -153,11 +153,11 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
         this.period = 1.0/frequency;
     }
 
-    public double getVoltage() {
+    public double getSourceVoltage() {
         return voltage;
     }
 
-    public void setVoltage(double voltage) {
+    public void setSourceVoltage(double voltage) {
         this.voltage = voltage;
     }
 
