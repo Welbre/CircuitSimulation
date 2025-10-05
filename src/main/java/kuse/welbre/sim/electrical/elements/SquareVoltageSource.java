@@ -149,7 +149,9 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     public void setFrequency(double frequency) {
+        final double temp = dutyCycle * frequency;
         this.frequency = frequency;
+        this.dutyCycle = temp / frequency;
         this.period = 1.0/frequency;
     }
 
@@ -187,7 +189,7 @@ public class SquareVoltageSource extends Element implements Dynamic, RHSElement 
     }
 
     public void setDutyCycle(double dutyCycle) {
-        this.dutyCycle = dutyCycle /2.0;
+        this.dutyCycle = dutyCycle / frequency;
     }
 
     @Override

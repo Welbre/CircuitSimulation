@@ -3,6 +3,8 @@ package kuse.welbre.sim;
 import kuse.welbre.sim.electrical.Circuit;
 import kuse.welbre.sim.electrical.abstractt.Element;
 import kuse.welbre.sim.electrical.elements.Capacitor;
+import kuse.welbre.sim.electrical.elements.Resistor;
+import kuse.welbre.sim.electrical.elements.SquareVoltageSource;
 import kuse.welbre.sim.electrical.exemples.Circuits;
 
 import java.io.File;
@@ -15,13 +17,17 @@ import java.util.Map;
 public class Chart {
 
     public static void aaaa() throws Exception {
-        var circuit = Circuits.Capacitors.getRcCircuit();
+        var circuit = new Circuit();
+        Circuit.Pin pin = new Circuit.Pin();
+        var vs = new SquareVoltageSource(10, 3,0.25,0);
+        vs.connect(pin, null);
+        circuit.addElement(vs);
+        circuit.addElement(new Resistor(pin, null, 1));
 
         circuit.setTickRate(0.001);
         String csv = createCsvFromCircuit(circuit, 10, new PlotConfigs(circuit)
                 .see(0, true, true, false, "v")
                 .see(1, true, true, false, "r")
-                .see(2, true, true, false, "c")
         );
 
         Main.printAllElements(circuit);
@@ -33,7 +39,7 @@ public class Chart {
         writer.close();
 
         Thread.sleep(200);
-        Process process = Runtime.getRuntime().exec(new String[]{"py", "./Charts/Main.py", "./circuitplot.csv"});
+        Process process = Runtime.getRuntime().exec(new String[]{"py", "./libs/MNA/Charts/Main.py", "./circuitplot.csv"});
         process.waitFor();
         System.exit(0);
     }
@@ -62,7 +68,7 @@ public class Chart {
         writer.close();
 
         Thread.sleep(200);
-        Process process = Runtime.getRuntime().exec(new String[]{"py", "./Charts/Main.py", "./circuitplot.csv"});
+        Process process = Runtime.getRuntime().exec(new String[]{"py", ".libs/MNA/Charts/Main.py", "./circuitplot.csv"});
         process.waitFor();
     }
 
