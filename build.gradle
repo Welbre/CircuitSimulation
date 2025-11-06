@@ -5,6 +5,14 @@ plugins {
 }
 
 publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'kuse.welbre'
+            artifactId = "electricalsim"
+
+            from components.java
+        }
+    }
     repositories {
         maven {
             name = "GitHubPackages"
