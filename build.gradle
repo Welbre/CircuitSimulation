@@ -28,6 +28,12 @@ group = 'kuse.welbre'
 version = '1.0-SNAPSHOT'
 compileJava.options.encoding = 'utf-8'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 repositories {
     mavenCentral()
 }
