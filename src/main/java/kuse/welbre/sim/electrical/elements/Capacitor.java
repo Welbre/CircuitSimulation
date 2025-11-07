@@ -14,7 +14,7 @@ import java.io.IOException;
  * The pins A and B are where the capacitor is connected to.<br>
  * We assume that the voltage in A > voltage in B so, the positive voltage difference is from A to B.<br>
  * Therefore, the positive current direction in from A to B.<br>
- * The {@link Capacitor#capacitance capacitance} is how much charge per volt the capacitor can hold.<br<br>
+ * The {@link Capacitor#capacitance capacitance} is how much charge per volt the capacitor can hold.<br>
  * <i>The backwards Euler is used to approximate the differential equations of this element.</i>
  */
 @SuppressWarnings("unused")
